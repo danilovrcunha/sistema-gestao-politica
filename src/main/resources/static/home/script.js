@@ -1,120 +1,203 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    let statusChartInstance = null;
+    let responsibleChartInstance = null;
+    let progressChartInstance = null;
 
-    // Função para criar o gráfico de pizza (doughnut) de Status das Tarefas
-    function createStatusChart() {
-        const statusCtx = document.getElementById('statusChart').getContext('2d');
-        new Chart(statusCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['A fazer', 'Em andamento', 'Concluído'],
-                datasets: [{
-                    data: [60, 60, 60],
-                    backgroundColor: [
-                        '#3498db', // A fazer
-                        '#f1c40f', // Em andamento
-                        '#2ecc71'  // Concluído
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '70%', // Tamanho do buraco no centro do gráfico
-                plugins: {
-                    legend: {
-                        display: false // Oculta a legenda do Chart.js, pois usamos uma legenda customizada no HTML
-                    },
-                    tooltip: {
-                        enabled: false // Oculta o tooltip ao passar o mouse
-                    }
-                }
-            }
-        });
+    let responsaveis = [];         // [{id, nome, qtd}, ...]
+    let selectedResponsavelId = null;
+
+    // Util: destrói gráfico antigo antes de recriar
+    function resetChart(instance) {
+        if (instance && typeof instance.destroy === 'function') {
+            instance.destroy();
+        }
     }
 
-    // Função para criar o gráfico de barras de Tarefas por Responsável
-    function createResponsibleChart() {
-        const responsibleCtx = document.getElementById('responsibleChart').getContext('2d');
-        new Chart(responsibleCtx, {
-            type: 'bar',
-            data: {
-                labels: ['João Vitor', 'Jean Lucas', 'Gabriel Allan', 'Lucca Denton', 'Júnior Santos', 'Breno Barbosa', 'Bob Marley'],
-                datasets: [{
-                    label: 'Tarefas Concluídas',
-                    data: [80, 90, 110, 115, 85, 95, 75],
-                    backgroundColor: '#2ecc71',
-                    borderRadius: 5
-                }]
-            },
-            options: {
-                indexAxis: 'y', // Define o eixo X como o de valores e o Y como o de rótulos
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        grid: {
-                            display: false
-                        }
+    // ==============================
+    // Carrega e desenha: Status (pizza)
+    // ==============================
+    function loadStatus(responsavelId = null) {
+        const url = responsavelId ? `/api/tarefas/status?responsavelId=${responsavelId}` : '/api/tarefas/status';
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const total = data.aFazer + data.emAndamento + data.concluido;
+                const perc = (valor) => total > 0 ? ((valor / total) * 100).toFixed(1) : "0.0";
+
+                const percAfazer = perc(data.aFazer);
+                const percEmAndamento = perc(data.emAndamento);
+                const percConcluido = perc(data.concluido);
+
+                // Atualiza o gráfico
+                const ctx = document.getElementById('statusChart').getContext('2d');
+                resetChart(statusChartInstance);
+                statusChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['A Fazer', 'Em Andamento', 'Concluídas'],
+                        datasets: [{
+                            data: [data.aFazer, data.emAndamento, data.concluido],
+                            backgroundColor: ['#f1c40f', '#3498db', '#2ecc71'],
+                            borderWidth: 0
+                        }]
                     },
-                    y: {
-                        grid: {
-                            display: false
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const p = perc(value);
+                                        return `${label}: ${value} (${p}%)`;
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-            }
-        });
+                });
+
+                // Atualiza a legenda em texto
+                document.getElementById('percent-afazer').textContent = percAfazer + '%';
+                document.getElementById('percent-emandamento').textContent = percEmAndamento + '%';
+                document.getElementById('percent-concluido').textContent = percConcluido + '%';
+            })
+            .catch(err => console.error("Erro ao carregar status:", err));
     }
 
-    // Função para criar o gráfico de barras misto de Progresso de Tarefas
-    function createProgressChart() {
-        const progressCtx = document.getElementById('progressChart').getContext('2d');
-        new Chart(progressCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Jan.', 'Fev.', 'Mar.', 'Abr.', 'Mai.', 'Jun.', 'Jul.', 'Ago.'],
-                datasets: [{
-                    label: 'Novas Tarefas',
-                    data: [250, 180, 50, 60, 30, 40, 50, 70],
-                    backgroundColor: '#3498db',
-                    borderRadius: 5
-                }, {
-                    label: 'Tarefas Concluídas',
-                    data: [200, 150, 400, 20, 10, 20, 30, 60],
-                    backgroundColor: '#2ecc71',
-                    borderRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                scales: {
-                    x: {
-                        stacked: true,
-                        grid: {
-                            display: false
-                        }
+
+
+    // ===================================
+    // Carrega e desenha: Responsáveis (barra)
+    // ===================================
+    function loadResponsaveis() {
+        fetch('/api/tarefas/responsaveis')
+            .then(res => res.json())
+            .then(data => {
+                responsaveis = data; // [{id, nome, qtd}]
+
+                const labels = responsaveis.map(r => r.nome);
+                const values = responsaveis.map(r => r.qtd);
+
+                const ctx = document.getElementById('responsibleChart').getContext('2d');
+                resetChart(responsibleChartInstance);
+                responsibleChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Tarefas',
+                            data: values,
+                            backgroundColor: '#2ecc71',
+                            borderRadius: 5
+                        }]
                     },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#ecf0f1'
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { beginAtZero: true, grid: { display: false } },
+                            y: { grid: { display: false } }
+                        },
+                        onClick: (evt, elements) => {
+                            if (!elements || elements.length === 0) return;
+                            const idx = elements[0].index;
+                            const resp = responsaveis[idx];
+                            if (!resp) return;
+
+                            // Seleciona / alterna filtro
+                            if (selectedResponsavelId === resp.id) {
+                                selectedResponsavelId = null; // desmarca se clicar no mesmo
+                            } else {
+                                selectedResponsavelId = resp.id;
+                            }
+
+                            // Recarrega gráficos dependentes
+                            loadStatus(selectedResponsavelId);
+                            loadProgresso(selectedResponsavelId);
                         }
                     }
-                }
-            }
-        });
+                });
+
+                // Duplo clique no canvas para limpar filtro
+                const canvas = document.getElementById('responsibleChart');
+                canvas.addEventListener('dblclick', () => {
+                    selectedResponsavelId = null;
+                    loadStatus(null);
+                    loadProgresso(null);
+                });
+            })
+            .catch(err => console.error("Erro ao carregar responsáveis:", err));
     }
 
-    // Chama as funções para criar os gráficos quando o documento estiver pronto
-    createStatusChart();
-    createResponsibleChart();
-    createProgressChart();
+    // ==============================
+    // Carrega e desenha: Progresso (barras empilhadas)
+    // Azul = Novas | Verde = Concluídas | Amarelo = A Fazer
+    // ==============================
+    function loadProgresso(responsavelId = null) {
+        const url = responsavelId ? `/api/tarefas/progresso?responsavelId=${responsavelId}` : '/api/tarefas/progresso';
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const labels = data.meses; // array
+                const novas = Object.values(data.novas);         // Azul
+                const concluidas = Object.values(data.concluidas); // Verde
+                const aFazer = Object.values(data.aFazer);       // Amarelo
+
+                const ctx = document.getElementById('progressChart').getContext('2d');
+
+
+                resetChart(progressChartInstance);
+
+                progressChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Novas Tarefas',
+                                data: novas,
+                                backgroundColor: '#3498db', // Azul
+                                borderRadius: 5,
+                                stack: 'stack1'
+                            },
+                            {
+                                label: 'Concluídas',
+                                data: concluidas,
+                                backgroundColor: '#2ecc71', // Verde
+                                borderRadius: 5,
+                                stack: 'stack1'
+                            },
+                            {
+                                label: 'A Fazer',
+                                data: aFazer,
+                                backgroundColor: '#f1c40f', // Amarelo
+                                borderRadius: 5,
+                                stack: 'stack1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        scales: {
+                            x: { stacked: true, grid: { display: false } },
+                            y: { beginAtZero: true, stacked: true, grid: { color: '#ecf0f1' } }
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error("Erro ao carregar progresso:", err));
+    }
+
+    // Inicializa tudo (sem filtro)
+    loadResponsaveis();
+    loadStatus(null);
+    loadProgresso(null);
 });

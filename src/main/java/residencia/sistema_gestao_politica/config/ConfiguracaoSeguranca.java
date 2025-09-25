@@ -15,16 +15,19 @@ public class ConfiguracaoSeguranca {
         return NoOpPasswordEncoder.getInstance();
     }
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/login/**", "/registro/**", "/usuarios/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login/login.html")
-                        .defaultSuccessUrl("/home/home", true)
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/home", true)
                         .failureUrl("/login/login.html?error=true")
                         .permitAll()
                 )

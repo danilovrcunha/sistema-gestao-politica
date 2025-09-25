@@ -32,7 +32,7 @@ public class Usuario {
         this.password = password;
         this.tipoUsuario = tipoUsuario;
     }
-    // Getters e Setters
+
     public Long getId() {
         return id;
     }
