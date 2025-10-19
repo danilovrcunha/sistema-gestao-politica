@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             legend: { display: false },
                             tooltip: {
                                 callbacks: {
-                                    label: function(context) {
+                                    label: function (context) {
                                         const label = context.label || '';
                                         const value = context.parsed || 0;
                                         const p = perc(value);
@@ -68,8 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
             })
             .catch(err => console.error("Erro ao carregar status:", err));
     }
-
-
 
     // ===================================
     // Carrega e desenha: Responsáveis (barra)
@@ -138,21 +136,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ==============================
     // Carrega e desenha: Progresso (barras empilhadas)
-    // Azul = Novas | Verde = Concluídas | Amarelo = A Fazer
+    // Azul = Em Andamento | Verde = Concluídas | Amarelo = A Fazer
     // ==============================
     function loadProgresso(responsavelId = null) {
         const url = responsavelId ? `/api/tarefas/progresso?responsavelId=${responsavelId}` : '/api/tarefas/progresso';
         fetch(url)
             .then(res => res.json())
             .then(data => {
-                const labels = data.meses; // array
-                const novas = Object.values(data.novas);         // Azul
-                const concluidas = Object.values(data.concluidas); // Verde
-                const aFazer = Object.values(data.aFazer);       // Amarelo
+                const labels = data.meses || [];
+                const emAndamento = Object.values(data.emAndamento || {}); // Azul
+                const concluidas = Object.values(data.concluidas || {});   // Verde
+                const aFazer = Object.values(data.aFazer || {});           // Amarelo
 
                 const ctx = document.getElementById('progressChart').getContext('2d');
-
-
                 resetChart(progressChartInstance);
 
                 progressChartInstance = new Chart(ctx, {
@@ -161,8 +157,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         labels: labels,
                         datasets: [
                             {
-                                label: 'Novas Tarefas',
-                                data: novas,
+                                label: 'Em Andamento',
+                                data: emAndamento,
                                 backgroundColor: '#3498db', // Azul
                                 borderRadius: 5,
                                 stack: 'stack1'

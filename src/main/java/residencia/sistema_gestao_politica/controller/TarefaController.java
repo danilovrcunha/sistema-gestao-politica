@@ -18,6 +18,9 @@ public class TarefaController {
 
     public static record ResponsavelResumo(Long id, String nome, Long qtd) {}
 
+    // =====================================================
+    // Retorna lista de responsáveis (gráfico horizontal)
+    // =====================================================
     @GetMapping("/responsaveis")
     public List<ResponsavelResumo> getResponsaveis() {
         List<Tarefa> todas = tarefaRepository.findAll();
@@ -29,8 +32,11 @@ public class TarefaController {
         for (Map.Entry<Long, Long> e : contagemPorId.entrySet()) {
             Long respId = e.getKey();
             Long qtd = e.getValue();
-            String nome = todas.stream().filter(t -> t.getResponsavel().getId().equals(respId))
-                    .map(t -> t.getResponsavel().getNome()).findFirst().orElse("Sem nome");
+            String nome = todas.stream()
+                    .filter(t -> t.getResponsavel().getId().equals(respId))
+                    .map(t -> t.getResponsavel().getNome())
+                    .findFirst()
+                    .orElse("Sem nome");
             lista.add(new ResponsavelResumo(respId, nome, qtd));
         }
 
@@ -38,11 +44,16 @@ public class TarefaController {
         return lista;
     }
 
+    // =====================================================
+    // Retorna contagem geral de tarefas por status (pizza)
+    // =====================================================
     @GetMapping("/status")
     public Map<String, Long> getStatus(@RequestParam(required = false) Long responsavelId) {
         List<Tarefa> base = tarefaRepository.findAll();
         if (responsavelId != null) {
-            base = base.stream().filter(t -> t.getResponsavel().getId().equals(responsavelId)).toList();
+            base = base.stream()
+                    .filter(t -> t.getResponsavel().getId().equals(responsavelId))
+                    .toList();
         }
 
         long aFazer = base.stream().filter(t -> t.getStatus() == StatusTarefa.A_FAZER).count();
@@ -56,26 +67,38 @@ public class TarefaController {
         return result;
     }
 
+    // =====================================================
+    // Retorna progresso mensal de tarefas (barras empilhadas)
+    // =====================================================
     @GetMapping("/progresso")
     public Map<String, Object> getProgresso(@RequestParam(required = false) Long responsavelId) {
-        // Ordem fixa de meses para o gráfico
-        List<String> meses = Arrays.asList("Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez");
+        List<String> meses = Arrays.asList("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez");
 
-        Map<String, Long> novas = new LinkedHashMap<>();
+        // Alterado: 'novas' → 'emAndamento'
+        Map<String, Long> emAndamento = new LinkedHashMap<>();
         Map<String, Long> concluidas = new LinkedHashMap<>();
         Map<String, Long> aFazer = new LinkedHashMap<>();
-        meses.forEach(m -> { novas.put(m,0L); concluidas.put(m,0L); aFazer.put(m,0L); });
+        meses.forEach(m -> {
+            emAndamento.put(m, 0L);
+            concluidas.put(m, 0L);
+            aFazer.put(m, 0L);
+        });
 
         List<Tarefa> base = tarefaRepository.findAll();
         if (responsavelId != null) {
-            base = base.stream().filter(t -> t.getResponsavel().getId().equals(responsavelId)).toList();
+            base = base.stream()
+                    .filter(t -> t.getResponsavel().getId().equals(responsavelId))
+                    .toList();
         }
 
         for (Tarefa t : base) {
             String mes = t.getMes();
-            if (!novas.containsKey(mes)) continue;
+            if (!emAndamento.containsKey(mes)) continue;
 
-            novas.put(mes, novas.get(mes) + 1);
+            // Atualiza contadores conforme status
+            if (t.getStatus() == StatusTarefa.EM_ANDAMENTO) {
+                emAndamento.put(mes, emAndamento.get(mes) + 1);
+            }
             if (t.getStatus() == StatusTarefa.CONCLUIDO) {
                 concluidas.put(mes, concluidas.get(mes) + 1);
             }
@@ -86,7 +109,7 @@ public class TarefaController {
 
         Map<String, Object> result = new HashMap<>();
         result.put("meses", meses);
-        result.put("novas", novas);
+        result.put("emAndamento", emAndamento);
         result.put("concluidas", concluidas);
         result.put("aFazer", aFazer);
         return result;

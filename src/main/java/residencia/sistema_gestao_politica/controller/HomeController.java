@@ -17,7 +17,6 @@ public class HomeController {
 
     @GetMapping("/home")
     public String home(Model model) {
-        // Contagem por status
         model.addAttribute("aFazer", tarefaRepository.countByStatus(StatusTarefa.A_FAZER));
         model.addAttribute("emAndamento", tarefaRepository.countByStatus(StatusTarefa.EM_ANDAMENTO));
         model.addAttribute("concluido", tarefaRepository.countByStatus(StatusTarefa.CONCLUIDO));
