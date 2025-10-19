@@ -1,0 +1,260 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+/* Variáveis de Cores para Consistência */
+:root {
+    --primary-color: #2c3e50;    /* Azul escuro da sidebar/botões */
+    --secondary-color: #ecf0f1;  /* Fundo claro do conteúdo principal */
+    --text-color: #2c3e50;       /* Cor principal do texto */
+    --light-text: #bdc3c7;       /* Cor do texto normal da sidebar */
+    --active-color: #ffffff;     /* Cor do texto ativo */
+    --background-color: #ecf0f1;
+    --card-background: #ffffff;  /* Cor de fundo dos cards e formulários */
+    --done-color: #2ecc71;       /* Verde para "Criar Tarefa" */
+}
+
+/* --- ESTILOS GERAIS E LAYOUT DA PÁGINA --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* --- BARRA LATERAL (SIDEBAR) --- */
+/* --- BARRA LATERAL (SIDEBAR) --- */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.sidebar .logo {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #34495e;
+    margin-bottom: 20px;
+}
+
+.sidebar .logo h1 {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #ecf0f1;
+}
+
+.nav-menu {
+    flex-grow: 1;
+}
+
+.nav-menu ul {
+    list-style: none;
+}
+
+.nav-menu li {
+    margin-bottom: 10px;
+}
+
+.nav-menu a {
+    color: var(--light-text);
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.nav-menu a:hover, .nav-menu li.active a {
+    background-color: #34495e;
+    color: #ffffff;
+}
+
+.nav-menu i {
+    margin-right: 10px;
+}
+
+.logout {
+    margin-top: auto;
+}
+
+.logout a {
+    color: var(--light-text);
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.logout a:hover {
+    background-color: #c0392b;
+}
+
+/* --- CONTEÚDO PRINCIPAL (MAIN) e HEADER --- */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.header {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-title i {
+    color: var(--primary-color);
+    font-size: 1.5em;
+}
+
+.header-title h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.header p {
+    color: #7f8c8d;
+    font-size: 1em;
+    flex-grow: 1;
+    margin-left: 15px;
+}
+
+/* Breadcrumb para a navegação */
+.header-breadcrumb {
+    color: #7f8c8d;
+    font-size: 0.9em;
+}
+
+
+/* --- ESTILOS ESPECÍFICOS DA TELA NOVA TAREFA --- */
+
+.form-container {
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+}
+
+.nova-tarefa-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.nova-tarefa-form .form-group {
+    margin-bottom: 0;
+}
+
+.nova-tarefa-form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--text-color);
+    display: block;
+    font-size: 0.95em; /* Ajuste sutil para o texto de label */
+}
+
+/* Estilo para todos os campos de input, textarea e select */
+.nova-tarefa-form input[type="text"],
+.nova-tarefa-form input[type="date"],
+.nova-tarefa-form textarea,
+.nova-tarefa-form select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+    width: 100%;
+    background-color: #fcfcfc;
+}
+
+.nova-tarefa-form textarea {
+    resize: vertical;
+}
+
+.form-group-row {
+    display: flex;
+    gap: 30px;
+}
+
+/* Estilo para garantir que o select tenha a mesma aparência dos inputs */
+.custom-select-wrapper {
+    position: relative;
+}
+
+.custom-select-wrapper select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* Adiciona seta customizada no CSS para select */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%232c3e50%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13.2-6.4H18.6a17.6%2017.6%200%200%200-13.2%206.4%2017.6%2017.6%200%200%200%200%2025.2l128%20128a17.6%2017.6%200%200%200%2025.2%200l128-128a17.6%2017.6%200%200%200%200-25.2z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right 10px top 50%;
+    background-size: 10px;
+    padding-right: 30px; /* Garante espaço para a seta customizada */
+}
+
+
+/* --- BOTÕES DO RODAPÉ DO FORMULÁRIO --- */
+.form-footer-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 10px;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.form-footer-buttons .action-btn {
+    width: auto;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #95a5a6;
+}
+
+.cancel-btn:hover {
+    background-color: #7f8c8d;
+}
+
+.create-btn {
+    background-color: var(--done-color);
+}
+
+.create-btn:hover {
+    background-color: #27ae60;
+}

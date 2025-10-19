@@ -18,9 +18,6 @@ public class TarefaController {
 
     public static record ResponsavelResumo(Long id, String nome, Long qtd) {}
 
-    // =====================================================
-    // Retorna lista de responsáveis (gráfico horizontal)
-    // =====================================================
     @GetMapping("/responsaveis")
     public List<ResponsavelResumo> getResponsaveis() {
         List<Tarefa> todas = tarefaRepository.findAll();

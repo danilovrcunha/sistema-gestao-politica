@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestão de Tarefas</title>
+  <link rel="stylesheet" href="/kanban/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+</head>
+<body>
+<div class="container">
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>Menu Principal</h1>
+    </div>
+
+    <nav class="nav-menu">
+      <ul>
+        <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="#"><i class="fas fa-chart-line"></i> Ações</a></li>
+        <li class="active"><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
+        <!-- 🔹 Recolocado o item de Cadastro/Login -->
+        <li><a href="/login"><i class="fas fa-user-plus"></i> Cadastro / Login</a></li>
+        <li><a href="#"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
+        <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
+      </ul>
+    </nav>
+
+    <div class="logout">
+      <a href="/login"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div class="header-title">
+        <i class="fas fa-tasks"></i>
+        <h2>Gestão de Tarefas</h2>
+      </div>
+      <div class="header-breadcrumb">
+        <span>Início</span> &gt; <span>Gestão de Tarefas</span>
+      </div>
+
+      <a href="/criarTarefa" class="new-task-btn">Nova Tarefa</a>
+    </header>
+
+    <section class="kanban-board">
+      <!-- 🔵 A FAZER -->
+      <div class="kanban-column" id="todo-column">
+        <div class="column-header" style="background-color: #3498db">
+          <h3>A Fazer</h3>
+          <span class="task-count" th:text="${#lists.size(tarefasAFazer)}">0</span>
+        </div>
+        <div class="task-list" data-status="todo">
+          <th:block th:each="tarefa : ${tarefasAFazer}">
+            <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
+              <h4 th:text="${tarefa.titulo}"></h4>
+              <p th:text="${tarefa.descricao}"></p>
+              <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+              <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+            </div>
+          </th:block>
+        </div>
+      </div>
+
+      <!-- 🟡 EM ANDAMENTO -->
+      <div class="kanban-column" id="in-progress-column">
+        <div class="column-header" style="background-color: #f1c40f">
+          <h3>Em Andamento</h3>
+          <span class="task-count" th:text="${#lists.size(tarefasEmAndamento)}">0</span>
+        </div>
+        <div class="task-list" data-status="in-progress">
+          <th:block th:each="tarefa : ${tarefasEmAndamento}">
+            <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
+              <h4 th:text="${tarefa.titulo}"></h4>
+              <p th:text="${tarefa.descricao}"></p>
+              <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+              <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+            </div>
+          </th:block>
+        </div>
+      </div>
+
+      <!-- 🟢 CONCLUÍDO -->
+      <div class="kanban-column" id="done-column">
+        <div class="column-header" style="background-color: #2ecc71">
+          <h3>Concluído</h3>
+          <span class="task-count" th:text="${#lists.size(tarefasConcluidas)}">0</span>
+        </div>
+        <div class="task-list" data-status="done">
+          <th:block th:each="tarefa : ${tarefasConcluidas}">
+            <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
+              <h4 th:text="${tarefa.titulo}"></h4>
+              <p th:text="${tarefa.descricao}"></p>
+              <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+              <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+            </div>
+          </th:block>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="/kanban/script.js"></script>
+</body>
+</html>
