@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro</title>
+  <link rel="stylesheet" href="/financeiro/style.css"> <!-- Link para o CSS conforme você passou -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="container">
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>Menu Principal</h1>
+    </div>
+    <nav class="nav-menu">
+      <ul>
+        <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
+        <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
+        <li class="active"><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
+        <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
+      </ul>
+    </nav>
+    <div class="logout">
+      <a href="/login"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <th:block th:if="${param.salvo}">
+        <div class="alert alert-success" role="alert">
+          Informações financeiras salvas com sucesso!
+        </div>
+      </th:block>
+      <div class="header-title">
+        <i class="fas fa-dollar-sign"></i>
+        <h2>Financeiro</h2>
+      </div>
+      <p>Gerencie informações financeiras</p>
+      <div class="header-breadcrumb">
+        <span>Início</span> &gt; <span>Financeiro</span>
+      </div>
+    </header>
+
+    <section class="financeiro-container">
+      <div class="form-header-financeiro">
+        <h3>Novo Registro Financeiro</h3>
+        <button class="export-btn" id="exportBtn">
+          <i class="fas fa-file-export"></i> EXPORTAR
+        </button>
+      </div>
+
+      <form method="POST" action="/financeiro" id="registroFinanceiroForm" class="registro-financeiro-form">
+        <div class="form-group-row">
+          <div class="form-group">
+            <label for="dataRegistro">Data de Registro</label>
+            <input type="date" id="dataRegistro" name="dataRegistro" required style="width: 100%; padding: 10px;">
+          </div>
+          <div class="form-group">
+            <label for="valorLocacao">Valor da Locação do Imóvel</label>
+            <input type="text" id="valorLocacao" name="valorLocacao" placeholder="R$ 0.00" class="input-money">
+          </div>
+        </div>
+
+        <div class="form-group-row">
+          <div class="form-group">
+            <label for="valorJuridica">Valor da Assessoria Jurídica</label>
+            <input type="text" id="valorJuridica" name="valorJuridica" placeholder="R$ 0.00" class="input-money">
+          </div>
+          <div class="form-group">
+            <label for="valorComunicacao">Valor da Assessoria de Comunicação</label>
+            <input type="text" id="valorComunicacao" name="valorComunicacao" placeholder="R$ 0.00" class="input-money">
+          </div>
+        </div>
+
+        <div class="form-group-row">
+          <div class="form-group">
+            <label for="valorCombustivel">Valor do Combustível</label>
+            <input type="text" id="valorCombustivel" name="valorCombustivel" placeholder="R$ 0.00" class="input-money">
+          </div>
+          <div class="form-group">
+            <label for="despesasDebito">Despesas do Débito</label>
+            <input type="text" id="despesasDebito" name="despesasDebito" placeholder="R$ 0.00" class="input-money">
+          </div>
+        </div>
+
+        <div class="form-group-row">
+          <div class="form-group">
+            <label for="despesasCredito">Despesas no Crédito</label>
+            <input type="text" id="despesasCredito" name="despesasCredito" placeholder="R$ 0.00" class="input-money">
+          </div>
+          <div class="form-group">
+            <label for="outrasDespesas">Outras Despesas</label>
+            <input type="text" id="outrasDespesas" name="outrasDespesas" placeholder="R$ 0.00" class="input-money">
+          </div>
+        </div>
+
+        <div class="form-footer-financeiro">
+          <button type="submit" id="salvarInfoBtn" class="salvar-btn">Salvar Informações</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="historico-transacoes-container">
+      <h3>Histórico de Transações Recentes</h3>
+
+      <!-- Exibe o histórico de registros financeiros do banco -->
+      <th:block th:each="registro : ${registros}">
+        <div class="acordeao-item">
+          <button class="acordeao-header">
+            <span th:text="'Registro em ' + ${#temporals.format(registro.dataRegistro, 'dd/MM/yyyy')}"></span>
+            <span class="acordeao-valor" th:text="${#numbers.formatDecimal(
+                      registro.valorLocacao + registro.valorJuridica + registro.valorComunicacao +
+                      registro.valorCombustivel + registro.despesasDebito + registro.despesasCredito +
+                      registro.outrasDespesas, 1, 2)}"></span>
+            <i class="fas fa-chevron-down acordeao-icon"></i>
+          </button>
+          <div class="acordeao-body">
+            <ul class="transacao-detalhes">
+              <li><span>Locação do Imóvel:</span> R$ <span th:text="${registro.valorLocacao}"></span></li>
+              <li><span>Assessoria Jurídica:</span> R$ <span th:text="${registro.valorJuridica}"></span></li>
+              <li><span>Assessoria de Comunicação:</span> R$ <span th:text="${registro.valorComunicacao}"></span></li>
+              <li><span>Combustível:</span> R$ <span th:text="${registro.valorCombustivel}"></span></li>
+              <li><span>Débito:</span> R$ <span th:text="${registro.despesasDebito}"></span></li>
+              <li><span>Crédito:</span> R$ <span th:text="${registro.despesasCredito}"></span></li>
+              <li><span>Outras Despesas:</span> R$ <span th:text="${registro.outrasDespesas}"></span></li>
+            </ul>
+          </div>
+        </div>
+      </th:block>
+    </section>
+  </main>
+</div>
+
+<script src="/financeiro/script.js"></script>
+</body>
+</html>
