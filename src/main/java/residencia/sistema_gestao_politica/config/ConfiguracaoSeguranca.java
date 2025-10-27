@@ -36,4 +36,21 @@ public class ConfiguracaoSeguranca {
         return http.build();
     }
 
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable()) // se você não usa token CSRF no fetch
+                .authorizeHttpRequests(auth -> auth
+                        // arquivos estáticos e uploads
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/uploads/**").permitAll()
+                        // páginas públicas (ajuste conforme sua auth)
+                        .requestMatchers("/", "/home", "/login",
+                                "/acoes", "/acoesRegistradas", "/registrarAcoes", "/editarAcao/**").permitAll()
+                        // API (ajuste conforme necessidade)
+                        .requestMatchers("/api/**").permitAll()
+                        .anyRequest().authenticated()
+                );
+        return http.build();
+    }
+
 }

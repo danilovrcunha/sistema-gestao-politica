@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar Ação</title>
+  <link rel="stylesheet" href="/registrarAcoes/style.css" />
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    window.ACAO_ID = /*[[${id}]]*/ null;
+    /*]]>*/
+  </script>
+</head>
+<body>
+<div class="container">
+  <aside class="sidebar">
+    <div class="logo"><h1>Menu Principal</h1></div>
+    <nav class="nav-menu">
+      <ul>
+        <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li class="active"><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
+        <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
+        <li><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
+        <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
+      </ul>
+    </nav>
+    <div class="logout">
+      <a href="/login"><i class="fas fa-sign-out-alt"></i> Sair</a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div class="header-title">
+        <i class="fas fa-chart-line"></i>
+        <h2>Editar Ação</h2>
+      </div>
+      <p>Atualize os detalhes da ação</p>
+      <div></div>
+    </header>
+
+    <section class="form-container">
+      <form id="registroForm" class="registro-form">
+        <div class="form-group-row">
+          <div class="form-group">
+            <label for="cidade">Cidade</label>
+            <input type="text" id="cidade" name="cidade" required />
+          </div>
+          <div class="form-group">
+            <label for="bairro">Bairro</label>
+            <input type="text" id="bairro" name="bairro" required />
+          </div>
+        </div>
+
+        <div class="form-group-row">
+          <div class="form-group">
+            <label for="tipoAcao">Tipo da Ação</label>
+            <input type="text" id="tipoAcao" name="tipoAcao" required />
+          </div>
+          <div class="form-group">
+            <label for="data">Data</label>
+            <input type="date" id="data" name="data" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="observacoes">Observações</label>
+          <textarea id="observacoes" name="observacoes" rows="4"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Anexar Mídia</label>
+          <div class="upload-area" id="uploadArea">
+            <i class="fas fa-camera"></i>
+            <p id="fileName">Selecionar Imagem</p>
+            <input type="file" id="fileInput" accept="image/*" hidden />
+          </div>
+          <div id="imagePreview" class="image-preview"></div>
+          <button id="removeImageBtn" type="button" class="action-btn" style="display:none;margin-top:8px;">
+            Remover imagem
+          </button>
+        </div>
+
+        <button type="submit" style="display:none"></button>
+      </form>
+    </section>
+
+    <div class="action-buttons-footer">
+      <a href="/acoesRegistradas" class="action-btn back-btn">&larr; Retornar as Ações</a>
+      <button id="submitBtn" type="button" class="action-btn register-btn">
+        Salvar Alterações
+      </button>
+    </div>
+  </main>
+</div>
+
+<script src="/editarAcao/script.js" defer></script>
+</body>
+</html>
