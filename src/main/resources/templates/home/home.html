@@ -6,6 +6,8 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="/home/style.css">
+    <link rel="stylesheet" href="/AssistenteIA/style.css" />
+    <script src="/AssistenteIA/script.js" defer></script>
     <script src="/home/script.js"></script>
 </head>
 <body>
@@ -18,17 +20,14 @@
                 <ul>
                     <li class="active"><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
                     <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
-                    <li>
-                        <a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a>
-                    </li>
-
-                    <li><a href="#"><i class="fas fa-user-plus"></i> Cadastro / Login</a></li>
+                    <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
                     <li><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
                     <li><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
+                    <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a></li>
                 </ul>
             </nav>
             <div class="logout">
-                <a href="/login"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                <a href="/login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a>
             </div>
         </aside>
 
@@ -81,7 +80,26 @@
             </section>
         </main>
     </div>
+    <!-- Assistente I.A. -->
+    <div class="assistant-chat-panel" id="assistantChatPanel">
+        <div class="chat-header">
+            <h4>Assistente I.A.</h4>
+            <button class="close-chat-btn" id="closeChatBtn">&times;</button>
+        </div>
+
+        <div class="chat-body" id="chatBody">
+            <div class="chat-message-ai">
+                Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
+            </div>
+        </div>
+
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+            <button id="sendChatBtn" class="send-chat-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="../../static/home/script.js"></script>
 </body>
 </html>

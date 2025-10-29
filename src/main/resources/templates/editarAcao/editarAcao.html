@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Editar Ação</title>
   <link rel="stylesheet" href="/editarAcao/style.css" />
+  <link rel="stylesheet" href="/AssistenteIA/style.css" />
+  <script src="/AssistenteIA/script.js" defer></script>
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
   <script th:inline="javascript">
@@ -24,10 +26,11 @@
         <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
         <li><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
         <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
+        <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a></li>
       </ul>
     </nav>
     <div class="logout">
-      <a href="/login"><i class="fas fa-sign-out-alt"></i> Sair</a>
+      <a href="/login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a>
     </div>
   </aside>
 
@@ -98,7 +101,28 @@
     </div>
   </main>
 </div>
+<!-- Assistente I.A. -->
+<div class="assistant-chat-panel" id="assistantChatPanel">
+  <div class="chat-header">
+    <h4>Assistente I.A.</h4>
+    <button class="close-chat-btn" id="closeChatBtn">&times;</button>
+  </div>
+
+  <div class="chat-body" id="chatBody">
+    <div class="chat-message-ai">
+      Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+    <button id="sendChatBtn" class="send-chat-btn">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
 
 <script src="/editarAcao/script.js" defer></script>
+<script src="/AssistenteIA/script.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>Menu Principal</h1>
+        </div>
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="../home/home.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="../acoes/acoes.html"><i class="fas fa-chart-line"></i> Ações</a></li>
+                <li><a href="../kanban/kanban.html"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
+                <li><a href="../financeiro/financeiro.html"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
+                <li><a href="../configuracoes/configuracoes.html"><i class="fas fa-cog"></i> Configurações</a></li>
+
+                <li id="assistant-toggle-btn">
+                    <a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a>
+                </li>
+            </ul>
+        </nav>
+        <div class="logout">
+            <a href="../login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div class="header-title">
+                <i class="fas fa-cog"></i>
+                <h2>Configurações</h2>
+            </div>
+            <p id="headerDescription">Gerencie suas configurações de usuário</p>
+        </header>
+
+        <section class="config-container">
+
+            <nav class="config-tabs">
+                <button class="tab-button active" data-tab="info-usuario">Informações do Usuário</button>
+                <button class="tab-button" data-tab="seguranca">Segurança</button>
+                <button class="tab-button" data-tab="administracao">Administração de Usuários</button>
+            </nav>
+
+            <div class="tab-content-wrapper">
+
+                <div class="tab-pane active" id="info-usuario">
+                    <h3 class="pane-title">Perfil</h3>
+                    <form id="perfilForm" class="config-form">
+
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" name="nome" placeholder="digite seu nome">
+
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="email@exemplo.com">
+
+                        <label for="telefone">Telefone</label>
+                        <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000">
+
+                        <div class="save-button-container">
+                            <button type="submit" class="salvar-btn">Salvar Perfil</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tab-pane" id="seguranca">
+                    <h3 class="pane-title">Alterar Senha</h3>
+                    <p class="security-text">Preencha os campos abaixo para alterar sua senha com segurança.</p>
+
+                    <form id="segurancaForm" class="config-form security-form">
+
+                        <label for="emailVinculado">Email Vinculado</label>
+                        <input type="email" id="emailVinculado" name="emailVinculado" placeholder="email@exemplo.com" readonly>
+
+                        <label for="senhaAtual">Senha atual</label>
+                        <div class="password-group">
+                            <input type="password" id="senhaAtual" name="senhaAtual" placeholder="digite sua senha" required>
+                            <i class="fas fa-eye toggle-password" data-target="senhaAtual"></i>
+                        </div>
+
+                        <label for="novaSenha">Nova senha</label>
+                        <div class="password-group">
+                            <input type="password" id="novaSenha" name="novaSenha" placeholder="digite sua nova senha" required>
+                            <i class="fas fa-eye toggle-password" data-target="novaSenha"></i>
+                        </div>
+                        <p class="password-hint"><strong>(Mínimo 8 caracteres, incluindo letra maiúscula, minúscula, números e símbolos)</strong></p>
+
+                        <label for="confirmarSenha">Confirmar nova senha</label>
+                        <div class="password-group">
+                            <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="confirme sua nova senha" required>
+                            <i class="fas fa-eye toggle-password" data-target="confirmarSenha"></i>
+                        </div>
+
+                        <div class="save-button-container">
+                            <button type="submit" class="salvar-btn">Alterar Senha</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="tab-pane" id="administracao">
+                    <div class="admin-header-row">
+                        <h3 class="pane-title">Administração de Usuários</h3>
+                        <button class="action-btn update-list-btn" id="atualizarListaBtn">Atualizar Lista</button>
+                    </div>
+
+                    <p class="admin-info-text">Gerencie Usuários e suas permissões de acesso às páginas do sistema</p>
+
+                    <div class="user-count-row">
+                        <i class="fas fa-user"></i>
+                        <span id="userCount">1 Usuário encontrado</span>
+                    </div>
+
+                    <div class="table-container-admin">
+                        <table class="data-table-admin">
+                            <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Perfil</th>
+                                <th>Data de Criação</th>
+                                <th>Último Acesso</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr id="user-1">
+                                <td class="user-name-col">Administrador Sistema</td>
+                                <td>administrador@sistema.local</td>
+                                <td><span class="tag tag-admin">Administrador</span></td>
+                                <td>20/09/2025</td>
+                                <td class="last-access-col">
+                                    <span class="time">21/09/2025</span><br>
+                                    <span class="detail">19:39</span><br>
+                                    <span class="detail page">Página: Login</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="admin-actions-footer">
+                        <button class="action-btn edit-perms-btn">
+                            <i class="fas fa-edit"></i> Editar Permissões
+                        </button>
+                        <button class="action-btn remove-user-btn">
+                            <i class="fas fa-trash-alt"></i> Remover
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+</div>
+
+<div id="permissionsModal" class="modal-perms">
+    <div class="modal-content-perms">
+        <span class="close-btn-perms">&times;</span>
+
+        <h2 class="modal-title-perms" id="modalTitle">Permissões : Administrador Sistema</h2>
+
+        <h3 class="control-title">Controle de Acesso às Páginas:</h3>
+
+        <form id="permissionsForm" class="permissions-form">
+
+            <div class="permission-list">
+                <label class="permission-item">
+                    <input type="checkbox" name="dashboard" checked> Dashboard
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" name="acoes" checked> Ações
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" name="gestao_tarefas" checked> Gestão de Tarefas
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" name="cadastro" checked> Cadastro
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" name="financeiro" checked> Financeiro
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" name="eleicao" checked> Eleição 2024
+                </label>
+                <label class="permission-item">
+                    <input type="checkbox" name="configuracoes" checked> Configurações
+                </label>
+            </div>
+
+            <div class="modal-footer-perms">
+                <button type="submit" class="salvar-btn">Salvar Permissões</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<div class="assistant-chat-panel" id="assistantChatPanel">
+    <div class="chat-header">
+        <h4>Assistente I.A.</h4>
+        <button class="close-chat-btn" id="closeChatBtn">&times;</button>
+    </div>
+
+    <div class="chat-body" id="chatBody">
+        <div class="chat-message-ai">
+            Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
+        </div>
+    </div>
+
+    <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+        <button id="sendChatBtn" class="send-chat-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+</body>
+</html>
