@@ -1,9 +1,9 @@
 package residencia.sistema_gestao_politica.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.ui.Model; // ✅ Import necessário
 
 @Controller
 public class AcoesController {
@@ -22,8 +22,7 @@ public class AcoesController {
     public String acoesRegistradas() {
         return "acoesRegistradas/acoesRegistradas";
     }
-
-    @GetMapping("/editarAcao/{id}")
+    @GetMapping("/editarAcao/{id:[0-9]+}") // <— regex só números
     public String editarAcao(@PathVariable Long id, Model model) {
         model.addAttribute("id", id);
         return "editarAcao/editarAcao";

@@ -283,3 +283,49 @@ body {
 .register-btn:hover {
     background-color: #27ae60;
 }
+
+/* ==========================================
+   📸 Estilo da área de upload de imagem
+========================================== */
+
+.upload-area {
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px dashed #ccc;
+    border-radius: 12px;
+    padding: 1.2rem;
+    background: #fafafa;
+    transition: all 0.25s ease;
+}
+
+.upload-area:hover {
+    background: #f0f0f0;
+    border-color: #999;
+}
+
+.upload-area i {
+    font-size: 2rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.upload-area i,
+.upload-area p {
+    pointer-events: none;
+}
+
+.image-preview {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.image-preview img {
+    max-width: 220px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}

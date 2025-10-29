@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Editar Ação</title>
-  <link rel="stylesheet" href="/registrarAcoes/style.css" />
+  <link rel="stylesheet" href="/editarAcao/style.css" />
   <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
   <script th:inline="javascript">
@@ -38,7 +38,6 @@
         <h2>Editar Ação</h2>
       </div>
       <p>Atualize os detalhes da ação</p>
-      <div></div>
     </header>
 
     <section class="form-container">
@@ -72,23 +71,27 @@
 
         <div class="form-group">
           <label>Anexar Mídia</label>
-          <div class="upload-area" id="uploadArea">
+
+          <!-- A área toda vira um <label> apontando para o input -->
+          <label class="upload-area" id="uploadArea" for="fileInput">
             <i class="fas fa-camera"></i>
             <p id="fileName">Selecionar Imagem</p>
-            <input type="file" id="fileInput" accept="image/*" hidden />
-          </div>
+          </label>
+
+          <!-- IMPORTANTE: mantenha o input no DOM (pode ficar escondido por CSS) -->
+          <input type="file" id="fileInput" name="imagem" accept="image/*" />
+
           <div id="imagePreview" class="image-preview"></div>
+
           <button id="removeImageBtn" type="button" class="action-btn" style="display:none;margin-top:8px;">
             Remover imagem
           </button>
         </div>
-
-        <button type="submit" style="display:none"></button>
       </form>
     </section>
 
     <div class="action-buttons-footer">
-      <a href="/acoesRegistradas" class="action-btn back-btn">&larr; Retornar as Ações</a>
+      <a href="/acoesRegistradas" class="action-btn back-btn">&larr; Retornar às Ações</a>
       <button id="submitBtn" type="button" class="action-btn register-btn">
         Salvar Alterações
       </button>
