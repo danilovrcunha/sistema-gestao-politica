@@ -1,6 +1,7 @@
 package residencia.sistema_gestao_politica.model;
 
 import jakarta.persistence.*;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 
 @Entity
@@ -12,85 +13,37 @@ public class Financeiro {
     private Long id;
 
     private LocalDate dataRegistro;
+    private Double valorDespesa;
+    private String tipoTransacao;
+    private String categoria;
+    private String descricao;
 
-    private Double valorLocacao;
-    private Double valorJuridica;
-    private Double valorComunicacao;
-    private Double valorCombustivel;
-    private Double despesasDebito;
-    private Double despesasCredito;
-    private Double outrasDespesas;
+    @Transient
+    private String valorFormatado;
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
+    // ===== GETTERS e SETTERS =====
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public LocalDate getDataRegistro() { return dataRegistro; }
+    public void setDataRegistro(LocalDate dataRegistro) { this.dataRegistro = dataRegistro; }
 
-    public LocalDate getDataRegistro() {
-        return dataRegistro;
-    }
+    public Double getValorDespesa() { return valorDespesa; }
+    public void setValorDespesa(Double valorDespesa) { this.valorDespesa = valorDespesa; }
 
-    public void setDataRegistro(LocalDate dataRegistro) {
-        this.dataRegistro = dataRegistro;
-    }
+    public String getTipoTransacao() { return tipoTransacao; }
+    public void setTipoTransacao(String tipoTransacao) { this.tipoTransacao = tipoTransacao; }
 
-    public Double getValorLocacao() {
-        return valorLocacao;
-    }
+    public String getCategoria() { return categoria; }
+    public void setCategoria(String categoria) { this.categoria = categoria; }
 
-    public void setValorLocacao(Double valorLocacao) {
-        this.valorLocacao = valorLocacao;
-    }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
 
-    public Double getValorJuridica() {
-        return valorJuridica;
-    }
-
-    public void setValorJuridica(Double valorJuridica) {
-        this.valorJuridica = valorJuridica;
-    }
-
-    public Double getValorComunicacao() {
-        return valorComunicacao;
-    }
-
-    public void setValorComunicacao(Double valorComunicacao) {
-        this.valorComunicacao = valorComunicacao;
-    }
-
-    public Double getValorCombustivel() {
-        return valorCombustivel;
-    }
-
-    public void setValorCombustivel(Double valorCombustivel) {
-        this.valorCombustivel = valorCombustivel;
-    }
-
-    public Double getDespesasDebito() {
-        return despesasDebito;
-    }
-
-    public void setDespesasDebito(Double despesasDebito) {
-        this.despesasDebito = despesasDebito;
-    }
-
-    public Double getDespesasCredito() {
-        return despesasCredito;
-    }
-
-    public void setDespesasCredito(Double despesasCredito) {
-        this.despesasCredito = despesasCredito;
-    }
-
-    public Double getOutrasDespesas() {
-        return outrasDespesas;
-    }
-
-    public void setOutrasDespesas(Double outrasDespesas) {
-        this.outrasDespesas = outrasDespesas;
+    // ===== Valor formatado em R$ =====
+    public String getValorFormatado() {
+        if (valorDespesa == null) return "R$ 0,00";
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        return "R$ " + df.format(valorDespesa);
     }
 }

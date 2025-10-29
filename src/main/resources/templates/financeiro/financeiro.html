@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Financeiro</title>
-  <link rel="stylesheet" href="/financeiro/style.css"> <!-- Link para o CSS conforme você passou -->
+  <link rel="stylesheet" href="/financeiro/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -13,6 +13,7 @@
     <div class="logo">
       <h1>Menu Principal</h1>
     </div>
+
     <nav class="nav-menu">
       <ul>
         <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -20,8 +21,12 @@
         <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
         <li class="active"><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
         <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
+        <li id="assistant-toggle-btn">
+          <a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a>
+        </li>
       </ul>
     </nav>
+
     <div class="logout">
       <a href="/login"><i class="fas fa-sign-out-alt"></i> Sair</a>
     </div>
@@ -29,11 +34,10 @@
 
   <main class="main-content">
     <header class="header">
-      <th:block th:if="${param.salvo}">
-        <div class="alert alert-success" role="alert">
-          Informações financeiras salvas com sucesso!
-        </div>
-      </th:block>
+      <div th:if="${mensagemSucesso}" class="alert alert-success" role="alert">
+        <p th:text="${mensagemSucesso}"></p>
+      </div>
+
       <div class="header-title">
         <i class="fas fa-dollar-sign"></i>
         <h2>Financeiro</h2>
@@ -44,96 +48,112 @@
       </div>
     </header>
 
+    <!-- FORMULÁRIO -->
     <section class="financeiro-container">
       <div class="form-header-financeiro">
         <h3>Novo Registro Financeiro</h3>
-        <button class="export-btn" id="exportBtn">
-          <i class="fas fa-file-export"></i> EXPORTAR
-        </button>
+        <button type="button" class="export-btn"><i class="fas fa-file-export"></i> EXPORTAR</button>
       </div>
 
       <form method="POST" action="/financeiro" id="registroFinanceiroForm" class="registro-financeiro-form">
         <div class="form-group-row">
           <div class="form-group">
             <label for="dataRegistro">Data de Registro</label>
-            <input type="date" id="dataRegistro" name="dataRegistro" required style="width: 100%; padding: 10px;">
+            <input type="date" id="dataRegistro" name="dataRegistro" required>
           </div>
           <div class="form-group">
-            <label for="valorLocacao">Valor da Locação do Imóvel</label>
-            <input type="text" id="valorLocacao" name="valorLocacao" placeholder="R$ 0.00" class="input-money">
+            <label for="valorDespesa">Valor da Despesa</label>
+            <input type="text" id="valorDespesa" name="valorDespesa" placeholder="R$ 0,00" required>
           </div>
         </div>
 
         <div class="form-group-row">
           <div class="form-group">
-            <label for="valorJuridica">Valor da Assessoria Jurídica</label>
-            <input type="text" id="valorJuridica" name="valorJuridica" placeholder="R$ 0.00" class="input-money">
+            <label for="tipoTransacao">Tipo:</label>
+            <select id="tipoTransacao" name="tipoTransacao" required>
+              <option value="">Selecione o Tipo</option>
+              <option value="Crédito">Crédito</option>
+              <option value="Débito">Débito</option>
+              <option value="PIX">PIX</option>
+              <option value="Dinheiro">Dinheiro</option>
+            </select>
           </div>
           <div class="form-group">
-            <label for="valorComunicacao">Valor da Assessoria de Comunicação</label>
-            <input type="text" id="valorComunicacao" name="valorComunicacao" placeholder="R$ 0.00" class="input-money">
+            <label for="categoria">Categoria</label>
+            <input type="text" id="categoria" name="categoria" placeholder="Ex: Combustível, Aluguel, Salário">
           </div>
         </div>
 
-        <div class="form-group-row">
-          <div class="form-group">
-            <label for="valorCombustivel">Valor do Combustível</label>
-            <input type="text" id="valorCombustivel" name="valorCombustivel" placeholder="R$ 0.00" class="input-money">
-          </div>
-          <div class="form-group">
-            <label for="despesasDebito">Despesas do Débito</label>
-            <input type="text" id="despesasDebito" name="despesasDebito" placeholder="R$ 0.00" class="input-money">
-          </div>
+        <div class="form-group">
+          <label for="descricao">Descrição</label>
+          <textarea id="descricao" name="descricao" rows="3" placeholder="Detalhes do registro financeiro (opcional)"></textarea>
         </div>
 
-        <div class="form-group-row">
-          <div class="form-group">
-            <label for="despesasCredito">Despesas no Crédito</label>
-            <input type="text" id="despesasCredito" name="despesasCredito" placeholder="R$ 0.00" class="input-money">
-          </div>
-          <div class="form-group">
-            <label for="outrasDespesas">Outras Despesas</label>
-            <input type="text" id="outrasDespesas" name="outrasDespesas" placeholder="R$ 0.00" class="input-money">
-          </div>
-        </div>
-
-        <div class="form-footer-financeiro">
-          <button type="submit" id="salvarInfoBtn" class="salvar-btn">Salvar Informações</button>
+        <div class="form-footer-buttons-financeiro">
+          <button type="submit" class="action-btn salvar-btn">Salvar Informações</button>
         </div>
       </form>
     </section>
 
+    <!-- HISTÓRICO -->
     <section class="historico-transacoes-container">
       <h3>Histórico de Transações Recentes</h3>
 
-      <!-- Exibe o histórico de registros financeiros do banco -->
       <th:block th:each="registro : ${registros}">
         <div class="acordeao-item">
           <button class="acordeao-header">
-            <span th:text="'Registro em ' + ${#temporals.format(registro.dataRegistro, 'dd/MM/yyyy')}"></span>
-            <span class="acordeao-valor" th:text="${#numbers.formatDecimal(
-                      registro.valorLocacao + registro.valorJuridica + registro.valorComunicacao +
-                      registro.valorCombustivel + registro.despesasDebito + registro.despesasCredito +
-                      registro.outrasDespesas, 1, 2)}"></span>
+                        <span class="acordeao-titulo"
+                              th:text="${#strings.isEmpty(registro.categoria) ? 'Sem categoria' : registro.categoria}"></span>
+            <span class="acordeao-valor" th:text="${registro.valorFormatado}"></span>
             <i class="fas fa-chevron-down acordeao-icon"></i>
           </button>
+
           <div class="acordeao-body">
             <ul class="transacao-detalhes">
-              <li><span>Locação do Imóvel:</span> R$ <span th:text="${registro.valorLocacao}"></span></li>
-              <li><span>Assessoria Jurídica:</span> R$ <span th:text="${registro.valorJuridica}"></span></li>
-              <li><span>Assessoria de Comunicação:</span> R$ <span th:text="${registro.valorComunicacao}"></span></li>
-              <li><span>Combustível:</span> R$ <span th:text="${registro.valorCombustivel}"></span></li>
-              <li><span>Débito:</span> R$ <span th:text="${registro.despesasDebito}"></span></li>
-              <li><span>Crédito:</span> R$ <span th:text="${registro.despesasCredito}"></span></li>
-              <li><span>Outras Despesas:</span> R$ <span th:text="${registro.outrasDespesas}"></span></li>
+              <li>
+                <span>Data de Registro:</span>
+                <span th:text="${#temporals.format(registro.dataRegistro, 'dd/MM/yyyy')}"></span>
+              </li>
+              <li><span>Tipo:</span> <span th:text="${registro.tipoTransacao}"></span></li>
+              <li><span>Categoria:</span> <span th:text="${registro.categoria}"></span></li>
+              <li><span>Descrição:</span> <span th:text="${registro.descricao}"></span></li>
+              <li class="total-geral">
+                <span>Valor Total:</span>
+                <span th:text="${registro.valorFormatado}"></span>
+              </li>
             </ul>
           </div>
         </div>
       </th:block>
+
+      <div th:if="${#lists.isEmpty(registros)}" class="sem-registros">
+        <p>Nenhum registro financeiro encontrado.</p>
+      </div>
     </section>
   </main>
 </div>
 
 <script src="/financeiro/script.js"></script>
+
+<!-- Assistente I.A. -->
+<div class="assistant-chat-panel" id="assistantChatPanel">
+  <div class="chat-header">
+    <h4>Assistente I.A.</h4>
+    <button class="close-chat-btn" id="closeChatBtn">&times;</button>
+  </div>
+
+  <div class="chat-body" id="chatBody">
+    <div class="chat-message-ai">
+      Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+    <button id="sendChatBtn" class="send-chat-btn">
+      <i class="fas fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
 </body>
 </html>

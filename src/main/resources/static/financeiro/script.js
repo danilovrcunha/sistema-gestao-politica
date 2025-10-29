@@ -1,107 +1,207 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const exportBtn = document.getElementById('exportBtn');
-    const salvarBtn = document.getElementById('salvarInfoBtn');
+    // === SELETORES ===
     const registroForm = document.getElementById('registroFinanceiroForm');
+    const valorDespesaInput = document.getElementById('valorDespesa');
+    const exportBtn = document.querySelector('.export-btn');
+    const salvarBtn = document.querySelector('.salvar-btn');
+    const acordeaoHeaders = document.querySelectorAll('.acordeao-header');
 
-    // Lógica de máscara monetária (R$)
-    const valueInputs = document.querySelectorAll('input[placeholder="R$ 0.00"]');
-    valueInputs.forEach(input => {
-        // Adiciona o ouvinte de evento para formatar a cada dígito digitado
-        input.addEventListener('input', formatCurrency);
+    // =======================================================
+    // === 1. MÁSCARA MONETÁRIA (FORMATAÇÃO VISUAL)
+    // =======================================================
+    if (valorDespesaInput) {
+        valorDespesaInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value === '') {
+                e.target.value = '';
+                return;
+            }
+            let numericValue = parseInt(value, 10) / 100;
+            e.target.value = numericValue.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+                minimumFractionDigits: 2
+            });
+        });
 
-        // Formata o valor inicial (se houver)
-        if (input.value) {
-            input.value = currencyFormatter(input.value);
-        }
-    });
-
-    function formatCurrency(e) {
-        let value = e.target.value;
-
-        // Remove tudo que não for dígito
-        value = value.replace(/\D/g, '');
-
-        // Se o valor for vazio, sai
-        if (value === '') {
-            e.target.value = '';
-            return;
-        }
-
-        // Converte para número e divide por 100 para ter centavos
-        let numericValue = parseInt(value, 10) / 100;
-
-        // Formata o valor final
-        e.target.value = currencyFormatter(numericValue);
+        valorDespesaInput.addEventListener('blur', (e) => {
+            if (!e.target.value || e.target.value === 'R$ 0,00') {
+                e.target.value = 'R$ 0,00';
+            }
+        });
     }
 
-    // Função helper para formatar o número com a localidade brasileira
-    function currencyFormatter(number) {
-        return number.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-            minimumFractionDigits: 2
-        }).replace("R$ ", "R$ "); // Remove o caractere estranho (Â) se aparecer
+    // =======================================================
+    // === 2. CONVERSÃO ANTES DE ENVIAR AO BACK-END
+    // =======================================================
+    if (salvarBtn) {
+        salvarBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            if (!registroForm.checkValidity()) {
+                registroForm.reportValidity();
+                return;
+            }
+
+            // Converte de "R$ 1.234,56" -> "1234.56"
+            const valor = valorDespesaInput.value
+                .replace(/[R$\s]/g, '')
+                .replace(/\./g, '')
+                .replace(',', '.');
+
+            valorDespesaInput.value = valor;
+            registroForm.submit();
+        });
     }
 
-    // Funcionalidade do botão "Exportar" (Abrir documentos)
-    exportBtn.addEventListener('click', function() {
-        exportToCSV(); // Chama a função que gera o CSV
-    });
+    // =======================================================
+    // === 3. EXPORTAÇÃO PARA CSV (UTF-8 + ACENTOS + #### FIX)
+    // =======================================================
 
-    // Funcionalidade do botão "Salvar Informações"
-    salvarBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (registroForm.checkValidity()) {
-            alert('Informações financeiras salvas com sucesso!');
-            registroForm.reset();
-        } else {
-            registroForm.reportValidity();
-        }
-    });
+    // 🔹 Função auxiliar para limpar texto e manter acentos corretos
+    function sanitizeCSVText(text) {
+        if (!text) return '';
+        return text
+            .replace(/\u00A0/g, ' ')  // remove espaços invisíveis (Â)
+            .replace(/["]/g, '""');   // escapa aspas
+    }
 
-    // Função para exportar os dados para CSV
     function exportToCSV() {
         const now = new Date();
         const dateStr = now.toLocaleDateString('pt-BR').replace(/\//g, '-');
         const timeStr = now.toLocaleTimeString('pt-BR').replace(/:/g, '-');
 
-        // Coleta os campos de interesse e seus rótulos
         const fields = [
             { id: 'dataRegistro', label: 'Data de Registro' },
-            { id: 'valorLocacao', label: 'Valor da Locação do Imóvel' },
-            { id: 'valorJuridica', label: 'Valor da Assessoria Jurídica' },
-            { id: 'valorComunicacao', label: 'Valor da Assessoria de Comunicação' },
-            { id: 'valorCombustivel', label: 'Valor do Combustível' },
-            { id: 'despesasDebito', label: 'Despesas do Débito' },
-            { id: 'despesasCredito', label: 'Despesas no Crédito' },
-            { id: 'outrasDespesas', label: 'Outras Despesas' }
+            { id: 'valorDespesa', label: 'Valor da Despesa' },
+            { id: 'tipoTransacao', label: 'Tipo de Transação' },
+            { id: 'categoria', label: 'Categoria' },
+            { id: 'descricao', label: 'Descrição' },
         ];
 
-        // 1. Gera o Cabeçalho (Rótulos)
         const header = fields.map(f => `"${f.label}"`).join(';');
 
-        // 2. Gera os Dados (Valores do Formulário)
         const dataRow = fields.map(f => {
             const input = document.getElementById(f.id);
-            // Remove aspas e quebras de linha que poderiam quebrar o CSV
-            let value = input ? input.value.replace(/"/g, '""') : '';
-            return `"${value}"`;
+            let value = input ? sanitizeCSVText(input.value) : '';
+            // Força o Excel a exibir tudo como texto (evita #####)
+            return `"'${value}"'`;
         }).join(';');
 
-        // Constrói o conteúdo CSV completo
-        const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(header + '\n' + dataRow);
+        // 🔹 Adiciona BOM UTF-8 para Excel reconhecer acentuação
+        const bom = "\uFEFF";
 
-        // 3. Cria um link temporário para download
+        // 🔹 Limpa possíveis caracteres invisíveis e garante UTF-8
+        const cleanData = (header + '\n' + dataRow)
+            .replace(/\u00A0/g, ' ')  // remove non-breaking spaces
+            .replace(/R\$\s?/g, 'R$ ') // garante espaço após R$
+            .trim();
+
+        const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(bom + cleanData);
+
         const link = document.createElement('a');
         link.setAttribute('href', csvContent);
-        // Define o nome do arquivo para download
         link.setAttribute('download', `RegistroFinanceiro_${dateStr}_${timeStr}.csv`);
-
-        // 4. Simula o clique e remove o link
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
 
         alert('Dados financeiros exportados com sucesso para CSV!');
+    }
+
+    if (exportBtn) {
+        exportBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            exportToCSV();
+        });
+    }
+
+    // =======================================================
+    // === 4. ACORDEÃO (HISTÓRICO DE TRANSAÇÕES)
+    // =======================================================
+    if (acordeaoHeaders.length > 0) {
+        acordeaoHeaders.forEach(header => {
+            header.addEventListener('click', function() {
+                const body = this.nextElementSibling;
+                this.classList.toggle('active');
+
+                if (body.style.maxHeight) {
+                    body.style.maxHeight = null;
+                    body.style.paddingTop = '0';
+                    body.style.paddingBottom = '0';
+                } else {
+                    body.style.maxHeight = body.scrollHeight + 30 + "px";
+                    body.style.paddingTop = '15px';
+                    body.style.paddingBottom = '15px';
+                }
+
+                closeOtherAcordeons(this);
+            });
+        });
+    }
+
+    function closeOtherAcordeons(currentHeader) {
+        acordeaoHeaders.forEach(header => {
+            if (header !== currentHeader && header.classList.contains('active')) {
+                header.classList.remove('active');
+                const body = header.nextElementSibling;
+                body.style.maxHeight = null;
+                body.style.paddingTop = '0';
+                body.style.paddingBottom = '0';
+            }
+        });
+    }
+
+    // =======================================================
+    // === 5. ASSISTENTE I.A.
+    // =======================================================
+    const assistantToggleBtn = document.getElementById('assistant-toggle-btn');
+    const chatPanel = document.getElementById('assistantChatPanel');
+    const closeChatBtn = document.getElementById('closeChatBtn');
+    const chatBody = document.getElementById('chatBody');
+    const chatInput = document.getElementById('chatInput');
+    const sendChatBtn = document.getElementById('sendChatBtn');
+
+    if (assistantToggleBtn) {
+        assistantToggleBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            chatPanel.classList.toggle('open');
+        });
+    }
+
+    if (closeChatBtn) {
+        closeChatBtn.addEventListener('click', () => {
+            chatPanel.classList.remove('open');
+        });
+    }
+
+    function sendMessage() {
+        const userText = chatInput.value.trim();
+        if (userText === "") return;
+
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.classList.add('chat-message-user');
+        userMessageDiv.style.backgroundColor = '#d3e0ff';
+        userMessageDiv.style.marginLeft = 'auto';
+        userMessageDiv.textContent = userText;
+        chatBody.appendChild(userMessageDiv);
+
+        chatInput.value = '';
+        chatBody.scrollTop = chatBody.scrollHeight;
+
+        setTimeout(() => {
+            const aiResponseDiv = document.createElement('div');
+            aiResponseDiv.classList.add('chat-message-ai');
+            aiResponseDiv.textContent = `Entendi: "${userText}". Como posso ajudar você no financeiro?`;
+            chatBody.appendChild(aiResponseDiv);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }, 800);
+    }
+
+    if (sendChatBtn) sendChatBtn.addEventListener('click', sendMessage);
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
     }
 });
