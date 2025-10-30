@@ -1,0 +1,707 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+/* Variáveis de Cores para Consistência */
+:root {
+    --primary-color: #2c3e50;    /* Azul escuro da sidebar/títulos */
+    --secondary-color: #ecf0f1;  /* Fundo claro do conteúdo principal */
+    --text-color: #2c3e50;       /* Cor principal do texto */
+    --light-text: #bdc3c7;       /* Cor do texto normal da sidebar */
+    --active-color: #ffffff;     /* Cor do texto ativo */
+    --background-color: #ecf0f1;
+    --card-background: #ffffff;  /* Cor de fundo dos painéis e formulários */
+    --save-btn-color: #3498db;   /* Azul claro para o botão Salvar */
+}
+
+/* --- ESTILOS GERAIS E LAYOUT DA PÁGINA --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* --- BARRA LATERAL (SIDEBAR) --- */
+/* --- BARRA LATERAL (SIDEBAR) --- */
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: var(--primary-color);
+    color: var(--light-text);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+.sidebar .logo {
+    padding-bottom: 20px;
+    border-bottom: 1px solid #34495e;
+    margin-bottom: 20px;
+}
+
+.sidebar .logo h1 {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #ecf0f1;
+}
+
+.nav-menu {
+    flex-grow: 1;
+}
+
+.nav-menu ul {
+    list-style: none;
+}
+
+.nav-menu li {
+    margin-bottom: 10px;
+}
+
+.nav-menu a {
+    color: var(--light-text);
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.nav-menu a:hover, .nav-menu li.active a {
+    background-color: #34495e;
+    color: #ffffff;
+}
+
+.nav-menu i {
+    margin-right: 10px;
+}
+
+.logout {
+    margin-top: auto;
+}
+
+.logout a {
+    color: var(--light-text);
+    text-decoration: none;
+    padding: 10px 15px;
+    display: block;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.logout a:hover {
+    background-color: #c0392b;
+}
+
+/* --- CONTEÚDO PRINCIPAL (MAIN) e HEADER --- */
+.main-content {
+    flex-grow: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.header {
+    background-color: var(--card-background);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-title i {
+    color: var(--primary-color);
+    font-size: 1.5em;
+}
+
+.header-title h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.header p {
+    color: #7f8c8d;
+    font-size: 1em;
+    flex-grow: 1;
+    margin-left: 15px;
+}
+
+/* --- ESTILOS ESPECÍFICOS DA TELA CONFIGURAÇÕES --- */
+
+.config-container {
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+}
+
+/* Estilo das Abas de Navegação */
+.config-tabs {
+    display: flex;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #ddd;
+    gap: 10px;
+}
+
+.tab-button {
+    background-color: transparent;
+    border: none;
+    padding: 10px 15px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    color: #7f8c8d;
+    border-bottom: 3px solid transparent;
+    transition: color 0.3s, border-bottom-color 0.3s;
+    flex-grow: 1;
+    text-align: center;
+    border-radius: 4px 4px 0 0;
+}
+
+.tab-button.active {
+    color: var(--text-color);
+    border-bottom: 3px solid var(--primary-color);
+    background-color: #f7f7f7;
+}
+
+.tab-button:hover:not(.active) {
+    color: #444;
+}
+
+/* Conteúdo da Aba */
+.tab-content-wrapper {
+    min-height: 400px;
+    position: relative;
+}
+
+.tab-pane {
+    display: none;
+    padding-top: 10px;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+.pane-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: var(--primary-color);
+}
+
+/* Estilo do Formulário de Configurações */
+.config-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-bottom: 100px; /* Espaço para o botão Salvar Flutuante */
+}
+
+.config-form label {
+    font-size: 0.9em;
+    font-weight: 500;
+    color: #7f8c8d;
+    margin-bottom: 3px;
+    display: block;
+}
+
+.config-form input[type="text"],
+.config-form input[type="email"],
+.config-form input[type="tel"] {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    width: 100%;
+    background-color: #fcfcfc;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Botão Salvar (Posicionado no canto inferior direito do container) */
+.save-button-container {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 150px;
+    text-align: right;
+    /* Ajuste para alinhar com o padding do container */
+    margin-right: 30px;
+}
+
+.salvar-btn {
+    background-color: var(--save-btn-color);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+.salvar-btn:hover {
+    background-color: #2980b9;
+}
+/* Correção para o texto de instrução na aba Segurança */
+.security-text {
+    font-size: 1em;
+    color: #444; /* Cor mais escura para melhor legibilidade */
+    margin-bottom: 25px;
+    padding-left: 5px; /* Alinha com o início dos inputs */
+}
+
+/* Ajusta o padding para inputs no formulário de segurança */
+.security-form input[type="password"],
+.security-form input[type="email"] {
+    /* Mantém o padding de 15px para ser consistente com o formulário de Perfil */
+    padding: 15px;
+}
+
+/* Garante que o input de email 'read-only' tenha a cor de fundo correta */
+.security-form input[readonly] {
+    background-color: #f0f0f0;
+    cursor: default;
+    color: #555; /* Garante que o texto dentro dele não fique cinza demais */
+    font-weight: 500;
+}
+
+/* Ajusta a dica de senha */
+.password-hint {
+    font-size: 0.8em; /* Deixa a dica menor */
+    color: #999; /* Cor mais clara para ser secundária */
+    margin-top: -10px;
+    margin-bottom: 5px;
+    padding-left: 5px; /* Alinha com o texto da instrução */
+}
+
+/* Garante que o título dentro das abas use o espaçamento correto */
+.tab-pane .pane-title {
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: var(--primary-color);
+}
+/* --- ESTILOS PARA MOSTRAR SENHA (CORRIGIDOS) --- */
+.password-group {
+    position: relative;
+    /* Remove a margem inferior para que o espaçamento seja controlado pela configuração global */
+}
+
+/* Garante que o input dentro do grupo ocupe 100% da largura do contêiner */
+.password-group input[type="password"],
+.password-group input[type="text"] {
+    width: 100%; /* Garante que o input mantenha a largura total */
+    padding-right: 40px !important; /* Adiciona padding extra para o ícone */
+    box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
+    /* Garante que este input use o estilo padrão de altura e bordas: */
+    /* Estes estilos já devem vir de .config-form input[type="..."] */
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #95a5a6;
+    transition: color 0.2s;
+    z-index: 10; /* Garante que o ícone fique por cima do input */
+}
+
+.toggle-password:hover {
+    color: var(--primary-color);
+}
+/* --- ESTILOS ESPECÍFICOS DA ABA ADMINISTRAÇÃO DE USUÁRIOS --- */
+
+.admin-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinha o título com o botão no topo */
+    margin-bottom: 10px;
+}
+
+.update-list-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 0.9em;
+}
+
+.update-list-btn:hover {
+    background-color: #34495e;
+}
+
+.admin-info-text {
+    font-size: 1em;
+    color: #444;
+    margin-bottom: 15px;
+}
+
+.user-count-row {
+    margin-bottom: 20px;
+    font-weight: bold;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-count-row i {
+    font-size: 1.1em;
+    color: #7f8c8d;
+}
+
+/* Estilo da Tabela de Administrador */
+.table-container-admin {
+    overflow-x: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.data-table-admin {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+}
+
+.data-table-admin thead th {
+    background-color: #f7f7f7; /* Fundo cinza claro para o cabeçalho */
+    color: var(--text-color);
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #ddd;
+}
+
+.data-table-admin tbody td {
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.95em;
+    vertical-align: top;
+}
+
+/* Tag de Perfil (Administrador) */
+.tag-admin {
+    background-color: #e6e6e6;
+    color: #c0392b; /* Cor vermelha para destaque */
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 0.85em;
+}
+
+/* Coluna de Último Acesso */
+.last-access-col {
+    line-height: 1.4;
+}
+.last-access-col .time {
+    font-weight: bold;
+    display: block;
+}
+.last-access-col .detail {
+    font-size: 0.85em;
+    color: #7f8c8d;
+}
+
+/* Botões de Ação no Rodapé da Tabela */
+.admin-actions-footer {
+    display: flex;
+    gap: 15px;
+    padding-bottom: 20px;
+}
+
+.admin-actions-footer .action-btn {
+    width: auto;
+    padding: 10px 20px;
+    font-size: 0.9em;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
+
+.edit-perms-btn {
+    background-color: #3498db; /* Azul para Editar */
+}
+.edit-perms-btn:hover {
+    background-color: #2980b9;
+}
+
+.remove-user-btn {
+    background-color: #e74c3c; /* Vermelho para Remover */
+}
+.remove-user-btn:hover {
+    background-color: #c0392b;
+}
+/* --- ESTILOS DO MODAL DE PERMISSÕES --- */
+
+/* Fundo escuro do modal */
+.modal-perms {
+    display: none; /* Oculta por padrão */
+    position: fixed;
+    z-index: 2000; /* Alto para sobrepor tudo */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content-perms {
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close-btn-perms {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 30px;
+    font-weight: bold;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn-perms:hover {
+    color: #333;
+}
+
+.modal-title-perms {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 25px;
+    padding-right: 40px; /* Garante espaço para o 'X' de fechar */
+}
+
+.control-title {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+/* Estilo para os Checkboxes de Permissão */
+.permission-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.permission-item {
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    color: #444;
+    cursor: pointer;
+}
+
+.permission-item input[type="checkbox"] {
+    /* Estilo básico de checkbox (pode ser substituído por um estilo customizado se necessário) */
+    width: 18px;
+    height: 18px;
+    margin-right: 15px;
+    accent-color: var(--primary-color);
+}
+
+/* Rodapé do Modal */
+.modal-footer-perms {
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+/* --- ESTILOS DO ASSISTENTE I.A. CHAT --- */
+
+.assistant-chat-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 350px; /* Largura do painel */
+    height: 100%;
+    background-color: var(--card-background, white);
+    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 100; /* Garante que fique acima de tudo */
+    display: flex;
+    flex-direction: column;
+
+    /* Estado inicial: Oculto (desliza para fora da tela) */
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+}
+
+.assistant-chat-panel.open {
+    /* Estado Aberto: Desliza para dentro */
+    transform: translateX(0);
+}
+
+/* Cabeçalho do Chat */
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--primary-color, #2c3e50); /* Cor de fundo do cabeçalho */
+    color: white;
+    font-weight: 600;
+}
+
+.close-chat-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5em;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* Corpo do Chat (Mensagens) */
+.chat-body {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #f7f7f7; /* Fundo levemente cinza para a área de chat */
+}
+
+.chat-message-ai, .chat-message-user {
+    max-width: 80%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 15px;
+    font-size: 0.95em;
+    line-height: 1.4;
+}
+
+.chat-message-ai {
+    background-color: #e0f7fa; /* Azul claro para mensagens da IA */
+    color: #004d40;
+    align-self: flex-start;
+    margin-right: auto;
+}
+
+/* Rodapé do Chat (Input e Botão de Envio) */
+.chat-footer {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background-color: var(--card-background, white);
+}
+
+#chatInput {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+    outline: none;
+}
+
+.send-chat-btn {
+    background-color: var(--save-btn-color, #3498db);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.send-chat-btn:hover {
+    background-color: #2980b9;
+}
+/* ====== CAMPOS DE SENHA ====== */
+.config-form input[type="password"] {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    width: 100%;
+    background-color: #fcfcfc;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Grupo com ícone de mostrar senha */
+.password-group {
+    position: relative;
+}
+
+.password-group input {
+    width: 100%;
+    padding-right: 40px; /* espaço para o ícone */
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #7f8c8d;
+    transition: color 0.3s;
+}
+
+.toggle-password:hover {
+    color: var(--primary-color);
+}
+
+/* ====== SELECT DE TIPO DE USUÁRIO ====== */
+.config-form select {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1em;
+    background-color: #fcfcfc;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+}
+
+.config-form select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 4px rgba(44, 62, 80, 0.3);
+}

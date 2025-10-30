@@ -12,16 +12,27 @@ public class ConfiguracaoSeguranca {
 
     @Bean
     public PasswordEncoder codificadorDeSenha() {
+        // Sem encriptação por enquanto, conforme fase de testes
         return NoOpPasswordEncoder.getInstance();
     }
-
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/login/**", "/registro/**", "/usuarios/**").permitAll()
+                .csrf(csrf -> csrf.disable()) // Desativa CSRF para permitir fetch API
+                .authorizeHttpRequests(auth -> auth
+                        // Permite total acesso aos endpoints e páginas do projeto
+                        .requestMatchers(
+                                "/login/**",
+                                "/registro/**",
+                                "/usuarios/**",   // ✅ agora totalmente liberado
+                                "/home/**",
+                                "/acoes/**",
+                                "/kanban/**",
+                                "/financeiro/**",
+                                "/configuracoes/**",
+                                "/css/**", "/js/**", "/images/**", "/webjars/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -35,22 +46,4 @@ public class ConfiguracaoSeguranca {
 
         return http.build();
     }
-
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // se você não usa token CSRF no fetch
-                .authorizeHttpRequests(auth -> auth
-                        // arquivos estáticos e uploads
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/uploads/**").permitAll()
-                        // páginas públicas (ajuste conforme sua auth)
-                        .requestMatchers("/", "/home", "/login",
-                                "/acoes", "/acoesRegistradas", "/registrarAcoes", "/editarAcao/**").permitAll()
-                        // API (ajuste conforme necessidade)
-                        .requestMatchers("/api/**").permitAll()
-                        .anyRequest().authenticated()
-                );
-        return http.build();
-    }
-
 }

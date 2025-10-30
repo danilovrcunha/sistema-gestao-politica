@@ -16,4 +16,13 @@ document.addEventListener('DOMContentLoaded', function() {
             senhaInput.setAttribute('type', type);
         });
     }
+    const loginForm = document.querySelector("form");
+    if (loginForm) {
+        loginForm.addEventListener("submit", () => {
+            const emailInput = document.getElementById("email");
+            if (emailInput && emailInput.value) {
+                localStorage.setItem("userEmail", emailInput.value);
+            }
+        });
+    }
 });
