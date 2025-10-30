@@ -4,13 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestão de Tarefas</title>
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="/kanban/style.css" />
   <link rel="stylesheet" href="/AssistenteIA/style.css" />
+  <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+  />
+
+  <!-- Script do assistente -->
   <script src="/AssistenteIA/script.js" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 </head>
+
 <body>
 <div class="container">
+  <!-- ================= SIDEBAR ================= -->
   <aside class="sidebar">
     <div class="logo">
       <h1>Menu Principal</h1>
@@ -32,6 +41,7 @@
     </div>
   </aside>
 
+  <!-- ================= MAIN CONTENT ================= -->
   <main class="main-content">
     <header class="header">
       <div class="header-title">
@@ -41,24 +51,33 @@
       <div class="header-breadcrumb">
         <span>Início</span> &gt; <span>Gestão de Tarefas</span>
       </div>
-
       <a href="/criarTarefa" class="new-task-btn">Nova Tarefa</a>
     </header>
 
+    <!-- ================= KANBAN BOARD ================= -->
     <section class="kanban-board">
-      <!-- 🔵 A FAZER -->
+
+      <!-- 🟢 A FAZER -->
       <div class="kanban-column" id="todo-column">
-        <div class="column-header" style="background-color: #3498db">
+        <div class="column-header">
           <h3>A Fazer</h3>
           <span class="task-count" th:text="${#lists.size(tarefasAFazer)}">0</span>
         </div>
+
         <div class="task-list" data-status="todo">
           <th:block th:each="tarefa : ${tarefasAFazer}">
             <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
-              <h4 th:text="${tarefa.titulo}"></h4>
+              <div class="task-header">
+                <h4 th:text="${tarefa.titulo}"></h4>
+                <button class="delete-task-btn" title="Excluir tarefa">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
               <p th:text="${tarefa.descricao}"></p>
-              <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
-              <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+              <div class="task-card-footer">
+                <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+                <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+              </div>
             </div>
           </th:block>
         </div>
@@ -66,17 +85,25 @@
 
       <!-- 🟡 EM ANDAMENTO -->
       <div class="kanban-column" id="in-progress-column">
-        <div class="column-header" style="background-color: #f1c40f">
+        <div class="column-header">
           <h3>Em Andamento</h3>
           <span class="task-count" th:text="${#lists.size(tarefasEmAndamento)}">0</span>
         </div>
+
         <div class="task-list" data-status="in-progress">
           <th:block th:each="tarefa : ${tarefasEmAndamento}">
             <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
-              <h4 th:text="${tarefa.titulo}"></h4>
+              <div class="task-header">
+                <h4 th:text="${tarefa.titulo}"></h4>
+                <button class="delete-task-btn" title="Excluir tarefa">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
               <p th:text="${tarefa.descricao}"></p>
-              <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
-              <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+              <div class="task-card-footer">
+                <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+                <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+              </div>
             </div>
           </th:block>
         </div>
@@ -88,13 +115,21 @@
           <h3>Concluído</h3>
           <span class="task-count" th:text="${#lists.size(tarefasConcluidas)}">0</span>
         </div>
+
         <div class="task-list" data-status="done">
           <th:block th:each="tarefa : ${tarefasConcluidas}">
             <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
-              <h4 th:text="${tarefa.titulo}"></h4>
+              <div class="task-header">
+                <h4 th:text="${tarefa.titulo}"></h4>
+                <button class="delete-task-btn" title="Excluir tarefa">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
               <p th:text="${tarefa.descricao}"></p>
-              <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
-              <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+              <div class="task-card-footer">
+                <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+                <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
+              </div>
             </div>
           </th:block>
         </div>
@@ -102,7 +137,8 @@
     </section>
   </main>
 </div>
-<!-- Assistente I.A. -->
+
+<!-- ================= ASSISTENTE IA ================= -->
 <div class="assistant-chat-panel" id="assistantChatPanel">
   <div class="chat-header">
     <h4>Assistente I.A.</h4>
@@ -123,6 +159,7 @@
   </div>
 </div>
 
-<script src="/kanban/script.js"></script>
+<!-- Script principal do Kanban -->
+<script src="/kanban/script.js" defer></script>
 </body>
 </html>

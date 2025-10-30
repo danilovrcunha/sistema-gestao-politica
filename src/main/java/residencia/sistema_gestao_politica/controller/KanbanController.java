@@ -18,6 +18,7 @@ public class KanbanController {
     @Autowired
     private TarefaRepository tarefaRepository;
 
+    // 🔹 Exibir o Kanban
     @GetMapping("/kanban")
     public String exibirKanban(Model model) {
         List<Tarefa> todasTarefas = tarefaRepository.findAll();
@@ -41,10 +42,13 @@ public class KanbanController {
         return "kanban/kanban";
     }
 
-    // 🔹 NOVO: Atualizar status da tarefa (usado pelo JS ao arrastar)
+    // 🔹 Atualizar status da tarefa (arrastar e soltar)
     @PutMapping("/tarefas/{id}/status")
     @ResponseBody
-    public ResponseEntity<String> atualizarStatus(@PathVariable Long id, @RequestParam("novoStatus") String novoStatus) {
+    public ResponseEntity<String> atualizarStatus(
+            @PathVariable Long id,
+            @RequestParam("novoStatus") String novoStatus) {
+
         Tarefa tarefa = tarefaRepository.findById(id).orElse(null);
 
         if (tarefa == null) {
@@ -55,8 +59,26 @@ public class KanbanController {
             tarefa.setStatus(StatusTarefa.valueOf(novoStatus));
             tarefaRepository.save(tarefa);
             return ResponseEntity.ok("Status atualizado com sucesso!");
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Status inválido.");
+        }
+    }
+
+    // 🗑️ NOVO: Excluir tarefa
+    @DeleteMapping("/tarefas/{id}")
+    @ResponseBody
+    public ResponseEntity<String> excluirTarefa(@PathVariable Long id) {
+        Tarefa tarefa = tarefaRepository.findById(id).orElse(null);
+
+        if (tarefa == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            tarefaRepository.delete(tarefa);
+            return ResponseEntity.ok("Tarefa excluída com sucesso!");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Erro ao excluir a tarefa.");
         }
     }
 }

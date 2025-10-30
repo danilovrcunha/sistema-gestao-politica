@@ -2,7 +2,46 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskLists = document.querySelectorAll(".task-list");
     let draggedItem = null;
 
-    // 🔹 Início do arraste
+    // 🔹 Função: Mapeia status visual → enum backend
+    function mapearStatus(coluna) {
+        switch (coluna) {
+            case "todo":
+                return "A_FAZER";
+            case "in-progress":
+                return "EM_ANDAMENTO";
+            case "done":
+                return "CONCLUIDO";
+            default:
+                return "A_FAZER";
+        }
+    }
+
+    // 🔹 Atualiza status no backend
+    function atualizarStatusNoBanco(id, novoStatus) {
+        fetch(`/tarefas/${id}/status?novoStatus=${novoStatus}`, {
+            method: "PUT",
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("Erro ao atualizar status");
+                console.log(`✅ Tarefa ${id} atualizada para ${novoStatus}`);
+            })
+            .catch(() => alert("Erro ao atualizar o status da tarefa."));
+    }
+
+    // 🔹 Excluir tarefa no backend
+    function excluirTarefa(id, card) {
+        if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+            fetch(`/tarefas/${id}`, { method: "DELETE" })
+                .then(response => {
+                    if (!response.ok) throw new Error("Erro ao excluir tarefa");
+                    card.remove();
+                    console.log(`🗑️ Tarefa ${id} excluída com sucesso`);
+                })
+                .catch(() => alert("Erro ao excluir a tarefa."));
+        }
+    }
+
+    // 🔹 Arrastar e soltar
     document.querySelectorAll(".task-card").forEach(card => {
         card.addEventListener("dragstart", e => {
             draggedItem = e.target;
@@ -15,7 +54,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 🔹 Permite soltar nas colunas
     taskLists.forEach(list => {
         list.addEventListener("dragover", e => {
             e.preventDefault();
@@ -31,42 +69,20 @@ document.addEventListener("DOMContentLoaded", () => {
             list.style.backgroundColor = "";
             if (draggedItem) {
                 list.appendChild(draggedItem);
-
                 const tarefaId = draggedItem.getAttribute("data-id");
                 const novoStatus = mapearStatus(list.getAttribute("data-status"));
-
-                // 🔹 Atualiza no backend
                 atualizarStatusNoBanco(tarefaId, novoStatus);
             }
         });
     });
 
-    // 🔹 Mapeia o status da coluna → Enum do backend
-    function mapearStatus(coluna) {
-        switch (coluna) {
-            case "todo":
-                return "A_FAZER";
-            case "in-progress":
-                return "EM_ANDAMENTO";
-            case "done":
-                return "CONCLUIDO";
-            default:
-                return "A_FAZER";
-        }
-    }
-
-    // 🔹 Atualiza o status no banco de dados
-    function atualizarStatusNoBanco(id, novoStatus) {
-        fetch(`/tarefas/${id}/status?novoStatus=${novoStatus}`, {
-            method: "PUT",
-        })
-            .then(response => {
-                if (!response.ok) throw new Error("Erro ao atualizar status");
-                console.log(`✅ Tarefa ${id} atualizada para ${novoStatus}`);
-            })
-            .catch(error => {
-                console.error("❌ Erro:", error);
-                alert("Erro ao atualizar o status da tarefa.");
-            });
-    }
+    // 🔹 Eventos do botão de exclusão
+    document.querySelectorAll(".delete-task-btn").forEach(btn => {
+        btn.addEventListener("click", e => {
+            e.stopPropagation(); // evita interferência no drag
+            const card = e.target.closest(".task-card");
+            const tarefaId = card.getAttribute("data-id");
+            excluirTarefa(tarefaId, card);
+        });
+    });
 });

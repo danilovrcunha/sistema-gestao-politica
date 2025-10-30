@@ -7,9 +7,11 @@
     --light-text: #bdc3c7;
     --background-color: #ecf0f1;
     --card-background: #ffffff;
-    --done-color: #2ecc71;
-    --in-progress-color: #f1c40f;
-    --todo-color: #3498db;
+
+    /* 🟢 STATUS COLORS (atualizados) */
+    --done-color: #2ecc71;         /* Concluído */
+    --in-progress-color: #3498db;  /* Em andamento → Azul */
+    --todo-color: #f1c40f;         /* A fazer → Amarelo */
 }
 
 * {
@@ -29,6 +31,9 @@ body {
     height: 100vh;
 }
 
+/* ==============================
+   SIDEBAR
+============================== */
 .sidebar {
     width: 250px;
     background-color: var(--primary-color);
@@ -71,7 +76,8 @@ body {
     transition: background-color 0.3s;
 }
 
-.nav-menu a:hover, .nav-menu li.active a {
+.nav-menu a:hover,
+.nav-menu li.active a {
     background-color: #34495e;
     color: #ffffff;
 }
@@ -97,6 +103,9 @@ body {
     background-color: #c0392b;
 }
 
+/* ==============================
+   HEADER
+============================== */
 .main-content {
     flex-grow: 1;
     padding: 20px;
@@ -151,6 +160,9 @@ body {
     background-color: #2980b9;
 }
 
+/* ==============================
+   KANBAN BOARD
+============================== */
 .kanban-board {
     display: flex;
     gap: 20px;
@@ -175,6 +187,21 @@ body {
     color: white;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
+}
+
+/* 🟡 Coluna "A Fazer" */
+#todo-column .column-header {
+    background-color: var(--todo-color);
+}
+
+/* 🔵 Coluna "Em Andamento" */
+#in-progress-column .column-header {
+    background-color: var(--in-progress-color);
+}
+
+/* 🟢 Coluna "Concluído" */
+#done-column .column-header {
+    background-color: var(--done-color);
 }
 
 .column-header h3 {
@@ -209,29 +236,44 @@ body {
     margin-bottom: 10px;
 }
 
+/* ===============================
+   BOTÃO DE EXCLUIR TAREFA
+=============================== */
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.delete-task-btn {
+    background: transparent;
+    border: none;
+    color: #e74c3c;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.delete-task-btn:hover {
+    color: #c0392b;
+    transform: scale(1.2);
+}
+
 .task-card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: auto;
-    font-size: 0.9em;
+    margin-top: 10px;
+    font-size: 0.85em;
     color: #7f8c8d;
 }
 
-.task-icons i {
-    cursor: pointer;
-    margin-left: 10px;
-    color: #95a5a6;
-    transition: color 0.3s;
-}
-
-.task-icons i:hover {
-    color: #34495e;
-}
-
-/* Estilo do Modal */
+/* ===============================
+   MODAL
+=============================== */
 .modal {
-    display: none;
+    display: none; /* ESSENCIAL: O JavaScript muda isso para 'flex' */
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -289,16 +331,4 @@ body {
 
 .modal-content form button:hover {
     background-color: #27ae60;
-}/* Estilo do Modal */
-.modal {
-    display: none; /* ESSENCIAL: O JavaScript muda isso para 'flex' */
-    position: fixed;
-    z-index: 1000; /* Garante que fique acima de todos os elementos */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Fundo escuro */
-    justify-content: center; /* Centraliza o conteúdo horizontalmente */
-    align-items: center; /* Centraliza o conteúdo verticalmente */
 }
