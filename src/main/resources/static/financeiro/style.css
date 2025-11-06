@@ -707,3 +707,36 @@ body {
     justify-content: flex-end;
     padding-top: 25px;
 }
+/* --- ESTILOS PARA OS TÍTULOS DE COLUNA DO HISTÓRICO --- */
+
+.acordeao-column-headers {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px; 
+    margin-bottom: 5px;
+    font-size: 0.9em;
+    color: #7f8c8d; 
+    font-weight: 500;
+}
+
+.header-mes {
+    text-align: left;
+    flex-grow: 1; 
+    padding-left: 10px; 
+}
+
+.header-custos {
+    text-align: right;
+    /* Ajuste fino para compensar o padding do ícone de seta e garantir alinhamento */
+    min-width: 150px; /* Garante que ocupe mais espaço */
+    padding-right: 50px; /* Este valor compensa o padding e o ícone de seta do botão */
+    box-sizing: border-box; 
+}
+
+/* Ajuste no acordeao-header para a flexibilidade */
+.acordeao-header {
+    /* Garante que o texto 'Despesa Mensal' ocupe o espaço correto */
+    flex-grow: 1;
+    padding: 15px 20px 15px 15px; 
+}

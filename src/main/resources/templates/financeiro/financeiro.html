@@ -96,40 +96,49 @@
     </section>
 
     <!-- HISTÓRICO -->
-    <section class="historico-transacoes-container">
-      <h3>Histórico de Transações Recentes</h3>
-
-      <th:block th:each="registro : ${registros}">
-        <div class="acordeao-item">
-          <button class="acordeao-header">
-                        <span class="acordeao-titulo"
-                              th:text="${#strings.isEmpty(registro.categoria) ? 'Sem categoria' : registro.categoria}"></span>
-            <span class="acordeao-valor" th:text="${registro.valorFormatado}"></span>
+<section class="historico-transacoes-container">
+    <h3>Histórico de Transações Recentes</h3>
+    
+    <div class="acordeao-column-headers">
+        <span class="header-mes">Mês</span>
+        <span class="header-custos">Custos</span>
+    </div>
+    
+    <div class="acordeao-item">
+        <button class="acordeao-header">
+            <span>Despesa Mensal (Janeiro)</span>
+            <span class="acordeao-valor">R$ 1.550,00</span>
             <i class="fas fa-chevron-down acordeao-icon"></i>
-          </button>
-
-          <div class="acordeao-body">
+        </button>
+        <div class="acordeao-body">
             <ul class="transacao-detalhes">
-              <li>
-                <span>Data de Registro:</span>
-                <span th:text="${#temporals.format(registro.dataRegistro, 'dd/MM/yyyy')}"></span>
-              </li>
-              <li><span>Tipo:</span> <span th:text="${registro.tipoTransacao}"></span></li>
-              <li><span>Categoria:</span> <span th:text="${registro.categoria}"></span></li>
-              <li><span>Descrição:</span> <span th:text="${registro.descricao}"></span></li>
-              <li class="total-geral">
-                <span>Valor Total:</span>
-                <span th:text="${registro.valorFormatado}"></span>
-              </li>
+                <li><span>Data de Registro:</span> 05/01/2025</li>
+                <li><span>Tipo:</span> Débito</li>
+                <li><span>Categoria:</span> Aluguel e Combustível</li>
+                <li><span>Descrição:</span> Pagamento do aluguel e despesas de locomoção do mês.</li>
+                <li class="total-geral"><span>Valor Total:</span> R$ 1.550,00</li>
             </ul>
-          </div>
         </div>
-      </th:block>
+    </div>
 
-      <div th:if="${#lists.isEmpty(registros)}" class="sem-registros">
-        <p>Nenhum registro financeiro encontrado.</p>
-      </div>
-    </section>
+    <div class="acordeao-item">
+        <button class="acordeao-header">
+            <span>Despesa Extra (Fevereiro)</span>
+            <span class="acordeao-valor">R$ 350,80</span>
+            <i class="fas fa-chevron-down acordeao-icon"></i>
+        </button>
+        <div class="acordeao-body">
+            <ul class="transacao-detalhes">
+                <li><span>Data de Registro:</span> 15/02/2025</li>
+                <li><span>Tipo:</span> PIX</li>
+                <li><span>Categoria:</span> Assessoria Jurídica</li>
+                <li><span>Descrição:</span> Pagamento de honorários advocatícios para consulta.</li>
+                <li class="total-geral"><span>Valor Total:</span> R$ 350,80</li>
+            </ul>
+        </div>
+    </div>
+    
+</section>
   </main>
 </div>
 
