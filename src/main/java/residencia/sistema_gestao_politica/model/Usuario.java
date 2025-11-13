@@ -1,5 +1,6 @@
 package residencia.sistema_gestao_politica.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // IMPORTAR
 import jakarta.persistence.*;
 import residencia.sistema_gestao_politica.model.enums.TipoUsuario;
 
@@ -17,15 +18,27 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
+    // A coluna agora tem o tamanho correto para o hash BCrypt
+    @Column(nullable = false, length = 100)
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TipoUsuario tipoUsuario;
 
+    // --- MUDANÇA AQUI ---
+    // Esta anotação diz ao Jackson: "Não serialize este campo,
+    // pois o 'pai' (Gabinete) já está cuidando disso."
+    // Isso quebra o loop infinito.
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "gabinete_id")
+    private Gabinete gabinete;
+
+    // Construtores, Getters e Setters (sem mudança)
     public Usuario() {
     }
+
     public Usuario(String nome, String email, String password, TipoUsuario tipoUsuario) {
         this.nome = nome;
         this.email = email;
@@ -71,5 +84,13 @@ public class Usuario {
 
     public void setTipoUsuario(TipoUsuario tipoUsuario) {
         this.tipoUsuario = tipoUsuario;
+    }
+
+    public Gabinete getGabinete() {
+        return gabinete;
+    }
+
+    public void setGabinete(Gabinete gabinete) {
+        this.gabinete = gabinete;
     }
 }
