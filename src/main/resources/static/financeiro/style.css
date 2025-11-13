@@ -1,36 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-/* Variáveis de Cores para Consistência */
-:root {
-    --primary-color: #2c3e50;    /* Azul escuro da sidebar/botões Exportar */
-    --secondary-color: #ecf0f1;  /* Fundo claro do conteúdo principal */
-    --text-color: #2c3e50;       /* Cor principal do texto */
-    --light-text: #bdc3c7;       /* Cor do texto normal da sidebar */
-    --active-color: #ffffff;     /* Cor do texto ativo */
-    --background-color: #ecf0f1;
-    --card-background: #ffffff;  /* Cor de fundo dos cards e formulários */
-    --save-btn-color: #3498db;   /* Azul claro para o botão Salvar */
-}
-
-/* --- ESTILOS GERAIS E LAYOUT DA PÁGINA --- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-}
-
-.container {
-    display: flex;
-    height: 100vh;
-}
-
-/* Variáveis de Cores para Consistência */
+/* --- :root (Variáveis Globais) --- */
 :root {
     --primary-color: #2c3e50;    /* Azul escuro da sidebar/botões Exportar */
     --secondary-color: #ecf0f1;  /* Fundo claro do conteúdo principal */
@@ -61,12 +31,6 @@ body {
 }
 
 /* --- BARRA LATERAL (SIDEBAR) --- */
-/* --- BARRA LATERAL (SIDEBAR) --- */
-.container {
-    display: flex;
-    height: 100vh;
-}
-
 .sidebar {
     width: 250px;
     background-color: var(--primary-color);
@@ -142,13 +106,14 @@ body {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    background-color: var(--background-color, #f5f7fa); /* Versão refinada */
 }
 
 .header {
     background-color: var(--card-background);
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px; /* Versão refinada */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Versão refinada */
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -178,20 +143,19 @@ body {
     margin-left: 15px;
 }
 
-/* Breadcrumb para a navegação */
 .header-breadcrumb {
     color: #7f8c8d;
     font-size: 0.9em;
 }
 
 
-/* --- ESTILOS ESPECÍFICOS DA TELA FINANCEIRO --- */
+/* --- FORMULÁRIO FINANCEIRO (CONSOLIDADO) --- */
 
 .financeiro-container {
     background-color: var(--card-background);
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 35px; /* Versão refinada */
+    border-radius: 12px; /* Versão refinada */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Versão refinada */
     flex-grow: 1;
 }
 
@@ -199,38 +163,40 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    /* Linha sutil abaixo do título do formulário */
-    border-bottom: 1px solid #eee;
+    margin-bottom: 30px; /* Versão refinada */
+    padding-bottom: 15px; /* Versão refinada */
+    border-bottom: 1px solid #f0f0f0; /* Versão refinada */
 }
 
 .form-header-financeiro h3 {
-    font-size: 1.4em;
-    font-weight: 700;
+    font-size: 1.6em; /* Versão refinada */
+    font-weight: 600;
     color: var(--primary-color);
 }
 
 .export-btn {
     background-color: var(--primary-color);
     color: white;
-    padding: 8px 15px;
+    padding: 10px 20px; /* Versão refinada */
     border: none;
-    border-radius: 4px;
+    border-radius: 8px; /* Versão refinada */
     font-size: 0.9em;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 5px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s;
     text-transform: uppercase;
     font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Versão refinada */
 }
 
 .export-btn:hover {
     background-color: #34495e;
+    transform: translateY(-1px); /* Versão refinada */
 }
 
+/* Estrutura do Formulário */
 .registro-financeiro-form {
     display: flex;
     flex-direction: column;
@@ -248,38 +214,54 @@ body {
     flex: 1;
 }
 
+/* Inputs, Selects e Textarea (Unificados) */
 .registro-financeiro-form label {
     font-weight: 500;
-    margin-bottom: 3px;
-    color: #7f8c8d; /* Cinza claro para o rótulo */
+    margin-bottom: 5px; /* Versão refinada */
+    color: #555; /* Versão refinada */
     display: block;
     font-size: 0.9em;
 }
 
 .registro-financeiro-form input[type="text"],
-.registro-financeiro-form input[type="date"] {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+.registro-financeiro-form input[type="date"],
+.registro-financeiro-form select,
+.registro-financeiro-form textarea {
+    padding: 14px; /* Versão refinada e unificada */
+    border: 1px solid #e0e0e0; /* Versão refinada */
+    border-radius: 8px; /* Versão refinada */
     font-size: 1em;
     width: 100%;
     background-color: #fcfcfc;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Versão refinada */
+    transition: border-color 0.3s;
 }
 
-/* Estilo para campos de valor (destaque visual R$ 0.00) */
-.registro-financeiro-form input[placeholder="R$ 0.00"] {
+.registro-financeiro-form input:focus,
+.registro-financeiro-form select:focus,
+.registro-financeiro-form textarea:focus {
+    border-color: var(--save-btn-color, #3498db);
+    box-shadow: 0 0 0 1px var(--save-btn-color, #3498db); /* Versão refinada */
+    background-color: white;
+}
+
+.registro-financeiro-form input[placeholder="R$ 0,00"] {
     font-weight: bold;
-    color: #444;
+    color: var(--text-color); /* Versão refinada */
 }
 
-/* Rodapé e Botão de Salvar */
-.form-footer-financeiro {
+.registro-financeiro-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Botões do Formulário */
+.form-footer-buttons-financeiro {
     display: flex;
     justify-content: flex-end;
-    padding-top: 30px;
+    padding-top: 25px;
     margin-top: 10px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #f0f0f0; /* Linha sutil */
 }
 
 .salvar-btn {
@@ -287,244 +269,128 @@ body {
     color: white;
     padding: 12px 25px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px; /* Versão refinada */
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.3s;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3); /* Versão refinada */
 }
 
 .salvar-btn:hover {
     background-color: #2980b9;
-}
-
-/* --- CONTEÚDO PRINCIPAL (MAIN) e HEADER --- */
-.main-content {
-    flex-grow: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-.header {
-    background-color: var(--card-background);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.header-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.header-title i {
-    color: var(--primary-color);
-    font-size: 1.5em;
-}
-
-.header-title h2 {
-    font-size: 1.5em;
-    font-weight: 700;
-}
-
-.header p {
-    color: #7f8c8d;
-    font-size: 1em;
-    flex-grow: 1;
-    margin-left: 15px;
-}
-
-/* Breadcrumb para a navegação */
-.header-breadcrumb {
-    color: #7f8c8d;
-    font-size: 0.9em;
+    transform: translateY(-1px); /* Versão refinada */
 }
 
 
-/* --- ESTILOS ESPECÍFICOS DA TELA FINANCEIRO --- */
-
-.financeiro-container {
-    background-color: var(--card-background);
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    flex-grow: 1;
-}
-
-.form-header-financeiro {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-    padding-bottom: 10px;
-    /* Linha sutil abaixo do título do formulário */
-    border-bottom: 1px solid #eee;
-}
-
-.form-header-financeiro h3 {
-    font-size: 1.4em;
-    font-weight: 700;
-    color: var(--primary-color);
-}
-
-.export-btn {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9em;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: background-color 0.3s;
-    text-transform: uppercase;
-    font-weight: bold;
-}
-
-.export-btn:hover {
-    background-color: #34495e;
-}
-
-.registro-financeiro-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.form-group-row {
-    display: flex;
-    gap: 30px;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.registro-financeiro-form label {
-    font-weight: 500;
-    margin-bottom: 3px;
-    color: #7f8c8d; /* Cinza claro para o rótulo */
-    display: block;
-    font-size: 0.9em;
-}
-
-.registro-financeiro-form input[type="text"],
-.registro-financeiro-form input[type="date"] {
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1em;
-    width: 100%;
-    background-color: #fcfcfc;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-/* Estilo para campos de valor (destaque visual R$ 0.00) */
-.registro-financeiro-form input[placeholder="R$ 0.00"] {
-    font-weight: bold;
-    color: #444;
-}
-
-/* Rodapé e Botão de Salvar */
-.form-footer-financeiro {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 30px;
-    margin-top: 10px;
-    border-top: 1px solid #eee;
-}
-
-.salvar-btn {
-    background-color: var(--save-btn-color);
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.salvar-btn:hover {
-    background-color: #2980b9;
-}
-/* --- ESTILOS PARA O HISTÓRICO DE TRANSAÇÕES (ACORDEÃO) --- */
+/* --- HISTÓRICO DE TRANSAÇÕES (ACORDEÃO - ATUALIZADO) --- */
 
 .historico-transacoes-container {
     background-color: var(--card-background);
-    padding: 20px 30px 30px 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin-top: 20px; /* Espaçamento abaixo do formulário */
+    padding: 20px 35px 30px 35px; /* Versão refinada */
+    border-radius: 12px; /* Versão refinada */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Versão refinada */
+    margin-top: 25px; /* Versão refinada */
 }
 
 .historico-transacoes-container h3 {
-    font-size: 1.2em;
-    font-weight: 700;
+    font-size: 1.3em; /* Versão refinada */
+    font-weight: 600;
     color: var(--primary-color);
-    margin-bottom: 20px;
+    margin-bottom: 25px; /* Versão refinada */
 }
 
-.acordeao-item {
-    border: 1px solid #ddd;
-    border-radius: 6px;
+/* NOVO: Cabeçalho estático para alinhar os títulos */
+.historico-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 10px 20px;
     margin-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 600;
+}
+
+.historico-header span:first-child {
+    flex-grow: 1; /* Ocupa o espaço, empurrando "Custos" */
+    margin-right: 15px; /* Espaço antes da coluna de custos */
+    color: #555;
+    text-align: left;
+}
+
+.historico-header span:last-child {
+    flex-shrink: 0; /* Não encolhe */
+    width: 120px; /* Largura fixa para a coluna de custos */
+    text-align: right; /* Alinha o texto "Custos" à direita */
+    color: var(--primary-color);
+}
+
+/* Item do Acordeão */
+.acordeao-item {
+    border: 1px solid #e0e0e0; /* Versão refinada */
+    border-radius: 8px; /* Versão refinada */
+    margin-bottom: 12px; /* Versão refinada */
     overflow: hidden; /* Importante para o efeito de expansão */
 }
 
+/* Cabeçalho Clicável do Acordeão */
 .acordeao-header {
-    background-color: #f7f7f7;
+    background-color: #fafafa; /* Versão refinada */
     color: var(--text-color);
     cursor: pointer;
-    padding: 15px;
+    padding: 18px 20px; /* Versão refinada */
     width: 100%;
     border: none;
     text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-weight: bold;
+    font-weight: 600;
     transition: background-color 0.2s;
 }
 
 .acordeao-header:hover {
-    background-color: #eee;
+    background-color: #f0f0f0; /* Versão refinada */
 }
 
+/*Título (Alinhado) */
+.acordeao-titulo {
+    flex-grow: 1;
+    margin-right: 15px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Valor (Alinhado) */
 .acordeao-valor {
-    color: var(--primary-color);
-    font-weight: bold;
+    flex-shrink: 0;
+    width: 120px; /* Mesma largura do .historico-header span:last-child */
+    text-align: right;
+    color: var(--save-btn-color, #3498db);
+    font-weight: 700;
     margin-right: 10px;
 }
 
+/* Ícone do Acordeão */
 .acordeao-icon {
+    flex-shrink: 0;
     transition: transform 0.3s ease;
 }
 
-/* Estado Ativo: Gira o ícone para cima */
 .acordeao-header.active .acordeao-icon {
     transform: rotate(180deg);
 }
 
+/* Corpo (Conteúdo) do Acordeão */
 .acordeao-body {
-    padding: 0 15px;
+    padding: 0 20px; /* Alinha com o padding do header */
     background-color: white;
     max-height: 0; /* ESSENCIAL: Mantém minimizado por padrão */
     overflow: hidden;
     transition: max-height 0.3s ease-out, padding 0.3s ease-out;
 }
 
-/* Estilos dos detalhes da transação */
 .transacao-detalhes {
     list-style: none;
     padding: 10px 0;
@@ -540,203 +406,4 @@ body {
     font-weight: 500;
     color: #7f8c8d;
     margin-right: 5px;
-}
-/* --- ESTILOS GERAIS DE LAYOUT (Ajuste ou mantenha o fundo suave) --- */
-.main-content {
-    background-color: var(--background-color, #f5f7fa); /* Fundo mais suave */
-}
-
-/* Header (Mantido o padrão de borda suave e sombra do Kanban/Dashboard) */
-.header {
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-/* --- ESTILOS ESPECÍFICOS DA TELA FINANCEIRO --- */
-
-.financeiro-container {
-    background-color: var(--card-background);
-    padding: 35px; /* Aumenta um pouco o padding */
-    border-radius: 12px; /* Borda suave */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Sombra que levanta o formulário */
-    flex-grow: 1;
-}
-
-.form-header-financeiro {
-    margin-bottom: 30px; /* Mais espaço após o cabeçalho do form */
-    padding-bottom: 15px;
-    border-bottom: 1px solid #f0f0f0; /* Linha divisória mais sutil */
-}
-
-.form-header-financeiro h3 {
-    font-size: 1.6em; /* Título mais proeminente */
-    font-weight: 600;
-    color: var(--primary-color);
-}
-
-/* Estilo dos Inputs */
-.registro-financeiro-form input[type="text"],
-.registro-financeiro-form input[type="date"] {
-    padding: 14px; /* Altura padronizada */
-    border: 1px solid #e0e0e0;
-    border-radius: 8px; /* Borda suave */
-    font-size: 1em;
-    background-color: #fcfcfc;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Sombra interna sutil */
-    transition: border-color 0.3s;
-}
-
-.registro-financeiro-form input:focus {
-    border-color: var(--save-btn-color, #3498db);
-    box-shadow: 0 0 0 1px var(--save-btn-color, #3498db); /* Foco sutil */
-    background-color: white;
-}
-
-.registro-financeiro-form label {
-    font-weight: 500;
-    margin-bottom: 5px; /* Mais espaço sob o rótulo */
-    color: #555;
-    font-size: 0.9em;
-}
-
-/* Campos de Valor */
-.registro-financeiro-form input[placeholder="R$ 0.00"] {
-    font-weight: bold;
-    color: var(--text-color); /* Deixa a cor do texto digitado mais escura */
-}
-
-
-/* --- BOTÃO EXPORTAR --- */
-.export-btn {
-    background-color: var(--primary-color);
-    padding: 10px 20px;
-    border-radius: 8px; /* Borda suave */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.export-btn:hover {
-    background-color: #34495e;
-    transform: translateY(-1px); /* Animação sutil */
-}
-
-/* --- HISTÓRICO DE TRANSAÇÕES (ACORDEÃO) --- */
-
-.historico-transacoes-container {
-    background-color: var(--card-background);
-    padding: 20px 35px 30px 35px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Sombra para o card */
-    margin-top: 25px; /* Espaçamento claro abaixo do formulário */
-}
-
-.historico-transacoes-container h3 {
-    font-size: 1.3em;
-    font-weight: 600;
-    color: var(--primary-color);
-    margin-bottom: 25px;
-}
-
-/* Estilo do Header do Acordeão */
-.acordeao-item {
-    border: 1px solid #e0e0e0; /* Borda mais fina */
-    border-radius: 8px;
-    margin-bottom: 12px;
-}
-
-.acordeao-header {
-    background-color: #fafafa; /* Fundo muito claro */
-    padding: 18px 20px; /* Padding generoso */
-    font-weight: 600;
-}
-
-.acordeao-header:hover {
-    background-color: #f0f0f0;
-}
-
-.acordeao-valor {
-    color: var(--save-btn-color, #3498db); /* Cor do valor em destaque */
-    font-weight: 700;
-}
-
-.acordeao-body {
-    padding: 0 20px;
-}
-
-/* Botão Salvar Informações */
-.salvar-btn {
-    /* Mantido o azul e a suavidade da borda */
-    background-color: var(--save-btn-color);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
-}
-
-.salvar-btn:hover {
-    background-color: #2980b9;
-    transform: translateY(-1px);
-}
-/* --- ESTILOS ADICIONAIS PARA O FORMULÁRIO FINANCEIRO --- */
-
-/* Estilo para o novo campo Select (Tipo) e Textarea (Descrição) */
-.registro-financeiro-form select,
-.registro-financeiro-form textarea {
-    padding: 14px; /* Altura padronizada com os inputs */
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 1em;
-    width: 100%;
-    background-color: #fcfcfc;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-    transition: border-color 0.3s;
-}
-
-.registro-financeiro-form select:focus,
-.registro-financeiro-form textarea:focus {
-    border-color: var(--save-btn-color, #3498db);
-    box-shadow: 0 0 0 1px var(--save-btn-color, #3498db);
-    background-color: white;
-}
-
-.registro-financeiro-form textarea {
-    resize: vertical; /* Permite redimensionamento vertical */
-    min-height: 80px;
-}
-
-/* Garante que o container de botões esteja alinhado corretamente */
-.form-footer-buttons-financeiro {
-    display: flex;
-    justify-content: flex-end;
-    padding-top: 25px;
-}
-/* --- ESTILOS PARA OS TÍTULOS DE COLUNA DO HISTÓRICO --- */
-
-.acordeao-column-headers {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 15px; 
-    margin-bottom: 5px;
-    font-size: 0.9em;
-    color: #7f8c8d; 
-    font-weight: 500;
-}
-
-.header-mes {
-    text-align: left;
-    flex-grow: 1; 
-    padding-left: 10px; 
-}
-
-.header-custos {
-    text-align: right;
-    /* Ajuste fino para compensar o padding do ícone de seta e garantir alinhamento */
-    min-width: 150px; /* Garante que ocupe mais espaço */
-    padding-right: 50px; /* Este valor compensa o padding e o ícone de seta do botão */
-    box-sizing: border-box; 
-}
-
-/* Ajuste no acordeao-header para a flexibilidade */
-.acordeao-header {
-    /* Garante que o texto 'Despesa Mensal' ocupe o espaço correto */
-    flex-grow: 1;
-    padding: 15px 20px 15px 15px; 
 }

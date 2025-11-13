@@ -1,168 +1,171 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Financeiro</title>
-  <link rel="stylesheet" href="/financeiro/style.css">
-  <link rel="stylesheet" href="/AssistenteIA/style.css" />
-  <script src="/AssistenteIA/script.js" defer></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financeiro</title>
+    <link rel="stylesheet" href="/financeiro/style.css">
+    <link rel="stylesheet" href="/AssistenteIA/style.css" />
+    <script src="/AssistenteIA/script.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 <div class="container">
-  <aside class="sidebar">
-    <div class="logo">
-      <h1>Menu Principal</h1>
-    </div>
-
-    <nav class="nav-menu">
-      <ul>
-        <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
-        <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
-        <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
-        <li class="active"><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
-        <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
-        <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a></li>
-      </ul>
-    </nav>
-
-    <div class="logout">
-      <a href="/login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a>
-    </div>
-  </aside>
-
-  <main class="main-content">
-    <header class="header">
-      <div th:if="${mensagemSucesso}" class="alert alert-success" role="alert">
-        <p th:text="${mensagemSucesso}"></p>
-      </div>
-
-      <div class="header-title">
-        <i class="fas fa-dollar-sign"></i>
-        <h2>Financeiro</h2>
-      </div>
-      <p>Gerencie informações financeiras</p>
-      <div class="header-breadcrumb">
-        <span>Início</span> &gt; <span>Financeiro</span>
-      </div>
-    </header>
-
-    <!-- FORMULÁRIO -->
-    <section class="financeiro-container">
-      <div class="form-header-financeiro">
-        <h3>Novo Registro Financeiro</h3>
-        <button type="button" class="export-btn"><i class="fas fa-file-export"></i> EXPORTAR</button>
-      </div>
-
-      <form method="POST" action="/financeiro" id="registroFinanceiroForm" class="registro-financeiro-form">
-        <div class="form-group-row">
-          <div class="form-group">
-            <label for="dataRegistro">Data de Registro</label>
-            <input type="date" id="dataRegistro" name="dataRegistro" required>
-          </div>
-          <div class="form-group">
-            <label for="valorDespesa">Valor da Despesa</label>
-            <input type="text" id="valorDespesa" name="valorDespesa" placeholder="R$ 0,00" required>
-          </div>
+    <aside class="sidebar">
+        <div class="logo">
+            <h1>Menu Principal</h1>
         </div>
 
-        <div class="form-group-row">
-          <div class="form-group">
-            <label for="tipoTransacao">Tipo:</label>
-            <select id="tipoTransacao" name="tipoTransacao" required>
-              <option value="">Selecione o Tipo</option>
-              <option value="Crédito">Crédito</option>
-              <option value="Débito">Débito</option>
-              <option value="PIX">PIX</option>
-              <option value="Dinheiro">Dinheiro</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="categoria">Categoria</label>
-            <input type="text" id="categoria" name="categoria" placeholder="Ex: Combustível, Aluguel, Salário">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="descricao">Descrição</label>
-          <textarea id="descricao" name="descricao" rows="3" placeholder="Detalhes do registro financeiro (opcional)"></textarea>
-        </div>
-
-        <div class="form-footer-buttons-financeiro">
-          <button type="submit" class="action-btn salvar-btn">Salvar Informações</button>
-        </div>
-      </form>
-    </section>
-
-    <!-- HISTÓRICO -->
-<section class="historico-transacoes-container">
-    <h3>Histórico de Transações Recentes</h3>
-    
-    <div class="acordeao-column-headers">
-        <span class="header-mes">Mês</span>
-        <span class="header-custos">Custos</span>
-    </div>
-    
-    <div class="acordeao-item">
-        <button class="acordeao-header">
-            <span>Despesa Mensal (Janeiro)</span>
-            <span class="acordeao-valor">R$ 1.550,00</span>
-            <i class="fas fa-chevron-down acordeao-icon"></i>
-        </button>
-        <div class="acordeao-body">
-            <ul class="transacao-detalhes">
-                <li><span>Data de Registro:</span> 05/01/2025</li>
-                <li><span>Tipo:</span> Débito</li>
-                <li><span>Categoria:</span> Aluguel e Combustível</li>
-                <li><span>Descrição:</span> Pagamento do aluguel e despesas de locomoção do mês.</li>
-                <li class="total-geral"><span>Valor Total:</span> R$ 1.550,00</li>
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
+                <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
+                <li class="active"><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
+                <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
+                <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a></li>
             </ul>
-        </div>
-    </div>
+        </nav>
 
-    <div class="acordeao-item">
-        <button class="acordeao-header">
-            <span>Despesa Extra (Fevereiro)</span>
-            <span class="acordeao-valor">R$ 350,80</span>
-            <i class="fas fa-chevron-down acordeao-icon"></i>
-        </button>
-        <div class="acordeao-body">
-            <ul class="transacao-detalhes">
-                <li><span>Data de Registro:</span> 15/02/2025</li>
-                <li><span>Tipo:</span> PIX</li>
-                <li><span>Categoria:</span> Assessoria Jurídica</li>
-                <li><span>Descrição:</span> Pagamento de honorários advocatícios para consulta.</li>
-                <li class="total-geral"><span>Valor Total:</span> R$ 350,80</li>
-            </ul>
+        <div class="logout">
+            <a href="/login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a>
         </div>
-    </div>
-    
-</section>
-  </main>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <div th:if="${mensagemSucesso}" class="alert alert-success" role="alert">
+                <p th:text="${mensagemSucesso}"></p>
+            </div>
+
+            <div class="header-title">
+                <i class="fas fa-dollar-sign"></i>
+                <h2>Financeiro</h2>
+            </div>
+            <p>Gerencie informações financeiras</p>
+            <div class="header-breadcrumb">
+                <span>Início</span> &gt; <span>Financeiro</span>
+            </div>
+        </header>
+
+        <!-- FORMULÁRIO -->
+        <section class="financeiro-container">
+            <div class="form-header-financeiro">
+                <h3>Novo Registro Financeiro</h3>
+                <button type="button" class="export-btn"><i class="fas fa-file-export"></i> EXPORTAR</button>
+            </div>
+
+            <form method="POST" action="/financeiro" id="registroFinanceiroForm" class="registro-financeiro-form">
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label for="dataRegistro">Data de Registro</label>
+                        <input type="date" id="dataRegistro" name="dataRegistro" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="valorDespesa">Valor da Despesa</label>
+                        <input type="text" id="valorDespesa" name="valorDespesa" placeholder="R$ 0,00" required>
+                    </div>
+                </div>
+
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label for="tipoTransacao">Tipo:</label>
+                        <select id="tipoTransacao" name="tipoTransacao" required>
+                            <option value="">Selecione o Tipo</option>
+                            <option value="Crédito">Crédito</option>
+                            <option value="Débito">Débito</option>
+                            <option value="PIX">PIX</option>
+                            <option value="Dinheiro">Dinheiro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="categoria">Categoria</label>
+                        <input type="text" id="categoria" name="categoria" placeholder="Ex: Combustível, Aluguel, Salário">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao" name="descricao" rows="3" placeholder="Detalhes do registro financeiro (opcional)"></textarea>
+                </div>
+
+                <div class="form-footer-buttons-financeiro">
+                    <button type="submit" class="action-btn salvar-btn">Salvar Informações</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- HISTÓRICO -->
+        <!-- -->>
+        <section class="historico-transacoes-container">
+            <h3>Histórico de Transações Recentes</h3>
+
+            <div class="historico-header">
+                <span>Registro (Mês)</span>
+                <span>Custos</span>
+            </div>
+
+            <th:block th:each="registro : ${registros}">
+                <div class="acordeao-item">
+                    <button class="acordeao-header">
+
+            <span class="acordeao-titulo"
+                  th:text="${(#strings.isEmpty(registro.categoria) ? 'Sem categoria' : registro.categoria) +
+                             ' (' +
+                             #strings.capitalize(#temporals.format(registro.dataRegistro, 'MMMM').toLowerCase()) +
+                             ')'}">
+            </span>
+
+                        <span class="acordeao-valor" th:text="${registro.valorFormatado}"></span>
+                        <i class="fas fa-chevron-down acordeao-icon"></i>
+                    </button>
+
+                    <div class="acordeao-body">
+                        <ul class="transacao-detalhes">
+                            <li>
+                                <span>Data de Registro:</span>
+                                <span th:text="${#temporals.format(registro.dataRegistro, 'dd/MM/yyyy')}"></span>
+                            </li>
+                            <li><span>Tipo:</span> <span th:text="${registro.tipoTransacao}"></span></li>
+                            <li><span>Categoria:</span> <span th:text="${registro.categoria}"></span></li>
+                            <li><span>Descrição:</span> <span th:text="${registro.descricao}"></span></li>
+                            <li class="total-geral">
+                                <span>Valor Total:</span>
+                                <span th:text="${registro.valorFormatado}"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </th:block>
+
+            <div th:if="${#lists.isEmpty(registros)}" class="sem-registros">
+                <p>Nenhum registro financeiro encontrado.</p>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script src="/financeiro/script.js"></script>
 
 <!-- Assistente I.A. -->
 <div class="assistant-chat-panel" id="assistantChatPanel">
-  <div class="chat-header">
-    <h4>Assistente I.A.</h4>
-    <button class="close-chat-btn" id="closeChatBtn">&times;</button>
-  </div>
-
-  <div class="chat-body" id="chatBody">
-    <div class="chat-message-ai">
-      Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
+    <div class="chat-header">
+        <h4>Assistente I.A.</h4>
+        <button class="close-chat-btn" id="closeChatBtn">&times;</button>
     </div>
-  </div>
 
-  <div class="chat-footer">
-    <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
-    <button id="sendChatBtn" class="send-chat-btn">
-      <i class="fas fa-paper-plane"></i>
-    </button>
-  </div>
+    <div class="chat-body" id="chatBody">
+        <div class="chat-message-ai">
+            Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
+        </div>
+    </div>
+
+    <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+        <button id="sendChatBtn" class="send-chat-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
 </div>
 </body>
 </html>
