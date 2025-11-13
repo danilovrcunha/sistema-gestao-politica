@@ -68,6 +68,12 @@
                             <option value="ADMIN">Administrador</option>
                             <option value="SUPER_ADMIN">Super Administrador</option>
                         </select>
+                        <div id="gabineteSelectorContainer" class="form-group" style="display: none;">
+                            <label for="gabineteId">Vincular ao Gabinete</label>
+                            <select id="gabineteId" name="gabineteId" required>
+                                <option value="">Carregando gabinetes...</option>
+                            </select>
+                        </div>
 
                         <div class="save-button-container">
                             <button type="submit" class="salvar-btn">Cadastrar Usuário</button>
@@ -130,8 +136,11 @@
                         </table>
                     </div>
 
-                    <!-- 🔥 AQUI OS BOTÕES VOLTAM -->
+
                     <div class="admin-actions-footer">
+                        <button class="action-btn edit-perms-btn">
+                            <i class="fas fa-edit"></i> Editar Permissões
+                        </button>
                         <button class="action-btn remove-user-btn">
                             <i class="fas fa-trash-alt"></i> Remover Usuário
                         </button>
@@ -147,32 +156,64 @@
 <div id="permissionsModal" class="modal-perms">
     <div class="modal-content-perms">
         <span class="close-btn-perms">&times;</span>
-        <h2 class="modal-title-perms" id="modalTitle">Permissões : Administrador Sistema</h2>
-        <h3 class="control-title">Controle de Acesso às Páginas:</h3>
+        <h2 class="modal-title-perms" id="modalTitle">Permissões</h2>
+
+        <h3 class="control-title">Controle de Acesso</h3>
 
         <form id="permissionsForm" class="permissions-form">
+
+            <div class="permissions-header">
+                <span class="col-title">Página / Visualizar</span>
+                <span class="col-edit-title">Permitir Edição</span>
+            </div>
+
             <div class="permission-list">
-                <label class="permission-item">
-                    <input type="checkbox" name="dashboard" checked> Dashboard
-                </label>
-                <label class="permission-item">
-                    <input type="checkbox" name="acoes" checked> Ações
-                </label>
-                <label class="permission-item">
-                    <input type="checkbox" name="gestao_tarefas" checked> Gestão de Tarefas
-                </label>
-                <label class="permission-item">
-                    <input type="checkbox" name="cadastro" checked> Cadastro
-                </label>
-                <label class="permission-item">
-                    <input type="checkbox" name="financeiro" checked> Financeiro
-                </label>
-                <label class="permission-item">
-                    <input type="checkbox" name="eleicao" checked> Eleição 2024
-                </label>
-                <label class="permission-item">
-                    <input type="checkbox" name="configuracoes" checked> Configurações
-                </label>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="dashboard_access" class="access-cb"> Dashboard
+                    </label>
+                    <label class="edit-label">
+                        <input type="checkbox" name="dashboard_edit" class="edit-cb">
+                    </label>
+                </div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="acoes_access" class="access-cb"> Ações
+                    </label>
+                    <label class="edit-label">
+                        <input type="checkbox" name="acoes_edit" class="edit-cb">
+                    </label>
+                </div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="kanban_access" class="access-cb"> Gestão de Tarefas
+                    </label>
+                    <label class="edit-label">
+                        <input type="checkbox" name="kanban_edit" class="edit-cb">
+                    </label>
+                </div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="financeiro_access" class="access-cb"> Financeiro
+                    </label>
+                    <label class="edit-label">
+                        <input type="checkbox" name="financeiro_edit" class="edit-cb">
+                    </label>
+                </div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="configuracoes_access" class="access-cb"> Configurações
+                    </label>
+                    <label class="edit-label">
+                        <input type="checkbox" name="configuracoes_edit" class="edit-cb">
+                    </label>
+                </div>
+
             </div>
 
             <div class="modal-footer-perms">
@@ -181,7 +222,6 @@
         </form>
     </div>
 </div>
-
 <!-- ============== ASSISTENTE IA ============== -->
 <div class="assistant-chat-panel" id="assistantChatPanel">
     <div class="chat-header">

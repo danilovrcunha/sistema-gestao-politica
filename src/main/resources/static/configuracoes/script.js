@@ -30,42 +30,44 @@ document.addEventListener("DOMContentLoaded", () => {
     // =================== ABA CADASTRO ===================
     const cadastroForm = document.getElementById("cadastroForm");
 
-    cadastroForm.addEventListener("submit", (e) => {
-        e.preventDefault();
+    if (cadastroForm) {
+        cadastroForm.addEventListener("submit", (e) => {
+            e.preventDefault();
 
-        const nome = document.getElementById("nome").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value.trim();
-        const tipoUsuario = document.getElementById("tipoUsuario").value;
+            const nome = document.getElementById("nome").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const tipoUsuario = document.getElementById("tipoUsuario").value;
 
-        if (!nome || !email || !password || !tipoUsuario) {
-            alert("Preencha todos os campos!");
-            return;
-        }
+            if (!nome || !email || !password || !tipoUsuario) {
+                alert("Preencha todos os campos!");
+                return;
+            }
 
-        const novoUsuario = { nome, email, password, tipoUsuario };
+            const novoUsuario = { nome, email, password, tipoUsuario };
 
-        fetch(API_BASE, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(novoUsuario),
-        })
-            .then((res) => {
-                if (!res.ok) throw new Error("Erro ao cadastrar usuário");
-                return res.json();
+            fetch(API_BASE, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(novoUsuario),
             })
-            .then(() => {
-                alert("✅ Usuário cadastrado com sucesso!");
-                cadastroForm.reset();
-                carregarUsuarios();
-            })
-            .catch((err) => {
-                console.error("❌ Erro ao cadastrar:", err);
-                alert("Erro ao cadastrar usuário.");
-            });
-    });
+                .then((res) => {
+                    if (!res.ok) throw new Error("Erro ao cadastrar usuário");
+                    return res.json();
+                })
+                .then(() => {
+                    alert("✅ Usuário cadastrado com sucesso!");
+                    cadastroForm.reset();
+                    carregarUsuarios(); // Atualiza a lista na aba de admin
+                })
+                .catch((err) => {
+                    console.error("❌ Erro ao cadastrar:", err);
+                    alert("Erro ao cadastrar usuário.");
+                });
+        });
+    }
 
-// =================== ABA SEGURANÇA ===================
+    // =================== ABA SEGURANÇA ===================
     const segurancaForm = document.getElementById("segurancaForm");
     const emailVinculado = document.getElementById("emailVinculado");
 
@@ -74,13 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
         id: localStorage.getItem("userId")
     };
 
-// 🧠 Preenche o campo de e-mail automaticamente
     if (usuarioLogado.email) {
         emailVinculado.value = usuarioLogado.email;
 
-        // ⚙️ Se ainda não tiver ID, busca pelo e-mail no banco
         if (!usuarioLogado.id) {
-            fetch(`http://localhost:8081/usuarios`)
+            fetch(API_BASE)
                 .then(res => res.json())
                 .then(usuarios => {
                     const user = usuarios.find(u => u.email === usuarioLogado.email);
@@ -99,20 +99,21 @@ document.addEventListener("DOMContentLoaded", () => {
         console.warn("⚠️ Nenhum e-mail salvo no localStorage");
     }
 
-// 🧩 Lógica de alteração de senha
+    // Alteração de senha
     if (segurancaForm) {
         segurancaForm.addEventListener("submit", (e) => {
             e.preventDefault();
 
             const novaSenha = document.getElementById("novaSenha").value.trim();
             const confirmarSenha = document.getElementById("confirmarSenha").value.trim();
+            const senhaAtual = document.getElementById("senhaAtual").value.trim();
 
             if (!usuarioLogado.id) {
                 alert("Usuário não autenticado! Faça login novamente.");
                 return;
             }
 
-            if (!novaSenha || !confirmarSenha) {
+            if (!senhaAtual || !novaSenha || !confirmarSenha) {
                 alert("Preencha todos os campos de senha!");
                 return;
             }
@@ -122,8 +123,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
+            // Exemplo de requisição PUT (ajuste conforme sua API real)
             fetch(`http://localhost:8081/usuarios/${usuarioLogado.id}/senha?novaSenha=${encodeURIComponent(novaSenha)}`, {
-                method: "PUT",
+                method: "PUT"
             })
                 .then((res) => {
                     if (!res.ok) throw new Error("Erro ao atualizar senha");
@@ -137,20 +139,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
-
     // =================== ABA ADMINISTRAÇÃO ===================
     const tabela = document.getElementById("usuariosTableBody");
     const atualizarListaBtn = document.getElementById("atualizarListaBtn");
     const removerBtn = document.querySelector(".remove-user-btn");
 
     function carregarUsuarios() {
+        if (!tabela) return;
+
         fetch(API_BASE)
             .then((res) => res.json())
             .then((usuarios) => {
                 tabela.innerHTML = "";
 
-                if (!usuarios.length) {
+                if (!usuarios || !usuarios.length) {
                     tabela.innerHTML = `
                         <tr>
                           <td colspan="3" style="text-align:center; color:#888;">
@@ -162,11 +164,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 usuarios.forEach((u) => {
                     const tr = document.createElement("tr");
+                    tr.dataset.userId = u.id;
+                    tr.dataset.userEmail = u.email;
+
+                    // Nota: A classe da tag agora é dinâmica (tag-user, tag-admin, etc.)
                     tr.innerHTML = `
                         <td>${u.nome}</td>
                         <td>${u.email}</td>
-                        <td><span class="tag tag-admin">${u.tipoUsuario}</span></td>
+                        <td><span class="tag tag-${u.tipoUsuario.toLowerCase()}">${u.tipoUsuario}</span></td>
                     `;
+
+                    // Selecionar linha ao clicar
+                    tr.addEventListener('click', () => {
+                        tabela.querySelectorAll('tr').forEach(row => row.classList.remove('selected'));
+                        tr.classList.add('selected');
+                    });
+
                     tabela.appendChild(tr);
                 });
             })
@@ -183,57 +196,208 @@ document.addEventListener("DOMContentLoaded", () => {
 
     carregarUsuarios();
 
-    atualizarListaBtn.addEventListener("click", () => carregarUsuarios());
+    if(atualizarListaBtn) {
+        atualizarListaBtn.addEventListener("click", () => carregarUsuarios());
+    }
 
-    // 🔥 NOVO: REMOVER USUÁRIO
+    // REMOVER USUÁRIO
     if (removerBtn) {
         removerBtn.addEventListener("click", () => {
-            const email = prompt("Digite o e-mail do usuário que deseja remover:");
+            const selectedRow = tabela.querySelector('tr.selected');
+
+            // CENÁRIO 1: Usuário selecionou clicando na linha (Jeito Rápido)
+            if (selectedRow) {
+                const id = selectedRow.dataset.userId; // Pega o ID direto da linha
+                const email = selectedRow.dataset.userEmail;
+
+                if (!id) {
+                    alert("Erro: ID do usuário não identificado.");
+                    return;
+                }
+
+                if (!confirm(`Deseja remover o usuário ${email}?`)) return;
+
+                // Chama a deleção direto pelo ID
+                executarDelecao(id);
+            }
+            // CENÁRIO 2: Ninguém selecionado, usa o Prompt (Jeito Manual)
+            else {
+                const emailInput = prompt("Nenhum usuário selecionado. Digite o e-mail:");
+                if (!emailInput) return;
+
+                // Aqui sim precisamos buscar o ID pelo e-mail
+                fetch(API_BASE)
+                    .then(res => res.json())
+                    .then(usuarios => {
+                        const user = usuarios.find(u => u.email === emailInput);
+                        if (!user) {
+                            alert("Usuário não encontrado pelo e-mail informado!");
+                            return;
+                        }
+
+                        if (!confirm(`Deseja realmente remover ${user.nome}?`)) return;
+
+                        executarDelecao(user.id);
+                    })
+                    .catch(err => {
+                        console.error("❌ Erro ao buscar usuário:", err);
+                        alert("Erro ao buscar usuário.");
+                    });
+            }
+        });
+
+        // Função separada para realizar o DELETE e evitar repetição de código
+        function executarDelecao(id) {
+            fetch(`${API_BASE}/${id}`, { method: "DELETE" })
+                .then((res) => {
+                    if (!res.ok) throw new Error("Erro ao deletar usuário");
+                    alert(`✅ Usuário removido com sucesso!`);
+                    carregarUsuarios(); // Atualiza a tabela
+                })
+                .catch((err) => {
+                    console.error("❌ Erro ao remover:", err);
+                    alert("Erro ao remover usuário. Verifique se você tem permissão.");
+                });
+        }
+    }
+
+
+    // =================== MODAL DE PERMISSÕES (ATUALIZADO) ===================
+
+    // Seletores
+    const editPermsBtn = document.querySelector(".edit-perms-btn");
+    const permissionsModal = document.getElementById("permissionsModal");
+    const closeBtnPerms = document.querySelector(".close-btn-perms");
+    const permissionsForm = document.getElementById("permissionsForm");
+    const modalTitle = document.getElementById("modalTitle");
+
+    // --- 1. Abrir Modal ---
+    if (editPermsBtn) {
+        editPermsBtn.addEventListener("click", () => {
+
+            const selectedRow = tabela.querySelector('tr.selected');
+            let email = selectedRow ? selectedRow.dataset.userEmail : null;
+
+            if (!email) {
+                email = prompt("Nenhum usuário selecionado. Digite o e-mail do usuário para editar as permissões:");
+            }
             if (!email) return;
 
-            // 1️⃣ Busca usuário pelo email
             fetch(API_BASE)
-                .then((res) => res.json())
-                .then((usuarios) => {
-                    const user = usuarios.find((u) => u.email === email);
+                .then(res => res.json())
+                .then(usuarios => {
+                    const user = usuarios.find(u => u.email === email);
                     if (!user) {
                         alert("Usuário não encontrado!");
                         return;
                     }
 
-                    // 2️⃣ Confirma exclusão
-                    const confirmar = confirm(`Deseja realmente remover ${user.nome}?`);
-                    if (!confirmar) return;
+                    // Prepara e Abre o Modal
+                    modalTitle.textContent = `Permissões: ${user.nome}`;
+                    permissionsModal.dataset.editingUserId = user.id; // Guarda ID no modal
+                    permissionsForm.reset(); // Limpa formulário anterior
 
-                    // 3️⃣ Envia DELETE
-                    fetch(`${API_BASE}/${user.id}`, { method: "DELETE" })
-                        .then((res) => {
-                            if (!res.ok) throw new Error("Erro ao deletar usuário");
-                            alert(`✅ Usuário ${user.nome} removido com sucesso!`);
-                            carregarUsuarios();
-                        })
-                        .catch((err) => {
-                            console.error("❌ Erro ao remover:", err);
-                            alert("Erro ao remover usuário.");
-                        });
+                    // (Opcional) Aqui você buscaria as permissões salvas do localStorage para preencher os checkboxes
+                    // carregarPermissoesNoModal(user.id);
+
+                    permissionsModal.style.display = "flex";
                 })
-                .catch((err) => {
-                    console.error("❌ Erro ao buscar lista de usuários:", err);
-                    alert("Erro ao buscar usuários.");
+                .catch(err => {
+                    console.error("❌ Erro ao buscar usuário:", err);
+                    alert("Erro ao buscar usuário.");
                 });
+        });
+    }
+
+    // --- 2. UX: Desabilitar 'Editar' se tirar 'Acesso' ---
+    const accessCheckboxes = document.querySelectorAll('.access-cb');
+    accessCheckboxes.forEach(cb => {
+        cb.addEventListener('change', (e) => {
+            // Encontra o checkbox de editar na mesma linha
+            const row = e.target.closest('.permission-row');
+            const editCb = row.querySelector('.edit-cb');
+
+            if (!e.target.checked) {
+                editCb.checked = false;
+                editCb.disabled = true;
+            } else {
+                editCb.disabled = false;
+            }
+        });
+    });
+
+    // --- 3. Fechar Modal ---
+    if (closeBtnPerms) {
+        closeBtnPerms.addEventListener("click", () => {
+            permissionsModal.style.display = "none";
+        });
+    }
+    window.addEventListener("click", (e) => {
+        if (e.target === permissionsModal) {
+            permissionsModal.style.display = "none";
+        }
+    });
+
+    // --- 4. Salvar Permissões (Submit com lógica Acesso/Editar) ---
+    if (permissionsForm) {
+        permissionsForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const userId = permissionsModal.dataset.editingUserId;
+            if (!userId) return;
+
+            // Monta o objeto de configuração
+            const permissoesConfig = {
+                dashboard: {
+                    acesso: permissionsForm.dashboard_access.checked,
+                    editar: permissionsForm.dashboard_edit.checked
+                },
+                acoes: {
+                    acesso: permissionsForm.acoes_access.checked,
+                    editar: permissionsForm.acoes_edit.checked
+                },
+                kanban: {
+                    acesso: permissionsForm.kanban_access.checked,
+                    editar: permissionsForm.kanban_edit.checked
+                },
+                financeiro: {
+                    acesso: permissionsForm.financeiro_access.checked,
+                    editar: permissionsForm.financeiro_edit.checked
+                },
+                configuracoes: {
+                    acesso: permissionsForm.configuracoes_access.checked,
+                    editar: permissionsForm.configuracoes_edit.checked
+                }
+            };
+
+            console.log(`Salvando permissões para User ${userId}:`, permissoesConfig);
+
+            // SALVANDO NO LOCALSTORAGE (Simulação de Backend)
+            // Você pode trocar isso por um fetch PUT para sua API depois
+            localStorage.setItem(`perms_${userId}`, JSON.stringify(permissoesConfig));
+
+            alert("✅ Permissões salvas com sucesso!");
+            permissionsModal.style.display = "none";
         });
     }
 
     // =================== MOSTRAR/OCULTAR SENHA ===================
     document.querySelectorAll(".toggle-password").forEach((icon) => {
         icon.addEventListener("click", () => {
-            const target = document.getElementById(icon.dataset.target);
+            const targetId = icon.dataset.target;
+            if (!targetId) return;
+
+            const target = document.getElementById(targetId);
+            if (!target) return;
+
             if (target.type === "password") {
                 target.type = "text";
-                icon.classList.add("active");
+                icon.classList.add("fa-eye-slash");
+                icon.classList.remove("fa-eye");
             } else {
                 target.type = "password";
-                icon.classList.remove("active");
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
             }
         });
     });

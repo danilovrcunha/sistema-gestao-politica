@@ -1,18 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
-/* Variáveis de Cores para Consistência */
+/* =========================================
+   1. VARIÁVEIS E RESET
+   ========================================= */
 :root {
-    --primary-color: #2c3e50;    /* Azul escuro da sidebar/títulos */
-    --secondary-color: #ecf0f1;  /* Fundo claro do conteúdo principal */
-    --text-color: #2c3e50;       /* Cor principal do texto */
-    --light-text: #bdc3c7;       /* Cor do texto normal da sidebar */
-    --active-color: #ffffff;     /* Cor do texto ativo */
-    --background-color: #ecf0f1;
-    --card-background: #ffffff;  /* Cor de fundo dos painéis e formulários */
-    --save-btn-color: #3498db;   /* Azul claro para o botão Salvar */
+    --primary-color: #2c3e50;    /* Azul escuro (Sidebar/Títulos) */
+    --secondary-color: #34495e;  /* Azul secundário (Hover/Detalhes) */
+    --text-color: #2c3e50;       /* Texto principal */
+    --light-text: #bdc3c7;       /* Texto claro/inativo */
+    --background-color: #ecf0f1; /* Fundo da página */
+    --card-background: #ffffff;  /* Fundo dos painéis */
+    --save-btn-color: #3498db;   /* Botão Salvar */
+    --danger-color: #e74c3c;     /* Botão Remover/Erro */
+    --success-color: #27ae60;    /* Sucesso */
 }
 
-/* --- ESTILOS GERAIS E LAYOUT DA PÁGINA --- */
 * {
     margin: 0;
     padding: 0;
@@ -25,18 +27,15 @@ body {
     color: var(--text-color);
 }
 
+/* =========================================
+   2. LAYOUT PRINCIPAL (Container & Sidebar)
+   ========================================= */
 .container {
     display: flex;
     height: 100vh;
 }
 
-/* --- BARRA LATERAL (SIDEBAR) --- */
-/* --- BARRA LATERAL (SIDEBAR) --- */
-.container {
-    display: flex;
-    height: 100vh;
-}
-
+/* Sidebar */
 .sidebar {
     width: 250px;
     background-color: var(--primary-color);
@@ -44,11 +43,13 @@ body {
     display: flex;
     flex-direction: column;
     padding: 20px;
+    transition: all 0.3s;
+    flex-shrink: 0; /* Impede a sidebar de encolher */
 }
 
 .sidebar .logo {
     padding-bottom: 20px;
-    border-bottom: 1px solid #34495e;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 20px;
 }
 
@@ -73,19 +74,23 @@ body {
 .nav-menu a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 10px 15px;
-    display: block;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
     border-radius: 5px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.nav-menu a:hover, .nav-menu li.active a {
-    background-color: #34495e;
+.nav-menu a i {
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+}
+
+.nav-menu a:hover,
+.nav-menu li.active a {
+    background-color: var(--secondary-color);
     color: #ffffff;
-}
-
-.nav-menu i {
-    margin-right: 10px;
 }
 
 .logout {
@@ -96,29 +101,38 @@ body {
     color: var(--light-text);
     text-decoration: none;
     padding: 10px 15px;
-    display: block;
+    display: flex;
+    align-items: center;
     border-radius: 5px;
     transition: background-color 0.3s;
 }
 
-.logout a:hover {
-    background-color: #c0392b;
+.logout a i {
+    margin-right: 10px;
 }
 
-/* --- CONTEÚDO PRINCIPAL (MAIN) e HEADER --- */
+.logout a:hover {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+/* =========================================
+   3. CONTEÚDO E HEADER
+   ========================================= */
 .main-content {
     flex-grow: 1;
     padding: 20px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    width: 100%; /* Garante uso total da largura restante */
 }
 
 .header {
     background-color: var(--card-background);
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -128,12 +142,12 @@ body {
 .header-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
 .header-title i {
     color: var(--primary-color);
-    font-size: 1.5em;
+    font-size: 1.6em;
 }
 
 .header-title h2 {
@@ -144,182 +158,171 @@ body {
 .header p {
     color: #7f8c8d;
     font-size: 1em;
-    flex-grow: 1;
-    margin-left: 15px;
+    margin-left: 20px;
+    border-left: 2px solid #eee;
+    padding-left: 20px;
 }
 
-/* --- ESTILOS ESPECÍFICOS DA TELA CONFIGURAÇÕES --- */
-
+/* =========================================
+   4. CONFIGURAÇÕES (ABAS E FORMULÁRIOS)
+   ========================================= */
 .config-container {
     background-color: var(--card-background);
     padding: 30px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
     flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Estilo das Abas de Navegação */
+/* Abas */
 .config-tabs {
     display: flex;
     margin-bottom: 30px;
-    border-bottom: 1px solid #ddd;
-    gap: 10px;
+    border-bottom: 2px solid #f0f0f0;
+    gap: 5px;
 }
 
 .tab-button {
-    background-color: transparent;
+    background: none;
     border: none;
-    padding: 10px 15px;
+    padding: 12px 20px;
     font-size: 1em;
     font-weight: 500;
     cursor: pointer;
     color: #7f8c8d;
     border-bottom: 3px solid transparent;
-    transition: color 0.3s, border-bottom-color 0.3s;
+    transition: all 0.3s;
     flex-grow: 1;
-    text-align: center;
     border-radius: 4px 4px 0 0;
 }
 
+.tab-button:hover {
+    background-color: #f9f9f9;
+    color: var(--primary-color);
+}
+
 .tab-button.active {
-    color: var(--text-color);
+    color: var(--primary-color);
     border-bottom: 3px solid var(--primary-color);
-    background-color: #f7f7f7;
+    background-color: #fdfdfd;
+    font-weight: 700;
 }
 
-.tab-button:hover:not(.active) {
-    color: #444;
-}
-
-/* Conteúdo da Aba */
+/* Conteúdo das Abas */
 .tab-content-wrapper {
-    min-height: 400px;
     position: relative;
+    flex-grow: 1;
 }
 
 .tab-pane {
     display: none;
-    padding-top: 10px;
+    animation: fadeIn 0.3s ease-in-out;
 }
 
 .tab-pane.active {
     display: block;
 }
 
-.pane-title {
-    font-size: 1.8em;
-    font-weight: 700;
-    margin-bottom: 25px;
-    color: var(--primary-color);
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Estilo do Formulário de Configurações */
+.pane-title {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* --- FORMULÁRIOS GERAIS (CORRIGIDO: LARGURA TOTAL) --- */
 .config-form {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding-bottom: 100px; /* Espaço para o botão Salvar Flutuante */
+    width: 100%;     /* Ocupa 100% da largura disponível */
+    max-width: none; /* Remove qualquer limite de largura máxima */
+    padding-bottom: 60px; /* Espaço para o botão flutuante */
 }
 
 .config-form label {
     font-size: 0.9em;
-    font-weight: 500;
-    color: #7f8c8d;
-    margin-bottom: 3px;
-    display: block;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 5px;
 }
 
+/* Estilo Unificado para Inputs */
 .config-form input[type="text"],
 .config-form input[type="email"],
-.config-form input[type="tel"] {
-    padding: 15px;
+.config-form input[type="tel"],
+.config-form input[type="password"],
+.config-form select {
+    padding: 12px 15px;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 1em;
-    width: 100%;
-    background-color: #fcfcfc;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+    width: 100%; /* Garante que o input ocupe 100% */
+    background-color: #fafafa;
+    transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-/* Botão Salvar (Posicionado no canto inferior direito do container) */
+.config-form input:focus,
+.config-form select:focus {
+    border-color: var(--save-btn-color);
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Inputs Read-only */
+.config-form input[readonly] {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+    border-color: #dee2e6;
+}
+
+/* Botão Salvar Flutuante */
 .save-button-container {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 150px;
+    margin-top: 20px;
     text-align: right;
-    /* Ajuste para alinhar com o padding do container */
-    margin-right: 30px;
 }
 
 .salvar-btn {
     background-color: var(--save-btn-color);
     color: white;
-    padding: 12px 25px;
+    padding: 12px 30px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s;
-    width: 100%;
+    transition: background-color 0.3s, transform 0.1s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .salvar-btn:hover {
     background-color: #2980b9;
-}
-/* Correção para o texto de instrução na aba Segurança */
-.security-text {
-    font-size: 1em;
-    color: #444; /* Cor mais escura para melhor legibilidade */
-    margin-bottom: 25px;
-    padding-left: 5px; /* Alinha com o início dos inputs */
+    transform: translateY(-1px);
 }
 
-/* Ajusta o padding para inputs no formulário de segurança */
-.security-form input[type="password"],
-.security-form input[type="email"] {
-    /* Mantém o padding de 15px para ser consistente com o formulário de Perfil */
-    padding: 15px;
+.salvar-btn:active {
+    transform: translateY(0);
 }
 
-/* Garante que o input de email 'read-only' tenha a cor de fundo correta */
-.security-form input[readonly] {
-    background-color: #f0f0f0;
-    cursor: default;
-    color: #555; /* Garante que o texto dentro dele não fique cinza demais */
-    font-weight: 500;
-}
-
-/* Ajusta a dica de senha */
-.password-hint {
-    font-size: 0.8em; /* Deixa a dica menor */
-    color: #999; /* Cor mais clara para ser secundária */
-    margin-top: -10px;
-    margin-bottom: 5px;
-    padding-left: 5px; /* Alinha com o texto da instrução */
-}
-
-/* Garante que o título dentro das abas use o espaçamento correto */
-.tab-pane .pane-title {
-    font-size: 1.8em;
-    font-weight: 700;
-    margin-bottom: 25px;
-    color: var(--primary-color);
-}
-/* --- ESTILOS PARA MOSTRAR SENHA (CORRIGIDOS) --- */
+/* Campos de Senha com Ícone (CORRIGIDO: LARGURA TOTAL) */
 .password-group {
     position: relative;
-    /* Remove a margem inferior para que o espaçamento seja controlado pela configuração global */
+    width: 100%; /* Força o grupo a ocupar toda a largura */
 }
 
-/* Garante que o input dentro do grupo ocupe 100% da largura do contêiner */
-.password-group input[type="password"],
-.password-group input[type="text"] {
-    width: 100%; /* Garante que o input mantenha a largura total */
-    padding-right: 40px !important; /* Adiciona padding extra para o ícone */
-    box-sizing: border-box; /* Garante que o padding não aumente o tamanho total */
-    /* Garante que este input use o estilo padrão de altura e bordas: */
-    /* Estes estilos já devem vir de .config-form input[type="..."] */
+.password-group input {
+    padding-right: 45px !important;
+    width: 100%;
 }
 
 .toggle-password {
@@ -330,63 +333,65 @@ body {
     cursor: pointer;
     color: #95a5a6;
     transition: color 0.2s;
-    z-index: 10; /* Garante que o ícone fique por cima do input */
+    font-size: 1.1em;
 }
 
 .toggle-password:hover {
     color: var(--primary-color);
 }
-/* --- ESTILOS ESPECÍFICOS DA ABA ADMINISTRAÇÃO DE USUÁRIOS --- */
 
+/* Dicas e Textos */
+.security-text {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 0.95em;
+}
+
+.password-hint {
+    font-size: 0.8em;
+    color: #999;
+    margin-top: -10px;
+}
+
+/* =========================================
+   5. ABA ADMINISTRAÇÃO (TABELA E TAGS)
+   ========================================= */
 .admin-header-row {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start; /* Alinha o título com o botão no topo */
-    margin-bottom: 10px;
+    align-items: center;
+    margin-bottom: 15px;
 }
 
 .update-list-btn {
     background-color: var(--primary-color);
     color: white;
-    padding: 8px 15px;
+    padding: 8px 16px;
     border: none;
-    border-radius: 4px;
-    font-weight: bold;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s;
     font-size: 0.9em;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .update-list-btn:hover {
-    background-color: #34495e;
+    background-color: var(--secondary-color);
 }
 
 .admin-info-text {
-    font-size: 1em;
-    color: #444;
+    font-size: 0.95em;
+    color: #666;
     margin-bottom: 15px;
 }
 
-.user-count-row {
-    margin-bottom: 20px;
-    font-weight: bold;
-    color: var(--text-color);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.user-count-row i {
-    font-size: 1.1em;
-    color: #7f8c8d;
-}
-
-/* Estilo da Tabela de Administrador */
+/* Tabela */
 .table-container-admin {
     overflow-x: auto;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #eee;
     border-radius: 8px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .data-table-admin {
@@ -396,312 +401,347 @@ body {
 }
 
 .data-table-admin thead th {
-    background-color: #f7f7f7; /* Fundo cinza claro para o cabeçalho */
-    color: var(--text-color);
-    padding: 12px 15px;
+    background-color: #f8f9fa;
+    color: var(--primary-color);
+    padding: 15px;
     text-align: left;
-    font-weight: 600;
-    border-bottom: 2px solid #ddd;
+    font-weight: 700;
+    border-bottom: 2px solid #e9ecef;
+    font-size: 0.9em;
+    text-transform: uppercase;
 }
 
 .data-table-admin tbody td {
     padding: 15px;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 0.95em;
-    vertical-align: top;
+    border-bottom: 1px solid #f1f1f1;
+    color: #333;
+    vertical-align: middle;
 }
 
-/* Tag de Perfil (Administrador) */
+.data-table-admin tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.data-table-admin tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.data-table-admin tbody tr:hover {
+    background-color: #f1f7fc;
+}
+
+.data-table-admin tbody tr.selected {
+    background-color: #e3f2fd;
+    border-left: 4px solid var(--save-btn-color);
+}
+
+/* --- TAGS DE PERFIL (CORES DINÂMICAS) --- */
+.tag {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    min-width: 100px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.tag-user {
+    background-color: #e8f5e9;
+    color: #27ae60;
+    border: 1px solid #c8e6c9;
+}
+
 .tag-admin {
-    background-color: #e6e6e6;
-    color: #c0392b; /* Cor vermelha para destaque */
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 0.85em;
+    background-color: #e3f2fd;
+    color: #2980b9;
+    border: 1px solid #bbdefb;
 }
 
-/* Coluna de Último Acesso */
-.last-access-col {
-    line-height: 1.4;
-}
-.last-access-col .time {
-    font-weight: bold;
-    display: block;
-}
-.last-access-col .detail {
-    font-size: 0.85em;
-    color: #7f8c8d;
+.tag-super_admin {
+    background-color: #fadbd8;
+    color: #c0392b;
+    border: 1px solid #f5b7b1;
 }
 
-/* Botões de Ação no Rodapé da Tabela */
+/* Botões de Ação no Rodapé */
 .admin-actions-footer {
     display: flex;
-    gap: 15px;
-    padding-bottom: 20px;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
 }
 
-.admin-actions-footer .action-btn {
-    width: auto;
+.action-btn {
     padding: 10px 20px;
     font-size: 0.9em;
     border-radius: 5px;
+    border: none;
+    cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-weight: bold;
+    font-weight: 600;
+    color: white;
+    transition: filter 0.2s;
 }
 
-.edit-perms-btn {
-    background-color: #3498db; /* Azul para Editar */
-}
-.edit-perms-btn:hover {
-    background-color: #2980b9;
+.action-btn:hover {
+    filter: brightness(90%);
 }
 
-.remove-user-btn {
-    background-color: #e74c3c; /* Vermelho para Remover */
-}
-.remove-user-btn:hover {
-    background-color: #c0392b;
-}
-/* --- ESTILOS DO MODAL DE PERMISSÕES --- */
+.edit-perms-btn { background-color: var(--save-btn-color); }
+.remove-user-btn { background-color: var(--danger-color); }
 
-/* Fundo escuro do modal */
+/* =========================================
+   6. MODAL DE PERMISSÕES
+/* =========================================
+   6. MODAL DE PERMISSÕES (CORRIGIDO - CENTRALIZADO)
+   ========================================= */
 .modal-perms {
-    display: none; /* Oculta por padrão */
+    display: none; /* Oculto por padrão */
     position: fixed;
-    z-index: 2000; /* Alto para sobrepor tudo */
+    z-index: 2000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    justify-content: center;
-    align-items: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    /* Removemos o display flex daqui para evitar conflito com o JS */
 }
 
 .modal-content-perms {
-    background-color: var(--card-background);
+    background-color: white;
     padding: 30px;
-    border-radius: 12px;
+    border-radius: 10px;
     width: 90%;
     max-width: 500px;
-    position: relative;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+    /* --- CÓDIGO QUE FORÇA O CENTRO DA TELA --- */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* ----------------------------------------- */
+
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translate(-50%, -60%); } /* Começa um pouco mais acima */
+    to { opacity: 1; transform: translate(-50%, -50%); }
 }
 
 .close-btn-perms {
     position: absolute;
     top: 15px;
-    right: 25px;
-    font-size: 30px;
-    font-weight: bold;
-    color: #999;
+    right: 20px;
+    font-size: 24px;
+    color: #aaa;
     cursor: pointer;
     transition: color 0.2s;
 }
 
 .close-btn-perms:hover {
-    color: #333;
+    color: var(--danger-color);
 }
 
 .modal-title-perms {
-    font-size: 1.5em;
-    font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 25px;
-    padding-right: 40px; /* Garante espaço para o 'X' de fechar */
+    font-size: 1.3em;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    padding-right: 20px;
 }
 
 .control-title {
-    font-size: 1.1em;
-    font-weight: 500;
-    color: var(--primary-color);
+    font-size: 1em;
     margin-bottom: 20px;
+    color: #666;
+    padding-bottom: 5px;
 }
 
-/* Estilo para os Checkboxes de Permissão */
+/* --- ESTRUTURA DA LISTA E COLUNAS --- */
+.permissions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px 10px 10px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 15px;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.85em;
+    text-transform: uppercase;
+}
+
 .permission-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 30px;
+    gap: 5px;
+    margin-bottom: 25px;
 }
 
-.permission-item {
+.permission-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 10px;
+    border-radius: 6px;
+    border-bottom: 1px solid #f9f9f9;
+    transition: background 0.2s;
+}
+
+.permission-row:hover {
+    background-color: #f0f8ff;
+}
+
+.access-label {
     display: flex;
     align-items: center;
+    cursor: pointer;
     font-size: 1em;
-    color: #444;
+    color: #333;
+    flex-grow: 1;
+}
+
+.access-cb {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    accent-color: var(--save-btn-color);
     cursor: pointer;
 }
 
-.permission-item input[type="checkbox"] {
-    /* Estilo básico de checkbox (pode ser substituído por um estilo customizado se necessário) */
-    width: 18px;
-    height: 18px;
-    margin-right: 15px;
-    accent-color: var(--primary-color);
-}
-
-/* Rodapé do Modal */
-.modal-footer-perms {
+.edit-label {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
-    border-top: 1px solid #eee;
-    padding-top: 20px;
+    width: 100px;
+    cursor: pointer;
 }
-/* --- ESTILOS DO ASSISTENTE I.A. CHAT --- */
 
+.edit-cb {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--danger-color);
+    cursor: pointer;
+}
+
+.access-cb:not(:checked) ~ .edit-label,
+.permission-row:has(.access-cb:not(:checked)) .edit-cb {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.modal-footer-perms {
+    text-align: right;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+/* =========================================
+   7. ASSISTENTE I.A. CHAT
+   ========================================= */
 .assistant-chat-panel {
     position: fixed;
     top: 0;
     right: 0;
-    width: 350px; /* Largura do painel */
+    width: 320px;
     height: 100%;
-    background-color: var(--card-background, white);
-    box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
-    z-index: 100; /* Garante que fique acima de tudo */
+    background-color: white;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 3000;
     display: flex;
     flex-direction: column;
-
-    /* Estado inicial: Oculto (desliza para fora da tela) */
     transform: translateX(100%);
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 .assistant-chat-panel.open {
-    /* Estado Aberto: Desliza para dentro */
     transform: translateX(0);
 }
 
-/* Cabeçalho do Chat */
 .chat-header {
+    padding: 15px 20px;
+    background-color: var(--primary-color);
+    color: white;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 20px;
-    background-color: var(--primary-color, #2c3e50); /* Cor de fundo do cabeçalho */
-    color: white;
-    font-weight: 600;
 }
 
-.close-chat-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5em;
-    cursor: pointer;
-    line-height: 1;
-}
-
-/* Corpo do Chat (Mensagens) */
 .chat-body {
     flex-grow: 1;
     padding: 15px;
     overflow-y: auto;
-    background-color: #f7f7f7; /* Fundo levemente cinza para a área de chat */
+    background-color: #f4f7f6;
 }
 
-.chat-message-ai, .chat-message-user {
-    max-width: 80%;
+.chat-message-ai,
+.chat-message-user {
+    padding: 10px 14px;
+    border-radius: 12px;
     margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 15px;
-    font-size: 0.95em;
+    font-size: 0.9em;
     line-height: 1.4;
+    max-width: 85%;
 }
 
 .chat-message-ai {
-    background-color: #e0f7fa; /* Azul claro para mensagens da IA */
-    color: #004d40;
+    background-color: white;
+    color: #333;
     align-self: flex-start;
-    margin-right: auto;
+    border-bottom-left-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Rodapé do Chat (Input e Botão de Envio) */
+.chat-message-user {
+    background-color: #d4e6f1;
+    color: #2c3e50;
+    margin-left: auto;
+    border-bottom-right-radius: 2px;
+}
+
 .chat-footer {
+    padding: 15px;
+    border-top: 1px solid #eee;
     display: flex;
-    padding: 10px;
-    border-top: 1px solid #ddd;
-    background-color: var(--card-background, white);
+    gap: 10px;
+    background-color: white;
 }
 
 #chatInput {
     flex-grow: 1;
-    padding: 10px;
-    border: 1px solid #ccc;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
     border-radius: 20px;
-    margin-right: 10px;
     outline: none;
+}
+
+#chatInput:focus {
+    border-color: var(--save-btn-color);
 }
 
 .send-chat-btn {
-    background-color: var(--save-btn-color, #3498db);
+    width: 40px;
+    height: 40px;
+    background-color: var(--save-btn-color);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     cursor: pointer;
-    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
 }
 
 .send-chat-btn:hover {
+    transform: scale(1.05);
     background-color: #2980b9;
-}
-/* ====== CAMPOS DE SENHA ====== */
-.config-form input[type="password"] {
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1em;
-    width: 100%;
-    background-color: #fcfcfc;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-/* Grupo com ícone de mostrar senha */
-.password-group {
-    position: relative;
-}
-
-.password-group input {
-    width: 100%;
-    padding-right: 40px; /* espaço para o ícone */
-}
-
-.toggle-password {
-    position: absolute;
-    top: 50%;
-    right: 15px;
-    transform: translateY(-50%);
-    cursor: pointer;
-    color: #7f8c8d;
-    transition: color 0.3s;
-}
-
-.toggle-password:hover {
-    color: var(--primary-color);
-}
-
-/* ====== SELECT DE TIPO DE USUÁRIO ====== */
-.config-form select {
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 1em;
-    background-color: #fcfcfc;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-}
-
-.config-form select:focus {
-    border-color: var(--primary-color);
-    outline: none;
-    box-shadow: 0 0 4px rgba(44, 62, 80, 0.3);
 }
