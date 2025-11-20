@@ -11,7 +11,6 @@ import residencia.sistema_gestao_politica.model.Acao;
 import residencia.sistema_gestao_politica.repository.AcaoRepository;
 
 import java.util.Optional;
-import java.io.IOException;
 import java.nio.file.*;
 
 @RestController
@@ -30,78 +29,68 @@ public class AcoesApiController {
         this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
+    // --- CADASTRAR ---
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> criarAcao(
-            @RequestParam("acao") String acaoJson,
-            @RequestParam(value = "imagem", required = false) MultipartFile imagem
-    ) {
+    public ResponseEntity<?> criarAcao(@RequestParam("acao") String acaoJson, @RequestParam(value = "imagem", required = false) MultipartFile imagem) {
         try {
             Acao acao = mapper.readValue(acaoJson, Acao.class);
-
             if (imagem != null && !imagem.isEmpty()) {
-                String nomeArquivo = System.currentTimeMillis() + "_" + imagem.getOriginalFilename();
-                Path caminho = Paths.get(UPLOAD_DIR, nomeArquivo);
-                Files.createDirectories(caminho.getParent());
-                Files.write(caminho, imagem.getBytes());
-                acao.setImagem(nomeArquivo);
+                String nome = System.currentTimeMillis() + "_" + imagem.getOriginalFilename();
+                Files.createDirectories(Paths.get(UPLOAD_DIR));
+                Files.write(Paths.get(UPLOAD_DIR, nome), imagem.getBytes());
+                acao.setImagem(nome);
             }
-
-            Acao salva = acaoRepository.save(acao);
-            return ResponseEntity.ok(salva);
-
+            return ResponseEntity.ok(acaoRepository.save(acao));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Erro ao processar dados da ação: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erro: " + e.getMessage());
         }
     }
 
+    // --- ATUALIZAR ---
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
-    public ResponseEntity<?> atualizarAcao(
-            @PathVariable Long id,
-            @RequestParam("acao") String acaoJson,
-            @RequestParam(value = "imagem", required = false) MultipartFile imagem
-    ) {
+    public ResponseEntity<?> atualizarAcao(@PathVariable Long id, @RequestParam("acao") String acaoJson, @RequestParam(value = "imagem", required = false) MultipartFile imagem) {
         try {
             Acao dados = mapper.readValue(acaoJson, Acao.class);
+            Optional<Acao> opt = acaoRepository.findById(id);
+            if (opt.isEmpty()) return ResponseEntity.notFound().build();
 
-            Optional<Acao> existenteOpt = acaoRepository.findById(id);
-            if (existenteOpt.isEmpty()) return ResponseEntity.notFound().build();
+            Acao existente = opt.get();
 
-            Acao existente = existenteOpt.get();
+            // Atualiza campos
+            existente.setCep(dados.getCep());
+            existente.setLogradouro(dados.getLogradouro());
             existente.setCidade(dados.getCidade());
             existente.setBairro(dados.getBairro());
             existente.setTipoAcao(dados.getTipoAcao());
             existente.setData(dados.getData());
             existente.setObservacoes(dados.getObservacoes());
 
+            // Remove imagem se solicitado
             if (Boolean.TRUE.equals(dados.getRemoverImagem())) {
+                // Opcional: Deletar arquivo físico aqui se quiser
                 existente.setImagem(null);
             }
 
+            // Adiciona nova imagem
             if (imagem != null && !imagem.isEmpty()) {
-                String nomeArquivo = System.currentTimeMillis() + "_" + imagem.getOriginalFilename();
-                Path caminho = Paths.get(UPLOAD_DIR, nomeArquivo);
-                Files.createDirectories(caminho.getParent());
-                Files.write(caminho, imagem.getBytes());
-                existente.setImagem(nomeArquivo);
+                String nome = System.currentTimeMillis() + "_" + imagem.getOriginalFilename();
+                Files.createDirectories(Paths.get(UPLOAD_DIR));
+                Files.write(Paths.get(UPLOAD_DIR, nome), imagem.getBytes());
+                existente.setImagem(nome);
             }
-
-            Acao salva = acaoRepository.save(existente);
-            return ResponseEntity.ok(salva);
-
+            return ResponseEntity.ok(acaoRepository.save(existente));
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Erro ao atualizar ação: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
         }
     }
 
+    // --- LISTAR TUDO ---
     @GetMapping
     public ResponseEntity<?> listar() {
         return ResponseEntity.ok(acaoRepository.findAll());
     }
 
+    // --- BUSCAR POR ID (Necessário para a tela de Edição funcionar) ---
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         return acaoRepository.findById(id)
@@ -109,10 +98,18 @@ public class AcoesApiController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}") // <— se usar exclusão na tabela
+    // --- EXCLUIR (Método que faltava) ---
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Long id) {
-        if (!acaoRepository.existsById(id)) return ResponseEntity.notFound().build();
-        acaoRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        if (!acaoRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        try {
+            acaoRepository.deleteById(id);
+            return ResponseEntity.noContent().build(); // Retorna código 204 (Sucesso)
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao excluir: " + e.getMessage());
+        }
     }
 }

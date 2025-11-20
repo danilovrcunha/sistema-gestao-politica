@@ -1,16 +1,22 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
+/* =========================================
+   1. VARIÁVEIS GERAIS
+   ========================================= */
 :root {
-    --primary-color: #2c3e50;    /* Azul escuro da sidebar */
-    --secondary-color: #ecf0f1;  /* Fundo claro do conteúdo principal */
-    --text-color: #2c3e50;       /* Cor principal do texto */
-    --light-text: #bdc3c7;       /* Cor do texto normal da sidebar */
-    --active-color: #ffffff;     /* Cor do texto ativo */
-    --background-color: #ecf0f1;
-    --card-background: #ffffff;  /* Cor de fundo dos cards e headers */
+    --primary-color: #2c3e50;    /* Azul escuro */
+    --secondary-color: #ecf0f1;
+    --text-color: #34495e;
+    --light-text: #bdc3c7;
+    --background-color: #f4f6f7; /* Fundo cinza moderno */
+    --card-background: #ffffff;
+    --done-color: #2ecc71;       /* Verde */
+    --danger-color: #e74c3c;     /* Vermelho */
 }
 
-/* --- ESTILOS GERAIS E RESET --- */
+/* =========================================
+   2. RESET E BASE
+   ========================================= */
 * {
     margin: 0;
     padding: 0;
@@ -21,6 +27,7 @@ body {
     font-family: 'Roboto', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
 }
 
 .container {
@@ -28,37 +35,30 @@ body {
     height: 100vh;
 }
 
-/* --- BARRA LATERAL (SIDEBAR) --- */
-.container {
-    display: flex;
-    height: 100vh;
-}
-
-/* --- BARRA LATERAL (SIDEBAR) --- */
-.container {
-    display: flex;
-    height: 100vh;
-}
-
+/* =========================================
+   3. SIDEBAR (BARRA LATERAL)
+   ========================================= */
 .sidebar {
-    width: 250px;
+    width: 260px;
     background-color: var(--primary-color);
     color: var(--light-text);
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 25px;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+    z-index: 10;
 }
 
 .sidebar .logo {
     padding-bottom: 20px;
-    border-bottom: 1px solid #34495e;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
     margin-bottom: 20px;
 }
 
 .sidebar .logo h1 {
     font-size: 1.5em;
     font-weight: 700;
-    color: #ecf0f1;
+    color: #fff;
 }
 
 .nav-menu {
@@ -70,25 +70,30 @@ body {
 }
 
 .nav-menu li {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .nav-menu a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 10px 15px;
-    display: block;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-.nav-menu a:hover, .nav-menu li.active a {
-    background-color: #34495e;
-    color: #ffffff;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
 }
 
 .nav-menu i {
-    margin-right: 10px;
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+}
+
+.nav-menu a:hover,
+.nav-menu li.active a {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+    padding-left: 20px; /* Efeito visual de deslize */
 }
 
 .logout {
@@ -98,20 +103,24 @@ body {
 .logout a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 10px 15px;
-    display: block;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: background 0.3s;
 }
 
 .logout a:hover {
-    background-color: #c0392b;
+    background-color: rgba(231, 76, 60, 0.2);
+    color: var(--danger-color);
 }
 
-/* --- CONTEÚDO PRINCIPAL (MAIN) --- */
+/* =========================================
+   4. CONTEÚDO PRINCIPAL E HEADER
+   ========================================= */
 .main-content {
     flex-grow: 1;
-    padding: 20px;
+    padding: 25px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -119,9 +128,9 @@ body {
 
 .header {
     background-color: var(--card-background);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -131,207 +140,83 @@ body {
 .header-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
 .header-title i {
     color: var(--primary-color);
-    font-size: 1.5em;
+    font-size: 1.8em;
 }
 
 .header-title h2 {
-    font-size: 1.5em;
+    font-size: 1.6em;
     font-weight: 700;
 }
 
 .header p {
     color: #7f8c8d;
-    font-size: 1em;
-    flex-grow: 1;
-    margin-left: 15px; /* Espaço entre o título e a descrição */
+    margin-left: 20px;
+    font-size: 0.95em;
 }
 
-/* Garante que o terceiro elemento do header (vazio) não afete o layout */
-.header > div:last-child {
-    min-width: 0;
-}
-
-/* --- ESTILOS ESPECÍFICOS DA PÁGINA "AÇÕES" --- */
+/* =========================================
+   5. ESTILOS DA TELA DE AÇÕES (MAPA)
+   ========================================= */
 
 .acoes-content {
     display: flex;
     flex-direction: column;
-    gap: 20px;
 }
 
-.map-container {
-    background-color: var(--card-background);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-}
-
+/* --- MAPA --- */
 .map-embed {
     position: relative;
-    height: 600px; /* Altura que o iframe deve ocupar */
+    height: 580px;
+    border-radius: 12px;
     overflow: hidden;
-    border-radius: 4px;
+
+    /* Borda branca fina e elegante */
+    border: 4px solid #ffffff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+
+    /* Correção importante: Remove espaço extra na parte inferior */
+    display: flex;
 }
 
-.map-embed iframe {
+.map-embed iframe,
+.map-embed #map {
     width: 100%;
     height: 100%;
     border: none;
-    border-radius: 4px;
+    display: block; /* Garante preenchimento total */
+    background: #eef; /* Cor de fundo durante carregamento */
 }
 
-/* Estilo para os botões de simulação de zoom, sobrepostos ao mapa */
+/* Controles de Zoom (Opcionais) */
 .map-controls {
     position: absolute;
     bottom: 20px;
     left: 20px;
-    background-color: white;
-    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 6px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     display: flex;
     gap: 5px;
-    z-index: 10;
+    z-index: 500;
 }
 
 .map-controls button {
-    background: #f4f4f4;
-    border: 1px solid #ccc;
-    color: #333;
-    padding: 8px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1.2em;
-    transition: background-color 0.2s;
-}
-
-.map-controls button:hover {
-    background-color: #ddd;
-}
-
-.visualizar-acoes-btn {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1em;
-    width: 190px;
-    transition: background-color 0.3s;
-}
-
-.visualizar-acoes-btn:hover {
-    background-color: #34495e;
-}
-/* Estilos para agrupar e espaçar os botões abaixo do mapa */
-.action-buttons-map {
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Espaçamento entre os botões */
-    width: 250px; /* Garante que os botões fiquem alinhados na mesma largura */
-}
-
-/* Estilo para o botão Visualizar Ações (principal) */
-.visualizar-acoes-btn {
-    background-color: var(--primary-color, #2c3e50);
-    color: white;
-    padding: 12px 25px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 1em;
-    width: 100%; /* Ocupa a largura do contêiner */
-    text-align: center;
-    text-decoration: none;
-    transition: background-color 0.3s;
-    display: block;
-}
-
-/* Estilo para o novo botão (tarefas ativas) */
-.secondary-btn {
-    background-color: #2ecc71; /* Cor cinza, como sugerido antes */
-}
-
-.secondary-btn:hover {
-    background-color: #2ecc71;
-}
-/* --- ESTILOS GERAIS DE LAYOUT (Mantendo a consistência) --- */
-/* O header, sidebar, etc., usam os estilos que definimos no dashboard. */
-
-/* --- ESTILOS ESPECÍFICOS DA TELA DE AÇÕES --- */
-
-.acoes-content {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.map-container {
-    background-color: var(--card-background);
-    padding: 20px;
-    border-radius: 12px; /* Borda suave, como no Dashboard */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Sombra suave */
-}
-
-.map-embed {
-    position: relative;
-    height: 600px;
-    overflow: hidden;
-    border-radius: 8px; /* Borda interna do mapa */
-}
-
-.map-embed iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 8px;
-
-    /* --- SIMULAÇÃO VISUAL: MAPA DE CALOR (Heatmap) --- */
-    /* Aplica um filtro de tons de cinza para simular um mapa customizado e permitir destaque.
-       A cor "quente" real deve vir da API ou de uma imagem de fundo,
-       mas este filtro dá o efeito de "estilização" */
-    filter: grayscale(80%) contrast(110%);
-    transition: filter 0.5s;
-}
-
-.map-embed iframe:hover {
-    filter: grayscale(0%) contrast(100%); /* Desativa o filtro no hover para mostrar cores reais (opcional) */
-}
-
-
-/* Botões de Controle e Informações sobre o Mapa */
-
-.map-controls {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background-color: rgba(255, 255, 255, 0.85); /* Fundo semi-transparente */
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    gap: 5px;
-    z-index: 10;
-}
-
-.map-controls button {
-    background: #e9e9e9;
-    border: 1px solid #ccc;
+    background: #fff;
+    border: 1px solid #ddd;
     color: var(--primary-color);
-    padding: 8px 10px;
-    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 1.1em;
-    font-weight: bold;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
 }
 
 .map-controls button:hover {
@@ -339,65 +224,63 @@ body {
     color: white;
 }
 
-/* Estilo para o texto "Ver mapa ampliado" */
-.map-link-info {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    color: var(--primary-color);
-    font-weight: 500;
-    z-index: 10;
-    cursor: pointer;
-}
-
-/* Estilos para agrupar e espaçar os botões abaixo do mapa */
+/* --- BOTÕES ABAIXO DO MAPA --- */
 .action-buttons-map {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 250px;
-    margin-top: 15px;
+    flex-direction: row;
+
+    /* Listar na Esquerda | Nova Ação na Direita */
+    justify-content: space-between;
+
+    align-items: center;
+    width: 100%;
+    margin-top: 10px; /* Bem próximo do mapa */
 }
 
-/* Botão de Ações (Primário) */
+/* Estilo Base dos Botões */
 .visualizar-acoes-btn {
-    background-color: var(--primary-color, #2c3e50);
-    color: white;
     padding: 12px 25px;
-    border-radius: 8px; /* Borda mais suave para botões */
+    border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
-    font-size: 1em;
-    width: 100%;
-    text-align: center;
+    font-weight: 700;
+    font-size: 0.95rem;
     text-decoration: none;
-    transition: background-color 0.3s, box-shadow 0.3s;
-    display: block;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    border: none;
+}
+
+.visualizar-acoes-btn i {
+    font-size: 1.1em;
 }
 
 .visualizar-acoes-btn:hover {
-    background-color: #34495e;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* Botão de Tarefas Ativas (Secundário, Verde) */
+/* Botão Listar Todas (Esquerda) - Branco */
 .secondary-btn {
-    background-color: var(--done-color, #2ecc71);
+    background-color: #ffffff;
+    color: var(--primary-color);
+    border: 1px solid #dcdcdc;
 }
 
 .secondary-btn:hover {
-    background-color: #27ae60;
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
-/* Mapa (Leaflet) */
-.map-embed { position: relative; height: 600px; overflow: hidden; border-radius: 4px; }
-.map-embed #map { width: 100%; height: 100%; border: 0; border-radius: 4px; background: #eef; }
 
-/* Garantir controles por cima do mapa */
-.leaflet-container { z-index: 0; }
-.map-embed .map-controls { z-index: 500; }
+/* Botão Nova Ação (Direita) - Verde */
+.primary-btn {
+    background: linear-gradient(135deg, var(--done-color), #27ae60);
+    color: white;
+}
 
+.primary-btn:hover {
+    background: linear-gradient(135deg, #27ae60, #219150);
+    box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+}

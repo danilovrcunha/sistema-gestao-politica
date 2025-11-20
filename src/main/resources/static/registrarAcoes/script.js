@@ -1,76 +1,187 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const uploadArea = document.getElementById('uploadArea');
-    const fileInput = document.getElementById('fileInput');
-    const fileNameDisplay = document.getElementById('fileName');
-    const imagePreview = document.getElementById('imagePreview');
+    // ============================================================
+    // 1. SELETORES DE ELEMENTOS
+    // ============================================================
     const form = document.getElementById('registroForm');
     const submitBtn = document.getElementById('submitBtn');
 
-    // 🟢 1. Quando clicar na área de upload → abre o gerenciador de arquivos
+    // Campos de Endereço
+    const cepInput = document.getElementById('cep');
+    const logradouroInput = document.getElementById('logradouro');
+    const bairroInput = document.getElementById('bairro');
+    const cidadeInput = document.getElementById('cidade');
+    const feedbackCep = document.getElementById('cep-feedback');
+
+    // Campos de Dados da Ação
+    const tipoAcaoInput = document.getElementById('tipoAcao');
+    const dataInput = document.getElementById('data');
+    const obsInput = document.getElementById('observacoes');
+
+    // Upload e Preview
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileName');
+
+    // Container do Preview e Botão de Remover
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const btnRemovePreview = document.getElementById('btnRemovePreview');
+
+    // ============================================================
+    // 2. LÓGICA DE UPLOAD, PREVIEW E REMOÇÃO
+    // ============================================================
+
+    // Clique na área tracejada abre a janela de arquivos
     uploadArea.addEventListener('click', () => {
         fileInput.click();
     });
 
-    // 🟢 2. Quando selecionar o arquivo → mostrar nome e preview
-    fileInput.addEventListener('change', (event) => {
-        const file = event.target.files[0];
+    // Quando o usuário seleciona um arquivo
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
         if (file) {
             fileNameDisplay.textContent = file.name;
 
-            // preview
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = (ev) => {
+                // Exibe o container do preview (que tem a borda e o botão X)
+                previewContainer.style.display = 'inline-block';
+
+                // Insere a imagem gerada
                 imagePreview.innerHTML = `
-                    <img src="${e.target.result}" alt="Preview da Imagem" 
-                         style="max-width: 200px; border-radius: 8px; margin-top: 8px;">
+                    <img src="${ev.target.result}" alt="Preview da Imagem">
                 `;
             };
             reader.readAsDataURL(file);
-        } else {
-            fileNameDisplay.textContent = 'Selecionar Imagem';
-            imagePreview.innerHTML = '';
         }
     });
 
-    // 🟢 3. Enviar o formulário + imagem para o backend
-    submitBtn.addEventListener('click', async () => {
+    // Botão da Lixeira (Remover Imagem)
+    btnRemovePreview.addEventListener('click', (e) => {
+        e.stopPropagation(); // Garante que não clique em nada atrás
+
+        fileInput.value = ''; // Limpa o input file
+        fileNameDisplay.textContent = 'Selecionar Imagem'; // Reseta o texto
+        previewContainer.style.display = 'none'; // Esconde o container do preview
+        imagePreview.innerHTML = ''; // Remove a tag img
+    });
+
+    // ============================================================
+    // 3. LÓGICA DE BUSCA DE CEP (ViaCEP)
+    // ============================================================
+
+    // Máscara simples para o CEP (00000-000)
+    cepInput.addEventListener('input', (e) => {
+        let val = e.target.value.replace(/\D/g, '');
+        if (val.length > 5) {
+            val = val.replace(/^(\d{5})(\d)/, '$1-$2');
+        }
+        e.target.value = val;
+    });
+
+    // Busca automática ao sair do campo (Blur)
+    cepInput.addEventListener('blur', async () => {
+        const cep = cepInput.value.replace(/\D/g, '');
+        if (cep.length !== 8) return;
+
+        feedbackCep.textContent = 'Buscando...';
+        feedbackCep.style.color = '#666';
+
+        try {
+            const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+            const data = await res.json();
+
+            if (data.erro) {
+                feedbackCep.textContent = 'CEP não encontrado.';
+                feedbackCep.style.color = 'red';
+
+                // Limpa campos em caso de erro
+                logradouroInput.value = '';
+                bairroInput.value = '';
+                cidadeInput.value = '';
+            } else {
+                feedbackCep.textContent = 'Endereço localizado ✓';
+                feedbackCep.style.color = 'green';
+
+                // Preenche os campos automaticamente
+                logradouroInput.value = data.logradouro;
+                bairroInput.value = data.bairro;
+                cidadeInput.value = data.localidade;
+
+                // Foca no próximo campo
+                tipoAcaoInput.focus();
+            }
+        } catch (err) {
+            feedbackCep.textContent = 'Erro de conexão.';
+            feedbackCep.style.color = 'red';
+            console.error(err);
+        }
+    });
+
+    // ============================================================
+    // 4. ENVIO DO FORMULÁRIO
+    // ============================================================
+    submitBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
         if (form.checkValidity()) {
             const formData = new FormData();
 
-            // Cria o objeto da ação
+            // Monta o objeto JSON com os dados da ação
             const acao = {
-                cidade: form.cidade.value,
-                bairro: form.bairro.value,
-                tipoAcao: form.tipoAcao.value,
-                data: form.data.value,
-                observacoes: form.observacoes.value
+                cep: cepInput.value,
+                logradouro: logradouroInput.value,
+                cidade: cidadeInput.value,
+                bairro: bairroInput.value,
+                tipoAcao: tipoAcaoInput.value,
+                data: dataInput.value,
+                observacoes: obsInput.value
             };
 
-            // Adiciona os dados e imagem no FormData
+            // Adiciona o JSON stringificado
             formData.append('acao', JSON.stringify(acao));
-            if (fileInput.files.length > 0) {
+
+            // Adiciona a imagem apenas se ela existir
+            if (fileInput.files[0]) {
                 formData.append('imagem', fileInput.files[0]);
             }
 
             try {
-                const response = await fetch('/api/acoes', {
+                submitBtn.textContent = 'Enviando...';
+                submitBtn.disabled = true;
+
+                // Envia para o Backend Java
+                const res = await fetch('/api/acoes', {
                     method: 'POST',
                     body: formData
                 });
 
-                if (response.ok) {
-                    alert('Ação registrada com sucesso!');
+                if (res.ok) {
+                    alert('Registrado com sucesso!');
+
+                    // Reset completo do formulário
                     form.reset();
+
+                    // Reset manual dos elementos de upload
+                    fileInput.value = '';
                     fileNameDisplay.textContent = 'Selecionar Imagem';
+                    previewContainer.style.display = 'none';
                     imagePreview.innerHTML = '';
+                    feedbackCep.textContent = '';
+
                 } else {
-                    alert('Erro ao registrar ação.');
+                    const errorText = await res.text();
+                    alert('Erro ao salvar: ' + errorText);
                 }
             } catch (err) {
-                console.error('Erro:', err);
-                alert('Falha ao conectar com o servidor.');
+                console.error(err);
+                alert('Erro de conexão com o servidor.');
+            } finally {
+                submitBtn.textContent = '+ Registrar Ação';
+                submitBtn.disabled = false;
             }
         } else {
+            // Se inválido, mostra os balões de erro nativos do navegador
             form.reportValidity();
         }
     });

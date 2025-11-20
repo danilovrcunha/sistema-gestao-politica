@@ -12,6 +12,8 @@ public class Acao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String cep;
+    private String logradouro; // <--- NOVO CAMPO (Rua)
     private String cidade;
     private String bairro;
     private String tipoAcao;
@@ -25,8 +27,17 @@ public class Acao {
     private String imagem;
     private Boolean removerImagem;
 
+    // === GETTERS E SETTERS ===
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getCep() { return cep; }
+    public void setCep(String cep) { this.cep = cep; }
+
+    // Getter e Setter do novo campo
+    public String getLogradouro() { return logradouro; }
+    public void setLogradouro(String logradouro) { this.logradouro = logradouro; }
 
     public String getCidade() { return cidade; }
     public void setCidade(String cidade) { this.cidade = cidade; }
@@ -46,7 +57,6 @@ public class Acao {
     public String getImagem() { return imagem; }
     public void setImagem(String imagem) { this.imagem = imagem; }
 
-    public Boolean isRemoverImagem() { return removerImagem; }
-    public Boolean getRemoverImagem() { return removerImagem; } // <—
+    public Boolean getRemoverImagem() { return removerImagem; }
     public void setRemoverImagem(Boolean removerImagem) { this.removerImagem = removerImagem; }
 }

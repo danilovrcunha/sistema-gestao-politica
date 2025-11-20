@@ -1,96 +1,99 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    const tableBody   = document.getElementById('acoes-tbody');
-    const emptyState  = document.getElementById('empty-state');
+console.log('[Ações Registradas] Script carregado.');
 
-    async function carregarAcoes() {
-        try {
-            const res = await fetch('/api/acoes', { credentials: 'same-origin' });
-            if (!res.ok) throw new Error(`Falha ao listar ações (${res.status})`);
-
-            const ct = res.headers.get('content-type') || '';
-            if (!ct.includes('application/json')) throw new Error('Resposta não-JSON.');
-
-            const acoes = await res.json();
-
-            // limpa sempre antes de preencher
-            tableBody.innerHTML = '';
-
-            if (!acoes || acoes.length === 0) {
-                emptyState.style.display = 'block';
-                return;
-            } else {
-                emptyState.style.display = 'none';
-            }
-
-            acoes.forEach(acao => {
-                const row = document.createElement('tr');
-
-                // formata data yyyy-MM-dd -> dd/MM/yyyy
-                const dataFmt = acao.data ? formatarData(acao.data) : '';
-
-                row.innerHTML = `
-          <td>${sanitize(acao.cidade)}</td>
-          <td>${sanitize(acao.bairro)}</td>
-          <td>${sanitize(acao.tipoAcao)}</td>
-          <td>${dataFmt}</td>
-          <td>
-            <i class="fas fa-edit edit-icon" data-id="${acao.id}"></i>
-            <i class="fas fa-trash-alt trash-icon" data-id="${acao.id}"></i>
-          </td>
-        `;
-                tableBody.appendChild(row);
-            });
-
-        } catch (err) {
-            console.error('[acoesRegistradas] Erro:', err);
-            tableBody.innerHTML = '';
-            emptyState.style.display = 'block';
-            emptyState.innerHTML = `<em>Erro ao carregar ações.</em>`;
-        }
-    }
-
-    function formatarData(iso) {
-        // espera "yyyy-MM-dd"
-        const [y, m, d] = String(iso).split('-');
-        if (!y || !m || !d) return iso;
-        return `${d}/${m}/${y}`;
-    }
-
-    function sanitize(v) {
-        return (v ?? '').toString().replace(/[<>&"]/g, (c) =>
-            ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])
-        );
-    }
-
-    // eventos de clique na tabela
-    tableBody.addEventListener('click', async (e) => {
-        const target = e.target;
-
-        // Editar: redireciona para página de edição
-        if (target.classList.contains('edit-icon')) {
-            const id = target.dataset.id;
-            if (!id) return alert('Ação sem ID.');
-            window.location.href = `/editarAcao/${id}`;
-            return;
-        }
-
-        // Excluir: DELETE no backend e remove da tela
-        if (target.classList.contains('trash-icon')) {
-            const id = target.dataset.id;
-            if (!id) return;
-            if (!confirm('Deseja excluir esta ação?')) return;
-
-            const res = await fetch(`/api/acoes/${id}`, { method: 'DELETE', credentials: 'same-origin' });
-            if (res.ok) {
-                target.closest('tr')?.remove();
-                if (!tableBody.children.length) {
-                    emptyState.style.display = 'block';
-                }
-            } else {
-                alert('Erro ao excluir a ação.');
-            }
-        }
-    });
-
-    await carregarAcoes();
+document.addEventListener('DOMContentLoaded', () => {
+    carregarTabela();
 });
+
+// Função para buscar dados e preencher a tabela
+async function carregarTabela() {
+    const tbody = document.getElementById('acoes-tbody');
+    const emptyState = document.getElementById('empty-state');
+
+    // Limpa a tabela antes de carregar
+    tbody.innerHTML = '';
+
+    try {
+        // Faz a requisição GET para sua API
+        const response = await fetch('/api/acoes');
+
+        if (!response.ok) {
+            throw new Error('Erro na resposta da API');
+        }
+
+        const listaAcoes = await response.json();
+
+        // Verifica se a lista está vazia
+        if (!listaAcoes || listaAcoes.length === 0) {
+            emptyState.style.display = 'block';
+            return;
+        } else {
+            emptyState.style.display = 'none';
+        }
+
+        // Cria as linhas da tabela
+        listaAcoes.forEach(acao => {
+            const tr = document.createElement('tr');
+
+            // Formata a data (ex: 2025-11-20 -> 20/11/2025)
+            let dataFormatada = '-';
+            if (acao.data) {
+                // Se vier com hora (T), quebra na data
+                const dataParte = acao.data.split('T')[0];
+                const [ano, mes, dia] = dataParte.split('-');
+                dataFormatada = `${dia}/${mes}/${ano}`;
+            }
+
+            tr.innerHTML = `
+                <td>${acao.cidade || '-'}</td>
+                <td>${acao.bairro || '-'}</td>
+                <td>
+                    <span class="badge-tipo">${acao.tipoAcao || 'Geral'}</span>
+                </td>
+                <td>${dataFormatada}</td>
+                <td class="actions-cell">
+                    <a href="/editarAcao/${acao.id}" class="btn-icon edit" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    
+                    <button class="btn-icon delete" onclick="deletarAcao(${acao.id})" title="Excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+    } catch (err) {
+        console.error('Erro ao carregar tabela:', err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Erro ao carregar dados.</td></tr>';
+    }
+}
+
+// Função GLOBAL para deletar (precisa ser acessível pelo onclick do HTML)
+window.deletarAcao = async function(id) {
+    if (!id) return;
+
+    if (!confirm('Tem certeza que deseja excluir esta ação? Essa operação não pode ser desfeita.')) {
+        return;
+    }
+
+    try {
+        // Chama o endpoint DELETE do Java
+        const res = await fetch(`/api/acoes/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            alert('Ação excluída com sucesso!');
+            // Recarrega a tabela para sumir com o item
+            carregarTabela();
+        } else {
+            // Tenta ler a mensagem de erro do backend
+            const txt = await res.text();
+            alert('Erro ao excluir: ' + txt);
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Erro de conexão com o servidor.');
+    }
+};

@@ -3,26 +3,24 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ações</title>
+    <title>Mapa de Ações</title>
 
-    <!-- CSS desta tela -->
     <link rel="stylesheet" href="/acoes/style.css" />
     <link rel="stylesheet" href="/AssistenteIA/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
 
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
-
-    <!-- Leaflet + Heat (sem API key) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
 </head>
 <body>
 <div class="container">
+
     <aside class="sidebar">
-        <div class="logo"><h1>Menu Principal</h1></div>
+        <div class="logo">
+            <h1>Menu Principal</h1>
+        </div>
+
         <nav class="nav-menu">
             <ul>
                 <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -33,6 +31,7 @@
                 <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a></li>
             </ul>
         </nav>
+
         <div class="logout">
             <a href="/login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a>
         </div>
@@ -41,58 +40,45 @@
     <main class="main-content">
         <header class="header">
             <div class="header-title">
-                <i class="fas fa-chart-line"></i>
-                <h2>Ações</h2>
+                <i class="fas fa-map-marked-alt"></i>
+                <h2>Mapa de Calor e Ações</h2>
             </div>
-            <p>Visualize e Gerencie as ações realizadas</p>
-            <div></div>
+            <p>Visualize a densidade de ações por região</p>
         </header>
 
         <section class="acoes-content">
             <div class="map-embed">
-                <span class="map-link-info">Mapa de calor por bairro</span>
-
-                <!-- mapa base (no lugar do iframe) -->
-                <div id="map"></div>
-
-                <div class="map-controls">
-                    <button id="btn-zoom-in"><i class="fas fa-search-plus"></i></button>
-                    <button id="btn-zoom-out"><i class="fas fa-search-minus"></i></button>
-                    <button id="btn-fit"><i class="fas fa-search"></i></button>
-                </div>
+                <div id="map" style="height: 550px; width: 100%; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></div>
             </div>
 
             <div class="action-buttons-map">
-                <a href="/acoesRegistradas" class="visualizar-acoes-btn primary-btn">Visualizar Ações</a>
-                <a href="/kanban" class="visualizar-acoes-btn secondary-btn">Visualizar Tarefas Ativas</a>
+                <a href="/acoesRegistradas" class="visualizar-acoes-btn secondary-btn">
+                    <i class="fas fa-list"></i> Listar Todas
+                </a>
+
+                <a href="/registrarAcoes" class="visualizar-acoes-btn primary-btn">
+                    <i class="fas fa-plus"></i> Nova Ação
+                </a>
             </div>
         </section>
     </main>
-
 </div>
-<!-- Assistente I.A. -->
+
 <div class="assistant-chat-panel" id="assistantChatPanel">
     <div class="chat-header">
         <h4>Assistente I.A.</h4>
         <button class="close-chat-btn" id="closeChatBtn">&times;</button>
     </div>
-
     <div class="chat-body" id="chatBody">
-        <div class="chat-message-ai">
-            Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
-        </div>
+        <div class="chat-message-ai">Olá! Como posso ajudar com o mapa de ações?</div>
     </div>
-
     <div class="chat-footer">
         <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
-        <button id="sendChatBtn" class="send-chat-btn">
-            <i class="fas fa-paper-plane"></i>
-        </button>
+        <button id="sendChatBtn" class="send-chat-btn"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
-<script src="/acoes/script.js" defer></script>
-<script src="/AssistenteIA/script.js" defer></script>
 
-
+<script src="/acoes/script.js"></script>
+<script src="/AssistenteIA/script.js"></script>
 </body>
 </html>

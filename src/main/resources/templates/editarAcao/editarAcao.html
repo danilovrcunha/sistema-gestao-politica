@@ -6,9 +6,8 @@
   <title>Editar Ação</title>
   <link rel="stylesheet" href="/editarAcao/style.css" />
   <link rel="stylesheet" href="/AssistenteIA/style.css" />
-  <script src="/AssistenteIA/script.js" defer></script>
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+
   <script th:inline="javascript">
     /*<![CDATA[*/
     window.ACAO_ID = /*[[${id}]]*/ null;
@@ -22,37 +21,47 @@
     <nav class="nav-menu">
       <ul>
         <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
-        <li class="active"><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
-        <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
+        <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
+        <li class="active"><a href="/acoesRegistradas"><i class="fas fa-list"></i> Lista</a></li>
+        <li><a href="/kanban"><i class="fas fa-tasks"></i> Tarefas</a></li>
         <li><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
-        <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
-        <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a></li>
+        <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente I.A.</a></li>
       </ul>
     </nav>
-    <div class="logout">
-      <a href="/login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a>
-    </div>
   </aside>
 
   <main class="main-content">
     <header class="header">
       <div class="header-title">
-        <i class="fas fa-chart-line"></i>
+        <i class="fas fa-edit"></i>
         <h2>Editar Ação</h2>
       </div>
-      <p>Atualize os detalhes da ação</p>
+      <p>Atualize os detalhes e a localização</p>
     </header>
 
     <section class="form-container">
       <form id="registroForm" class="registro-form">
+
+        <div class="form-group-row">
+          <div class="form-group" style="flex: 1;">
+            <label for="cep">CEP</label>
+            <input type="text" id="cep" name="cep" placeholder="00000-000" maxlength="9" required />
+            <small id="cep-feedback" style="color:#666; font-size:0.8rem;"></small>
+          </div>
+          <div class="form-group" style="flex: 2;">
+            <label for="logradouro">Rua / Logradouro</label>
+            <input type="text" id="logradouro" name="logradouro" readonly style="background-color:#f0f0f0;" />
+          </div>
+        </div>
+
         <div class="form-group-row">
           <div class="form-group">
-            <label for="cidade">Cidade</label>
-            <input type="text" id="cidade" name="cidade" required />
+            <label for="bairro">Bairro</label>
+            <input type="text" id="bairro" name="bairro" readonly style="background-color:#f0f0f0;" />
           </div>
           <div class="form-group">
-            <label for="bairro">Bairro</label>
-            <input type="text" id="bairro" name="bairro" required />
+            <label for="cidade">Cidade</label>
+            <input type="text" id="cidade" name="cidade" readonly style="background-color:#f0f0f0;" />
           </div>
         </div>
 
@@ -73,55 +82,41 @@
         </div>
 
         <div class="form-group">
-          <label>Anexar Mídia</label>
+          <label>Mídia / Imagem</label>
 
-          <!-- A área toda vira um <label> apontando para o input -->
+          <div id="currentImageContainer" style="display:none; margin-bottom: 15px;">
+            <p style="font-size:0.9rem; color:#666; margin-bottom:5px;">Imagem Atual:</p>
+            <div style="position: relative; display: inline-block;">
+              <img id="currentImage" src="" alt="Atual" style="max-height: 150px; border-radius: 8px; border: 1px solid #ddd;">
+
+              <button id="btnRemoveExisting" type="button" title="Excluir imagem atual"
+                      style="position: absolute; top: -10px; right: -10px; background: red; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-trash" style="font-size: 12px;"></i>
+              </button>
+            </div>
+          </div>
+
           <label class="upload-area" id="uploadArea" for="fileInput">
             <i class="fas fa-camera"></i>
-            <p id="fileName">Selecionar Imagem</p>
+            <p id="fileName">Alterar Imagem (Clique aqui)</p>
           </label>
-
-          <!-- IMPORTANTE: mantenha o input no DOM (pode ficar escondido por CSS) -->
-          <input type="file" id="fileInput" name="imagem" accept="image/*" />
+          <input type="file" id="fileInput" name="imagem" accept="image/*" style="display:none;" />
 
           <div id="imagePreview" class="image-preview"></div>
-
-          <button id="removeImageBtn" type="button" class="action-btn" style="display:none;margin-top:8px;">
-            Remover imagem
-          </button>
         </div>
       </form>
     </section>
 
     <div class="action-buttons-footer">
-      <a href="/acoesRegistradas" class="action-btn back-btn">&larr; Retornar às Ações</a>
+      <a href="/acoesRegistradas" class="action-btn back-btn">&larr; Cancelar</a>
       <button id="submitBtn" type="button" class="action-btn register-btn">
         Salvar Alterações
       </button>
     </div>
   </main>
 </div>
-<!-- Assistente I.A. -->
-<div class="assistant-chat-panel" id="assistantChatPanel">
-  <div class="chat-header">
-    <h4>Assistente I.A.</h4>
-    <button class="close-chat-btn" id="closeChatBtn">&times;</button>
-  </div>
 
-  <div class="chat-body" id="chatBody">
-    <div class="chat-message-ai">
-      Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
-    </div>
-  </div>
-
-  <div class="chat-footer">
-    <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
-    <button id="sendChatBtn" class="send-chat-btn">
-      <i class="fas fa-paper-plane"></i>
-    </button>
-  </div>
-</div>
-
+<div class="assistant-chat-panel" id="assistantChatPanel"></div>
 <script src="/editarAcao/script.js" defer></script>
 <script src="/AssistenteIA/script.js" defer></script>
 </body>
