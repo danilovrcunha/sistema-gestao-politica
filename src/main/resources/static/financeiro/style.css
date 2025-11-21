@@ -1,18 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
-/* --- :root (Variáveis Globais) --- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 :root {
-    --primary-color: #2c3e50;    /* Azul escuro da sidebar/botões Exportar */
-    --secondary-color: #ecf0f1;  /* Fundo claro do conteúdo principal */
-    --text-color: #2c3e50;       /* Cor principal do texto */
-    --light-text: #bdc3c7;       /* Cor do texto normal da sidebar */
-    --active-color: #ffffff;     /* Cor do texto ativo */
-    --background-color: #ecf0f1;
-    --card-background: #ffffff;  /* Cor de fundo dos cards e formulários */
-    --save-btn-color: #3498db;   /* Azul claro para o botão Salvar */
+    --primary-color: #2c3e50;
+    --secondary-color: #ecf0f1;
+    --text-color: #2c3e50;
+    --light-text: #bdc3c7;
+    --card-background: #ffffff;
+
+    --save-btn-color: #3498db;
+    --export-btn-color: #2c3e50;
+
+    --menu-hover-border: #3498db;
 }
 
-/* --- ESTILOS GERAIS E LAYOUT DA PÁGINA --- */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3E6585;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2c3e50;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -20,29 +38,38 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0E171F 0%, #3E6585 100%);
+    height: 100vh;
+    background-attachment: fixed;
     color: var(--text-color);
+    overflow: hidden;
 }
 
 .container {
     display: flex;
     height: 100vh;
+    width: 100%;
 }
 
-/* --- BARRA LATERAL (SIDEBAR) --- */
+/* --- SIDEBAR (Transparente) --- */
 .sidebar {
-    width: 250px;
-    background-color: var(--primary-color);
+    width: 260px;
+    min-width: 260px;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     color: var(--light-text);
     display: flex;
     flex-direction: column;
     padding: 20px;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
 }
 
 .sidebar .logo {
     padding-bottom: 20px;
-    border-bottom: 1px solid #34495e;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 20px;
 }
 
@@ -50,6 +77,7 @@ body {
     font-size: 1.5em;
     font-weight: 700;
     color: #ecf0f1;
+    letter-spacing: 0.5px;
 }
 
 .nav-menu {
@@ -67,136 +95,154 @@ body {
 .nav-menu a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 10px 15px;
-    display: block;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    padding: 12px 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    white-space: nowrap;
 }
 
-.nav-menu a:hover, .nav-menu li.active a {
-    background-color: #34495e;
+.nav-menu a:hover,
+.nav-menu li.active a {
+    background-color: rgba(52, 73, 94, 0.8);
     color: #ffffff;
+    border-left-color: var(--menu-hover-border);
+    padding-left: 15px;
 }
 
 .nav-menu i {
     margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 .logout {
     margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
 }
 
 .logout a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 10px 15px;
-    display: block;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    padding: 12px 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: all 0.3s;
 }
 
 .logout a:hover {
-    background-color: #c0392b;
+    background-color: rgba(192, 57, 43, 0.2);
+    color: #e74c3c;
 }
 
-/* --- CONTEÚDO PRINCIPAL (MAIN) e HEADER --- */
+.logout i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* --- MAIN CONTENT --- */
 .main-content {
     flex-grow: 1;
     padding: 20px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    background-color: var(--background-color, #f5f7fa); /* Versão refinada */
 }
 
 .header {
     background-color: var(--card-background);
     padding: 20px;
-    border-radius: 12px; /* Versão refinada */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Versão refinada */
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .header-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .header-title i {
     color: var(--primary-color);
-    font-size: 1.5em;
+    font-size: 1.4em;
 }
 
 .header-title h2 {
     font-size: 1.5em;
     font-weight: 700;
+    color: var(--primary-color);
 }
 
 .header p {
     color: #7f8c8d;
-    font-size: 1em;
+    font-size: 0.95em;
     flex-grow: 1;
     margin-left: 15px;
 }
 
 .header-breadcrumb {
     color: #7f8c8d;
-    font-size: 0.9em;
+    font-size: 0.95em;
 }
 
-
-/* --- FORMULÁRIO FINANCEIRO (CONSOLIDADO) --- */
-
+/* --- FORMULÁRIO FINANCEIRO --- */
 .financeiro-container {
     background-color: var(--card-background);
-    padding: 35px; /* Versão refinada */
-    border-radius: 12px; /* Versão refinada */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Versão refinada */
-    flex-grow: 1;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    flex-grow: 0;
+    border: 1px solid rgba(0,0,0,0.02);
+    margin-bottom: 25px;
 }
 
 .form-header-financeiro {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px; /* Versão refinada */
-    padding-bottom: 15px; /* Versão refinada */
-    border-bottom: 1px solid #f0f0f0; /* Versão refinada */
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .form-header-financeiro h3 {
-    font-size: 1.6em; /* Versão refinada */
+    font-size: 1.3em;
     font-weight: 600;
     color: var(--primary-color);
 }
 
 .export-btn {
-    background-color: var(--primary-color);
+    background-color: var(--export-btn-color);
     color: white;
-    padding: 10px 20px; /* Versão refinada */
+    padding: 10px 20px;
     border: none;
-    border-radius: 8px; /* Versão refinada */
+    border-radius: 8px;
     font-size: 0.9em;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 5px;
-    transition: background-color 0.3s, transform 0.3s;
-    text-transform: uppercase;
-    font-weight: bold;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Versão refinada */
+    gap: 8px;
+    transition: background-color 0.3s, transform 0.2s;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
 }
 
 .export-btn:hover {
     background-color: #34495e;
-    transform: translateY(-1px); /* Versão refinada */
+    transform: translateY(-2px);
 }
 
-/* Estrutura do Formulário */
 .registro-financeiro-form {
     display: flex;
     flex-direction: column;
@@ -205,7 +251,7 @@ body {
 
 .form-group-row {
     display: flex;
-    gap: 30px;
+    gap: 20px;
 }
 
 .form-group {
@@ -214,40 +260,36 @@ body {
     flex: 1;
 }
 
-/* Inputs, Selects e Textarea (Unificados) */
 .registro-financeiro-form label {
-    font-weight: 500;
-    margin-bottom: 5px; /* Versão refinada */
-    color: #555; /* Versão refinada */
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #2c3e50;
     display: block;
-    font-size: 0.9em;
+    font-size: 0.95em;
 }
 
 .registro-financeiro-form input[type="text"],
 .registro-financeiro-form input[type="date"],
 .registro-financeiro-form select,
 .registro-financeiro-form textarea {
-    padding: 14px; /* Versão refinada e unificada */
-    border: 1px solid #e0e0e0; /* Versão refinada */
-    border-radius: 8px; /* Versão refinada */
+    padding: 12px 15px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
     font-size: 1em;
     width: 100%;
     background-color: #fcfcfc;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Versão refinada */
-    transition: border-color 0.3s;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    color: #2c3e50;
 }
 
 .registro-financeiro-form input:focus,
 .registro-financeiro-form select:focus,
 .registro-financeiro-form textarea:focus {
-    border-color: var(--save-btn-color, #3498db);
-    box-shadow: 0 0 0 1px var(--save-btn-color, #3498db); /* Versão refinada */
-    background-color: white;
-}
-
-.registro-financeiro-form input[placeholder="R$ 0,00"] {
-    font-weight: bold;
-    color: var(--text-color); /* Versão refinada */
+    border-color: var(--save-btn-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .registro-financeiro-form textarea {
@@ -255,13 +297,22 @@ body {
     min-height: 80px;
 }
 
-/* Botões do Formulário */
+/* Select Customizado */
+.registro-financeiro-form select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
 .form-footer-buttons-financeiro {
     display: flex;
     justify-content: flex-end;
-    padding-top: 25px;
-    margin-top: 10px;
-    border-top: 1px solid #f0f0f0; /* Linha sutil */
+    padding-top: 15px;
 }
 
 .salvar-btn {
@@ -269,37 +320,35 @@ body {
     color: white;
     padding: 12px 25px;
     border: none;
-    border-radius: 8px; /* Versão refinada */
-    font-weight: bold;
+    border-radius: 8px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3); /* Versão refinada */
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.2);
 }
 
 .salvar-btn:hover {
     background-color: #2980b9;
-    transform: translateY(-1px); /* Versão refinada */
+    transform: translateY(-2px);
 }
 
-
-/* --- HISTÓRICO DE TRANSAÇÕES (ACORDEÃO - ATUALIZADO) --- */
-
+/* --- HISTÓRICO DE TRANSAÇÕES --- */
 .historico-transacoes-container {
     background-color: var(--card-background);
-    padding: 20px 35px 30px 35px; /* Versão refinada */
-    border-radius: 12px; /* Versão refinada */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Versão refinada */
-    margin-top: 25px; /* Versão refinada */
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0,0,0,0.02);
 }
 
 .historico-transacoes-container h3 {
-    font-size: 1.3em; /* Versão refinada */
+    font-size: 1.3em;
     font-weight: 600;
     color: var(--primary-color);
-    margin-bottom: 25px; /* Versão refinada */
+    margin-bottom: 20px;
 }
 
-/* NOVO: Cabeçalho estático para alinhar os títulos */
 .historico-header {
     display: flex;
     justify-content: space-between;
@@ -308,102 +357,141 @@ body {
     margin-bottom: 10px;
     border-bottom: 1px solid #e0e0e0;
     font-weight: 600;
+    color: #7f8c8d;
+    font-size: 0.95em;
 }
 
 .historico-header span:first-child {
-    flex-grow: 1; /* Ocupa o espaço, empurrando "Custos" */
-    margin-right: 15px; /* Espaço antes da coluna de custos */
-    color: #555;
-    text-align: left;
+    flex-grow: 1;
+    margin-right: 15px;
 }
 
 .historico-header span:last-child {
-    flex-shrink: 0; /* Não encolhe */
-    width: 120px; /* Largura fixa para a coluna de custos */
-    text-align: right; /* Alinha o texto "Custos" à direita */
-    color: var(--primary-color);
+    flex-shrink: 0;
+    width: 120px;
+    text-align: right;
 }
 
-/* Item do Acordeão */
+/* Acordeão */
 .acordeao-item {
-    border: 1px solid #e0e0e0; /* Versão refinada */
-    border-radius: 8px; /* Versão refinada */
-    margin-bottom: 12px; /* Versão refinada */
-    overflow: hidden; /* Importante para o efeito de expansão */
+    border: 1px solid #f0f2f5;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: box-shadow 0.3s;
 }
 
-/* Cabeçalho Clicável do Acordeão */
+.acordeao-item:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
 .acordeao-header {
-    background-color: #fafafa; /* Versão refinada */
+    background-color: #fcfcfc;
     color: var(--text-color);
     cursor: pointer;
-    padding: 18px 20px; /* Versão refinada */
+    padding: 15px 20px;
     width: 100%;
     border: none;
     text-align: left;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
     transition: background-color 0.2s;
 }
 
 .acordeao-header:hover {
-    background-color: #f0f0f0; /* Versão refinada */
+    background-color: #f8f9fa;
 }
 
-/*Título (Alinhado) */
 .acordeao-titulo {
     flex-grow: 1;
     margin-right: 15px;
-    text-align: left;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 500;
 }
 
-/* Valor (Alinhado) */
 .acordeao-valor {
     flex-shrink: 0;
-    width: 120px; /* Mesma largura do .historico-header span:last-child */
+    width: 120px;
     text-align: right;
-    color: var(--save-btn-color, #3498db);
+    color: var(--save-btn-color);
     font-weight: 700;
     margin-right: 10px;
 }
 
-/* Ícone do Acordeão */
 .acordeao-icon {
     flex-shrink: 0;
     transition: transform 0.3s ease;
+    color: #bdc3c7;
 }
 
 .acordeao-header.active .acordeao-icon {
     transform: rotate(180deg);
+    color: var(--save-btn-color);
 }
 
-/* Corpo (Conteúdo) do Acordeão */
 .acordeao-body {
-    padding: 0 20px; /* Alinha com o padding do header */
+    padding: 0 20px;
     background-color: white;
-    max-height: 0; /* ESSENCIAL: Mantém minimizado por padrão */
+    max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-out, padding 0.3s ease-out;
 }
 
 .transacao-detalhes {
     list-style: none;
-    padding: 10px 0;
+    padding: 15px 0;
 }
 
 .transacao-detalhes li {
-    padding: 5px 0;
+    padding: 8px 0;
     border-bottom: 1px dashed #f0f0f0;
     font-size: 0.9em;
+    display: flex;
+    justify-content: space-between;
 }
 
 .transacao-detalhes li span:first-child {
-    font-weight: 500;
+    font-weight: 600;
     color: #7f8c8d;
-    margin-right: 5px;
+}
+
+.transacao-detalhes li.total-geral {
+    border-bottom: none;
+    margin-top: 10px;
+    font-size: 1.1em;
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.sem-registros {
+    text-align: center;
+    padding: 30px;
+    color: #95a5a6;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+    }
+    .form-group-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    body {
+        overflow: auto;
+    }
 }
