@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
-
 :root {
     --primary-color: #2c3e50;
     --secondary-color: #ecf0f1;
@@ -12,6 +10,23 @@
     --todo-color: #3498db;
 }
 
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3E6585;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2c3e50;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -19,28 +34,34 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0E171F 0%, #3E6585 100%);
+    height: 100vh;
+    background-attachment: fixed;
     color: var(--text-color);
+    overflow: hidden;
 }
 
 .container {
     display: flex;
     height: 100vh;
+    width: 100%;
 }
 
 .sidebar {
-    width: 250px;
-    background-color: var(--primary-color);
+    width: 260px;
+    min-width: 260px;
     color: var(--light-text);
     display: flex;
     flex-direction: column;
     padding: 20px;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
 }
 
 .sidebar .logo {
     padding-bottom: 20px;
-    border-bottom: 1px solid #34495e;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 20px;
 }
 
@@ -48,6 +69,7 @@ body {
     font-size: 1.5em;
     font-weight: 700;
     color: #ecf0f1;
+    letter-spacing: 0.5px;
 }
 
 .nav-menu {
@@ -65,36 +87,54 @@ body {
 .nav-menu a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 10px 15px;
-    display: block;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    padding: 12px 10px; /* Ajustado para aproveitar melhor o espaço lateral */
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    white-space: nowrap; /* Garante que o texto não quebre linha */
 }
 
 .nav-menu a:hover, .nav-menu li.active a {
-    background-color: #34495e;
+    background-color: rgba(52, 73, 94, 0.8);
     color: #ffffff;
+    border-left-color: var(--todo-color);
+    padding-left: 15px;
 }
 
 .nav-menu i {
     margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 .logout {
     margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
 }
 
 .logout a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 10px 15px;
-    display: block;
-    border-radius: 5px;
-    transition: background-color 0.3s;
+    padding: 12px 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: all 0.3s;
 }
 
 .logout a:hover {
-    background-color: #c0392b;
+    background-color: rgba(192, 57, 43, 0.2);
+    color: #e74c3c;
+}
+
+.logout i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
 }
 
 .main-content {
@@ -108,31 +148,35 @@ body {
 .header {
     background-color: var(--card-background);
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .header-title {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
 }
 
 .header-title i {
     color: var(--primary-color);
+    font-size: 1.4em;
 }
 
 .header-title h2 {
     font-size: 1.5em;
     font-weight: 700;
+    color: var(--primary-color);
 }
 
 .header p {
     color: #7f8c8d;
+    font-size: 0.95em;
 }
 
 .dashboard-panel {
@@ -143,15 +187,25 @@ body {
 
 .card {
     background-color: var(--card-background);
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.02);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
 }
 
 .card h3 {
-    margin-bottom: 15px;
-    font-size: 1.2em;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    font-weight: 600;
     color: var(--primary-color);
+    border-bottom: 2px solid #f0f2f5;
+    padding-bottom: 10px;
 }
 
 .status-chart {
@@ -167,7 +221,7 @@ body {
 .status-details {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
 }
 
 .status-item {
@@ -179,15 +233,18 @@ body {
 .status-bar {
     width: 20px;
     height: 10px;
-    border-radius: 2px;
+    border-radius: 4px;
 }
 
 .status-label {
-    font-weight: 700;
+    font-weight: 600;
+    font-size: 0.9em;
+    color: #333;
 }
 
 .status-text {
-    color: #7f8c8d;
+    color: #95a5a6;
+    font-size: 0.85em;
 }
 
 .responsible-card {
