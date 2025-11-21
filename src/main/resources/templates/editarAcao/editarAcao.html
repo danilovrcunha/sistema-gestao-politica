@@ -9,9 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
 
   <script th:inline="javascript">
-    /*<![CDATA[*/
     window.ACAO_ID = /*[[${id}]]*/ null;
-    /*]]>*/
   </script>
 </head>
 <body>
@@ -22,9 +20,10 @@
       <ul>
         <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
         <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
-        <li class="active"><a href="/acoesRegistradas"><i class="fas fa-list"></i> Lista</a></li>
-        <li><a href="/kanban"><i class="fas fa-tasks"></i> Tarefas</a></li>
+        <li class="active"><a href="/acoesRegistradas"><i class="fas fa-list"></i> Listar Ações</a></li>
+        <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
         <li><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
+        <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
         <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente I.A.</a></li>
       </ul>
     </nav>

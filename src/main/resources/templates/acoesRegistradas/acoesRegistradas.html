@@ -21,7 +21,7 @@
         <nav class="nav-menu">
             <ul>
                 <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
+                <li class="active"><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
                 <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
                 <li><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
                 <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
@@ -39,8 +39,9 @@
                 <i class="fas fa-chart-line"></i>
                 <h2>Ações Registradas</h2>
             </div>
-            <p>Visualize e Gerencie as ações realizadas</p>
-            <div></div>
+            <div class="header-breadcrumb">
+                <p>Visualize e Gerencie as ações realizadas</p>
+            </div>
         </header>
 
         <section class="acoes-registradas-content">
@@ -57,14 +58,13 @@
                         <th>Opções</th>
                     </tr>
                     </thead>
-                    <tbody id="acoes-tbody"><!-- preenchido via JS --></tbody>
+                    <tbody id="acoes-tbody"></tbody>
                 </table>
                 <div id="empty-state" style="display:none; padding:12px;">
                     <em>Nenhuma ação encontrada.</em>
                 </div>
             </div>
 
-            <!-- (opcional) sua paginação estática pode ficar, mas não reflete o banco -->
             <div class="pagination" style="display:none">
                 <span>1</span>
                 <a href="#">2</a>

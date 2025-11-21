@@ -1,22 +1,35 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* =========================================
-   1. VARIÁVEIS GERAIS
-   ========================================= */
 :root {
-    --primary-color: #2c3e50;    /* Azul escuro */
+    --primary-color: #2c3e50;
     --secondary-color: #ecf0f1;
-    --text-color: #34495e;
+    --text-color: #2c3e50;
     --light-text: #bdc3c7;
-    --background-color: #f4f6f7; /* Fundo cinza moderno */
     --card-background: #ffffff;
-    --done-color: #2ecc71;       /* Verde */
-    --danger-color: #e74c3c;     /* Vermelho */
+
+    --done-color: #2ecc71;
+    --danger-color: #e74c3c;
+
+    --menu-hover-border: #3498db;
 }
 
-/* =========================================
-   2. RESET E BASE
-   ========================================= */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3E6585;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2c3e50;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -24,41 +37,45 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0E171F 0%, #3E6585 100%);
+    height: 100vh;
+    background-attachment: fixed;
     color: var(--text-color);
-    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
 }
 
 .container {
     display: flex;
     height: 100vh;
+    width: 100%;
 }
 
-/* =========================================
-   3. SIDEBAR (BARRA LATERAL)
-   ========================================= */
 .sidebar {
     width: 260px;
-    background-color: var(--primary-color);
+    min-width: 260px;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
     color: var(--light-text);
     display: flex;
     flex-direction: column;
-    padding: 25px;
-    box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+    padding: 20px;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
     z-index: 10;
 }
 
 .sidebar .logo {
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 20px;
 }
 
 .sidebar .logo h1 {
     font-size: 1.5em;
     font-weight: 700;
-    color: #fff;
+    color: #ecf0f1;
+    letter-spacing: 0.5px;
 }
 
 .nav-menu {
@@ -70,57 +87,66 @@ body {
 }
 
 .nav-menu li {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .nav-menu a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 12px 15px;
+    padding: 12px 10px;
     display: flex;
     align-items: center;
     border-radius: 8px;
     transition: all 0.3s ease;
-}
-
-.nav-menu i {
-    margin-right: 12px;
-    width: 20px;
-    text-align: center;
+    border-left: 4px solid transparent;
+    white-space: nowrap;
 }
 
 .nav-menu a:hover,
 .nav-menu li.active a {
-    background-color: rgba(255,255,255,0.1);
-    color: #fff;
-    padding-left: 20px; /* Efeito visual de deslize */
+    background-color: rgba(52, 73, 94, 0.8);
+    color: #ffffff;
+    border-left-color: var(--menu-hover-border);
+    padding-left: 15px;
+}
+
+.nav-menu i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
 }
 
 .logout {
     margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
 }
 
 .logout a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 12px 15px;
+    padding: 12px 10px;
     display: flex;
     align-items: center;
     border-radius: 8px;
-    transition: background 0.3s;
+    transition: all 0.3s;
 }
 
 .logout a:hover {
-    background-color: rgba(231, 76, 60, 0.2);
-    color: var(--danger-color);
+    background-color: rgba(192, 57, 43, 0.2);
+    color: #e74c3c;
 }
 
-/* =========================================
-   4. CONTEÚDO PRINCIPAL E HEADER
-   ========================================= */
+.logout i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
 .main-content {
     flex-grow: 1;
-    padding: 25px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -128,29 +154,31 @@ body {
 
 .header {
     background-color: var(--card-background);
-    padding: 20px 30px;
+    padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .header-title {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
 }
 
 .header-title i {
     color: var(--primary-color);
-    font-size: 1.8em;
+    font-size: 1.4em;
 }
 
 .header-title h2 {
-    font-size: 1.6em;
+    font-size: 1.5em;
     font-weight: 700;
+    color: var(--primary-color);
 }
 
 .header p {
@@ -159,28 +187,19 @@ body {
     font-size: 0.95em;
 }
 
-/* =========================================
-   5. ESTILOS DA TELA DE AÇÕES (MAPA)
-   ========================================= */
-
 .acoes-content {
     display: flex;
     flex-direction: column;
 }
 
-/* --- MAPA --- */
 .map-embed {
     position: relative;
     height: 580px;
     border-radius: 12px;
     overflow: hidden;
-
-    /* Borda branca fina e elegante */
     border: 4px solid #ffffff;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     background-color: #fff;
-
-    /* Correção importante: Remove espaço extra na parte inferior */
     display: flex;
 }
 
@@ -189,60 +208,24 @@ body {
     width: 100%;
     height: 100%;
     border: none;
-    display: block; /* Garante preenchimento total */
-    background: #eef; /* Cor de fundo durante carregamento */
+    display: block;
+    background: #eef;
 }
 
-/* Controles de Zoom (Opcionais) */
-.map-controls {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 6px;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    display: flex;
-    gap: 5px;
-    z-index: 500;
-}
-
-.map-controls button {
-    background: #fff;
-    border: 1px solid #ddd;
-    color: var(--primary-color);
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1em;
-    transition: all 0.2s;
-}
-
-.map-controls button:hover {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* --- BOTÕES ABAIXO DO MAPA --- */
 .action-buttons-map {
     display: flex;
     flex-direction: row;
-
-    /* Listar na Esquerda | Nova Ação na Direita */
     justify-content: space-between;
-
     align-items: center;
     width: 100%;
-    margin-top: 10px; /* Bem próximo do mapa */
+    margin-top: 15px;
 }
 
-/* Estilo Base dos Botões */
 .visualizar-acoes-btn {
     padding: 12px 25px;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: 700;
+    font-weight: 600;
     font-size: 0.95rem;
     text-decoration: none;
     display: inline-flex;
@@ -250,10 +233,7 @@ body {
     gap: 8px;
     transition: all 0.3s;
     border: none;
-}
-
-.visualizar-acoes-btn i {
-    font-size: 1.1em;
+    font-family: 'Poppins', sans-serif;
 }
 
 .visualizar-acoes-btn:hover {
@@ -261,7 +241,6 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
-/* Botão Listar Todas (Esquerda) - Branco */
 .secondary-btn {
     background-color: #ffffff;
     color: var(--primary-color);
@@ -274,13 +253,35 @@ body {
     border-color: var(--primary-color);
 }
 
-/* Botão Nova Ação (Direita) - Verde */
 .primary-btn {
-    background: linear-gradient(135deg, var(--done-color), #27ae60);
+    background-color: var(--done-color);
     color: white;
 }
 
 .primary-btn:hover {
-    background: linear-gradient(135deg, #27ae60, #219150);
+    background-color: #27ae60;
     box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+    }
+    .action-buttons-map {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .visualizar-acoes-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    body {
+        overflow: auto;
+    }
 }

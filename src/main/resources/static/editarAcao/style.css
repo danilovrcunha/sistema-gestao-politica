@@ -1,22 +1,36 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* =========================================
-   VARIÁVEIS GERAIS
-   ========================================= */
 :root {
     --primary-color: #2c3e50;
     --secondary-color: #ecf0f1;
     --text-color: #2c3e50;
-    --background-color: #ecf0f1;
+    --light-text: #bdc3c7;
     --card-background: #ffffff;
+
     --done-color: #2ecc71;
     --danger-color: #e74c3c;
-    --hover-gray: #34495e;
+    --focus-color: #3498db;
+
+    --menu-hover-border: #3498db;
 }
 
-/* =========================================
-   RESET E BASE
-   ========================================= */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3E6585;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2c3e50;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -24,55 +38,117 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0E171F 0%, #3E6585 100%);
+    height: 100vh;
+    background-attachment: fixed;
     color: var(--text-color);
+    overflow: hidden;
 }
 
-/* =========================================
-   LAYOUT PRINCIPAL
-   ========================================= */
 .container {
     display: flex;
     height: 100vh;
+    width: 100%;
 }
 
-/* --- Sidebar --- */
+/* --- SIDEBAR --- */
 .sidebar {
-    width: 250px;
-    background-color: var(--primary-color);
-    color: #bdc3c7;
+    width: 260px;
+    min-width: 260px;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--light-text);
     display: flex;
     flex-direction: column;
     padding: 20px;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
 }
 
-.sidebar a {
-    color: #bdc3c7;
-    text-decoration: none;
-    padding: 10px;
-    display: block;
-    border-radius: 5px;
-    transition: background 0.3s;
+.sidebar .logo {
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
 }
 
-.sidebar a:hover,
-.sidebar li.active a {
-    background-color: var(--hover-gray);
-    color: #fff;
+.sidebar .logo h1 {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #ecf0f1;
+    letter-spacing: 0.5px;
+}
+
+.nav-menu {
+    flex-grow: 1;
 }
 
 .nav-menu ul {
     list-style: none;
 }
 
-.logout {
-    margin-top: auto;
+.nav-menu li {
+    margin-bottom: 10px;
 }
 
-/* --- Conteúdo Principal --- */
+.nav-menu a {
+    color: var(--light-text);
+    text-decoration: none;
+    padding: 12px 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    white-space: nowrap;
+}
+
+.nav-menu a:hover,
+.nav-menu li.active a {
+    background-color: rgba(52, 73, 94, 0.8);
+    color: #ffffff;
+    border-left-color: var(--menu-hover-border);
+    padding-left: 15px;
+}
+
+.nav-menu i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.logout {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+.logout a {
+    color: var(--light-text);
+    text-decoration: none;
+    padding: 12px 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.logout a:hover {
+    background-color: rgba(192, 57, 43, 0.2);
+    color: #e74c3c;
+}
+
+.logout i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
 .main-content {
-    flex: 1;
+    flex-grow: 1;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -80,32 +156,43 @@ body {
 }
 
 .header {
-    background: var(--card-background);
+    background-color: var(--card-background);
     padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .header-title {
     display: flex;
-    gap: 10px;
     align-items: center;
-    font-size: 1.5em;
+    gap: 12px;
 }
 
-/* =========================================
-   FORMULÁRIO
-   ========================================= */
+.header-title i {
+    color: var(--primary-color);
+    font-size: 1.4em;
+}
+
+.header-title h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* --- FORMULÁRIO --- */
 .form-container {
-    background: var(--card-background);
+    background-color: var(--card-background);
     padding: 30px;
-    border-radius: 8px;
-    flex: 1;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    flex-grow: 1;
+    width: 100%;
+    border: 1px solid rgba(0,0,0,0.02);
 }
 
 .registro-form {
@@ -116,7 +203,7 @@ body {
 
 .form-group-row {
     display: flex;
-    gap: 20px;
+    gap: 25px;
 }
 
 .form-group {
@@ -126,124 +213,231 @@ body {
 }
 
 .form-group label {
-    font-weight: bold;
+    font-weight: 600;
     margin-bottom: 8px;
     color: var(--text-color);
+    font-size: 0.95em;
 }
 
 input,
 select,
 textarea {
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    padding: 12px 15px;
+    border: 1px solid #dfe6e9;
+    border-radius: 8px;
     width: 100%;
-    background: #fcfcfc;
-    font-size: 1rem;
-    transition: border-color 0.3s;
+    background-color: #fcfcfc;
+    font-size: 1em;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    color: #2c3e50;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
-    border-color: var(--primary-color);
-    outline: none;
+    border-color: var(--focus-color);
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
-/* Inputs Readonly (Cinza) */
 input[readonly] {
-    background-color: #f0f0f0;
+    background-color: #f1f2f6;
     color: #7f8c8d;
     cursor: not-allowed;
+    border-color: #ecf0f1;
 }
 
-/* =========================================
-   UPLOAD E IMAGEM
-   ========================================= */
 .upload-area {
-    border: 2px dashed #ccc;
-    padding: 30px;
+    border: 2px dashed #bdc3c7;
+    padding: 40px;
     text-align: center;
     cursor: pointer;
-    background: #f9f9f9;
+    background-color: #f8f9fa;
     display: block;
-    border-radius: 8px;
-    transition: all 0.3s;
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
 .upload-area:hover {
-    border-color: var(--primary-color);
-    background-color: #fff;
+    border-color: var(--focus-color);
+    background-color: #f0f8ff;
 }
 
 .upload-area i {
-    font-size: 2rem;
+    font-size: 2.5rem;
     color: #95a5a6;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    transition: color 0.3s;
 }
 
-.image-preview img {
-    max-width: 100%;
+.upload-area:hover i {
+    color: var(--focus-color);
+}
+
+/* --- PREVIEW DE NOVA IMAGEM (Upload) --- */
+.preview-container {
     margin-top: 15px;
-    border-radius: 6px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-/* Container da Imagem Atual */
-#currentImageContainer {
-    background: #fdfdfd;
+.preview-wrapper {
+    background: #fff;
     padding: 10px;
-    border: 1px solid #eee;
-    border-radius: 8px;
+    border: 1px solid #dfe6e9;
+    border-radius: 12px;
     display: inline-block;
+    position: relative; /* Essencial para o botão flutuante */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
-/* Botão de Remover Imagem (Lixeira) */
-#btnRemoveExisting {
-    transition: transform 0.2s, background-color 0.2s;
+.preview-wrapper img,
+.image-content img {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    display: block;
 }
 
-#btnRemoveExisting:hover {
-    background-color: #c0392b !important; /* Vermelho mais escuro */
-    transform: scale(1.1);
-}
-
-/* =========================================
-   BOTÕES DE AÇÃO
-   ========================================= */
-.action-buttons-footer {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 30px;
-}
-
-.action-btn {
-    padding: 12px 30px;
-    border: none;
-    border-radius: 6px;
+/* Botão Flutuante de Remover (Para preview de nova imagem) */
+.btn-remove-preview {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: var(--danger-color);
     color: white;
-    font-weight: bold;
-    font-size: 1rem;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
     cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.3s;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.2s, background-color 0.2s;
+    z-index: 10;
+}
+
+.btn-remove-preview:hover {
+    background-color: #c0392b;
+    transform: scale(1.1);
+}
+
+/* --- IMAGEM EXISTENTE (Do Banco de Dados) --- */
+#currentImageContainer {
+    background-color: #fff;
+    padding: 10px;
+    border: 1px solid #dfe6e9;
+    border-radius: 12px;
+    display: inline-block;
+    margin-top: 10px;
+    position: relative; /* Essencial para o botão */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+#currentImageContainer img {
+    max-width: 200px;
+    border-radius: 8px;
+    display: block;
+}
+
+/* Botão Flutuante de Remover (Para imagem existente) */
+#btnRemoveExisting {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.2s, background-color 0.2s;
+    z-index: 10;
+}
+
+#btnRemoveExisting:hover {
+    background-color: #c0392b !important;
+    transform: scale(1.1);
+}
+
+/* --- RODAPÉ --- */
+.action-buttons-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f2f6;
+}
+
+.action-btn {
+    padding: 12px 35px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 1em;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    transition: transform 0.2s, box-shadow 0.3s, background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.action-btn:active {
+    transform: translateY(1px);
 }
 
 .back-btn {
-    background: #7f8c8d;
+    background-color: #95a5a6;
 }
 
 .back-btn:hover {
-    background: #95a5a6;
+    background-color: #7f8c8d;
 }
 
 .register-btn {
-    background: var(--done-color);
+    background-color: var(--done-color);
+    box-shadow: 0 4px 10px rgba(46, 204, 113, 0.2);
 }
 
 .register-btn:hover {
-    background: #27ae60;
+    background-color: #27ae60;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(46, 204, 113, 0.3);
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+    }
+    .form-group-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .action-buttons-footer {
+        flex-direction: column-reverse;
+    }
+    .action-btn {
+        width: 100%;
+    }
+    body {
+        overflow: auto;
+    }
 }

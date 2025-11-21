@@ -1,123 +1,207 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
-/* =========================================
-   VARIÁVEIS (Paleta de Cores Atualizada)
-   ========================================= */
 :root {
     --primary-color: #2c3e50;
     --secondary-color: #ecf0f1;
-    --text-color: #34495e;
-    --background-color: #f4f6f7; /* Fundo levemente mais frio */
+    --text-color: #2c3e50;
+    --light-text: #bdc3c7;
     --card-background: #ffffff;
 
-    /* Cores de Ação */
+
     --success-color: #27ae60;
-    --success-hover: #219150;
     --danger-color: #e74c3c;
     --danger-bg: #fadbd8;
     --warning-color: #f39c12;
     --warning-bg: #fdebd0;
-    --neutral-color: #95a5a6;
-    --neutral-hover: #7f8c8d;
+
+    --menu-hover-border: #3498db;
 }
 
-/* =========================================
-   RESET E ESTRUTURA
-   ========================================= */
-* { margin: 0; padding: 0; box-sizing: border-box; }
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3E6585;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #2c3e50;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
 body {
-    font-family: 'Roboto', sans-serif;
-    background-color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #0E171F 0%, #3E6585 100%);
+    height: 100vh;
+    background-attachment: fixed;
     color: var(--text-color);
-    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
 }
 
-.container { display: flex; height: 100vh; }
+.container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
 
-/* =========================================
-   SIDEBAR (Barra Lateral)
-   ========================================= */
+/* --- SIDEBAR (Vidro) --- */
 .sidebar {
     width: 260px;
-    background-color: var(--primary-color);
-    color: #bdc3c7;
+    min-width: 260px;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--light-text);
     display: flex;
     flex-direction: column;
-    padding: 25px;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
     z-index: 10;
 }
 
 .sidebar .logo {
     padding-bottom: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 20px;
 }
-.sidebar .logo h1 { font-size: 1.4em; color: #fff; font-weight: 700; }
 
-.nav-menu ul { list-style: none; }
-.nav-menu li { margin-bottom: 8px; }
+.sidebar .logo h1 {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #ecf0f1;
+    letter-spacing: 0.5px;
+}
 
-.nav-menu a, .logout a {
-    color: #bdc3c7;
+.nav-menu {
+    flex-grow: 1;
+}
+
+.nav-menu ul {
+    list-style: none;
+}
+
+.nav-menu li {
+    margin-bottom: 10px;
+}
+
+.nav-menu a {
+    color: var(--light-text);
     text-decoration: none;
-    padding: 12px 15px;
+    padding: 12px 10px;
     display: flex;
     align-items: center;
     border-radius: 8px;
     transition: all 0.3s ease;
-    font-weight: 500;
+    border-left: 4px solid transparent;
+    white-space: nowrap;
 }
 
-.nav-menu i, .logout i { margin-right: 12px; width: 20px; text-align: center; }
-
-.nav-menu a:hover, .nav-menu li.active a {
-    background-color: rgba(255,255,255,0.1);
-    color: #fff;
-    transform: translateX(5px);
+.nav-menu a:hover,
+.nav-menu li.active a {
+    background-color: rgba(52, 73, 94, 0.8);
+    color: #ffffff;
+    border-left-color: var(--menu-hover-border);
+    padding-left: 15px;
 }
 
-.logout { margin-top: auto; }
-.logout a:hover { background-color: rgba(231, 76, 60, 0.2); color: #e74c3c; }
+.nav-menu i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+}
 
-/* =========================================
-   CONTEÚDO PRINCIPAL
-   ========================================= */
+.logout {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+.logout a {
+    color: var(--light-text);
+    text-decoration: none;
+    padding: 12px 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.logout a:hover {
+    background-color: rgba(192, 57, 43, 0.2);
+    color: #e74c3c;
+}
+
+.logout i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+/* --- CONTEÚDO PRINCIPAL --- */
 .main-content {
-    flex: 1;
-    padding: 30px;
+    flex-grow: 1;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
 }
 
-/* HEADER */
+/* Header */
 .header {
     background-color: var(--card-background);
-    padding: 20px 30px;
+    padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
-.header-title { display: flex; align-items: center; gap: 15px; }
-.header-title i { color: var(--primary-color); font-size: 1.8em; }
-.header-title h2 { font-size: 1.6em; font-weight: 700; color: var(--primary-color); }
-.header p { color: #7f8c8d; margin-left: 20px; font-size: 0.95em; }
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
-/* =========================================
-   TABELA DE DADOS (Modernizada)
-   ========================================= */
+.header-title i {
+    color: var(--primary-color);
+    font-size: 1.4em;
+}
+
+.header-title h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.header p {
+    color: #7f8c8d;
+    margin-left: 20px;
+    font-size: 0.95em;
+}
+
+/* --- TABELA DE DADOS --- */
 .table-container {
     background: var(--card-background);
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    overflow: hidden; /* Arredonda os cantos da tabela */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
     margin-bottom: 20px;
+    border: 1px solid rgba(0,0,0,0.02);
 }
 
 .data-table {
@@ -130,7 +214,7 @@ body {
     color: var(--text-color);
     padding: 15px 20px;
     text-align: left;
-    font-weight: 700;
+    font-weight: 600;
     border-bottom: 2px solid #ececec;
     text-transform: uppercase;
     font-size: 0.85em;
@@ -142,13 +226,18 @@ body {
     border-bottom: 1px solid #f1f1f1;
     color: #555;
     vertical-align: middle;
+    font-size: 0.95em;
 }
 
-.data-table tbody tr:last-child td { border-bottom: none; }
-.data-table tbody tr:hover { background-color: #fafafa; }
+.data-table tbody tr:last-child td {
+    border-bottom: none;
+}
 
-/* --- BOTÕES DA TABELA (Editar / Excluir) --- */
-/* Transformando ícones simples em botões "Soft UI" */
+.data-table tbody tr:hover {
+    background-color: #fafafa;
+}
+
+/* --- BOTÕES DA TABELA --- */
 .btn-icon {
     display: inline-flex;
     align-items: center;
@@ -163,11 +252,11 @@ body {
     margin-right: 5px;
 }
 
-/* Botão Editar (Amarelo Suave) */
 .btn-icon.edit {
     background-color: var(--warning-bg);
     color: var(--warning-color);
 }
+
 .btn-icon.edit:hover {
     background-color: var(--warning-color);
     color: white;
@@ -175,11 +264,11 @@ body {
     box-shadow: 0 4px 10px rgba(243, 156, 18, 0.3);
 }
 
-/* Botão Excluir (Vermelho Suave) */
 .btn-icon.delete {
     background-color: var(--danger-bg);
     color: var(--danger-color);
 }
+
 .btn-icon.delete:hover {
     background-color: var(--danger-color);
     color: white;
@@ -187,9 +276,7 @@ body {
     box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
 }
 
-/* =========================================
-   BOTÕES DO RODAPÉ (Footer Actions)
-   ========================================= */
+
 .action-buttons-footer {
     display: flex;
     justify-content: space-between;
@@ -199,7 +286,7 @@ body {
 
 .action-btn {
     text-decoration: none;
-    padding: 14px 30px;
+    padding: 12px 30px;
     border: none;
     border-radius: 8px;
     font-weight: 600;
@@ -208,37 +295,42 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
+    font-family: 'Poppins', sans-serif;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Sombra suave */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* Botão Voltar (Cinza Moderno) */
+.action-btn:active {
+    transform: translateY(1px);
+}
+
+/* Botão Voltar */
 .back-btn {
     background-color: #fff;
     color: var(--text-color);
     border: 1px solid #ddd;
 }
+
 .back-btn:hover {
     background-color: #f1f1f1;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
 }
 
-/* Botão Registrar (Verde Vibrante) */
+/* Botão Registrar */
 .register-btn {
-    background: linear-gradient(135deg, var(--success-color), var(--success-hover));
+    background-color: var(--success-color);
     color: white;
 }
+
 .register-btn:hover {
-    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    background-color: #219150;
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4); /* Sombra verde */
+    box-shadow: 0 6px 15px rgba(39, 174, 96, 0.4);
 }
 
-/* =========================================
-   PAGINAÇÃO (Opcional)
-   ========================================= */
+/* --- PAGINAÇÃO --- */
 .pagination {
     display: flex;
     justify-content: center;
@@ -264,6 +356,7 @@ body {
     color: var(--text-color);
     border: 1px solid #e0e0e0;
 }
+
 .pagination a:hover {
     border-color: var(--primary-color);
     color: var(--primary-color);
@@ -275,10 +368,32 @@ body {
     border: 1px solid var(--primary-color);
 }
 
-/* Estado Vazio */
 #empty-state {
     text-align: center;
     color: #95a5a6;
     padding: 40px !important;
     font-style: italic;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+        height: auto;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px;
+    }
+    .action-buttons-footer {
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+    .action-btn {
+        width: 100%;
+    }
+    body {
+        overflow: auto;
+    }
 }
