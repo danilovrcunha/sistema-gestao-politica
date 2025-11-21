@@ -4,22 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestão de Tarefas</title>
-
-  <!-- Estilos -->
   <link rel="stylesheet" href="/kanban/style.css" />
   <link rel="stylesheet" href="/AssistenteIA/style.css" />
   <link
           rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-  />
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
 
-  <!-- Script do assistente -->
   <script src="/AssistenteIA/script.js" defer></script>
 </head>
 
 <body>
 <div class="container">
-  <!-- ================= SIDEBAR ================= -->
   <aside class="sidebar">
     <div class="logo">
       <h1>Menu Principal</h1>
@@ -41,20 +39,16 @@
     </div>
   </aside>
 
-  <!-- ================= MAIN CONTENT ================= -->
   <main class="main-content">
     <header class="header">
       <div class="header-title">
         <i class="fas fa-tasks"></i>
         <h2>Gestão de Tarefas</h2>
       </div>
-      <div class="header-breadcrumb">
-        <span>Início</span> &gt; <span>Gestão de Tarefas</span>
-      </div>
       <a href="/criarTarefa" class="new-task-btn">Nova Tarefa</a>
     </header>
 
-    <!-- ================= KANBAN BOARD ================= -->
+
     <section class="kanban-board">
 
       <!-- 🟢 A FAZER -->
@@ -159,7 +153,6 @@
   </div>
 </div>
 
-<!-- Script principal do Kanban -->
 <script src="/kanban/script.js" defer></script>
 </body>
 </html>

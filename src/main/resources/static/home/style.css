@@ -87,13 +87,13 @@ body {
 .nav-menu a {
     color: var(--light-text);
     text-decoration: none;
-    padding: 12px 10px; /* Ajustado para aproveitar melhor o espaço lateral */
+    padding: 12px 10px;
     display: flex;
     align-items: center;
     border-radius: 8px;
     transition: all 0.3s ease;
     border-left: 4px solid transparent;
-    white-space: nowrap; /* Garante que o texto não quebre linha */
+    white-space: nowrap;
 }
 
 .nav-menu a:hover, .nav-menu li.active a {
