@@ -1,6 +1,6 @@
 package residencia.sistema_gestao_politica.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference; // IMPORTAR
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import residencia.sistema_gestao_politica.model.enums.TipoUsuario;
 
@@ -18,7 +18,6 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String email;
 
-    // A coluna agora tem o tamanho correto para o hash BCrypt
     @Column(nullable = false, length = 100)
     private String password;
 
@@ -26,16 +25,16 @@ public class Usuario {
     @Column(nullable = false)
     private TipoUsuario tipoUsuario;
 
-    // --- MUDANÇA AQUI ---
-    // Esta anotação diz ao Jackson: "Não serialize este campo,
-    // pois o 'pai' (Gabinete) já está cuidando disso."
-    // Isso quebra o loop infinito.
     @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "gabinete_id")
     private Gabinete gabinete;
 
-    // Construtores, Getters e Setters (sem mudança)
+    // --- NOVO RELACIONAMENTO ---
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "permissao_id", referencedColumnName = "id")
+    private Permissao permissao;
+
     public Usuario() {
     }
 
@@ -46,51 +45,22 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
-    public Long getId() {
-        return id;
-    }
+    // Getters e Setters existentes... (id, nome, email, password, tipoUsuario, gabinete)
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+    public TipoUsuario getTipoUsuario() { return tipoUsuario; }
+    public void setTipoUsuario(TipoUsuario tipoUsuario) { this.tipoUsuario = tipoUsuario; }
+    public Gabinete getGabinete() { return gabinete; }
+    public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
 
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public TipoUsuario getTipoUsuario() {
-        return tipoUsuario;
-    }
-
-    public void setTipoUsuario(TipoUsuario tipoUsuario) {
-        this.tipoUsuario = tipoUsuario;
-    }
-
-    public Gabinete getGabinete() {
-        return gabinete;
-    }
-
-    public void setGabinete(Gabinete gabinete) {
-        this.gabinete = gabinete;
-    }
+    // --- NOVO GETTER E SETTER ---
+    public Permissao getPermissao() { return permissao; }
+    public void setPermissao(Permissao permissao) { this.permissao = permissao; }
 }

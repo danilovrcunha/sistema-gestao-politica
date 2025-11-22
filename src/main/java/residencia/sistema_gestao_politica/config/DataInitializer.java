@@ -7,17 +7,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import residencia.sistema_gestao_politica.model.Gabinete;
+import residencia.sistema_gestao_politica.model.Permissao;
 import residencia.sistema_gestao_politica.model.Usuario;
 import residencia.sistema_gestao_politica.model.enums.TipoUsuario;
 import residencia.sistema_gestao_politica.repository.GabineteRepository;
 import residencia.sistema_gestao_politica.repository.UsuarioRepository;
 
-/**
- * Esta classe roda automaticamente na inicialização do Spring Boot.
- * Ela verifica se o banco de dados está vazio e, se estiver,
- * cria os dados iniciais (Gabinete, Super Admin, Admin)
- * com as senhas CORRETAMENTE codificadas por BCrypt.
- */
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -35,35 +30,37 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if (usuarioRepository.count() > 0) {
-            log.info("O banco de dados já está populado. Inicializador pulado.");
             return;
         }
 
-        log.info("Banco de dados vazio. Populando com dados iniciais...");
+        log.info("Populando banco de dados...");
 
-
+        // 1. Criar Gabinete
         Gabinete gabineteKaido = new Gabinete("Gabinete Principal do Kaido");
         gabineteRepository.save(gabineteKaido);
-        log.info("Gabinete 1 criado.");
 
+        // 2. Criar Super Admin
         Usuario superAdmin = new Usuario();
         superAdmin.setNome("Super Administrador");
         superAdmin.setEmail("super@admin.com");
         superAdmin.setPassword(passwordEncoder.encode("super123"));
         superAdmin.setTipoUsuario(TipoUsuario.SUPER_ADMIN);
-        superAdmin.setGabinete(null); // Super Admin não tem gabinete
+        superAdmin.setGabinete(null);
+        // Permissão Total
+        superAdmin.setPermissao(new Permissao(true));
         usuarioRepository.save(superAdmin);
-        log.info("Usuário SUPER_ADMIN (super@admin.com) criado.");
 
+        // 3. Criar Admin Kaido
         Usuario adminKaido = new Usuario();
         adminKaido.setNome("Kaido");
         adminKaido.setEmail("kaido@admin.com");
         adminKaido.setPassword(passwordEncoder.encode("kaido123"));
         adminKaido.setTipoUsuario(TipoUsuario.ADMIN);
         adminKaido.setGabinete(gabineteKaido);
+        // Permissão Total
+        adminKaido.setPermissao(new Permissao(true));
         usuarioRepository.save(adminKaido);
-        log.info("Usuário ADMIN (kaido@admin.com) criado.");
 
-        log.info("População inicial do banco de dados concluída.");
+        log.info("Dados iniciais criados com sucesso!");
     }
 }

@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
     <script src="/AssistenteIA/script.js" defer></script>
     <script src="/home/script.js"></script>
+    <script src="/global/script.js"></script>
 </head>
 <body>
     <div class="container">
@@ -21,12 +22,12 @@
             </div>
             <nav class="nav-menu">
                 <ul>
-                    <li class="active"><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
-                    <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
-                    <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
-                    <li><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
-                    <li><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
-                    <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a></li>
+                    <li id="menu-dashboard" class="active"><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li id="menu-acoes"><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
+                    <li id="menu-kanban"><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
+                    <li id="menu-financeiro"><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
+                    <li id="menu-config"><a href="/configuracoes"><i class="fas fa-cog"></i> Configurações</a></li>
+                    <li  id="assistant-toggle-btn" id = "menu"><a href="#"><i class="fas fa-robot"></i> Assistente IA</a></li>
                 </ul>
             </nav>
             <div class="logout">

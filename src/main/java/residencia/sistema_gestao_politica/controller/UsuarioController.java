@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import residencia.sistema_gestao_politica.model.Gabinete;
+import residencia.sistema_gestao_politica.model.Permissao;
 import residencia.sistema_gestao_politica.model.Usuario;
 import residencia.sistema_gestao_politica.model.enums.TipoUsuario;
 import residencia.sistema_gestao_politica.repository.GabineteRepository;
@@ -32,7 +33,6 @@ public class UsuarioController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Helper para pegar o usuário logado
     private MeuUserDetails getUsuarioLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof MeuUserDetails)) {
@@ -44,7 +44,6 @@ public class UsuarioController {
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios(@RequestParam(required = false) Long gabineteId) {
         MeuUserDetails userDetails = getUsuarioLogado();
-
         boolean isSuperAdmin = userDetails.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
 
@@ -63,51 +62,73 @@ public class UsuarioController {
         MeuUserDetails adminLogado = getUsuarioLogado();
         Long gabineteId = adminLogado.getGabineteId();
 
-        // --- LÓGICA DE CRIAÇÃO ATUALIZADA ---
-
         if (gabineteId == null) {
-            // 1. Lógica do SUPER_ADMIN (Logado)
-            // Ele pode criar qualquer tipo, mas deve especificar o gabinete no JSON
+            // SUPER_ADMIN criando
             if (usuario.getGabinete() == null || usuario.getGabinete().getId() == null) {
-                return ResponseEntity.badRequest().body("SUPER_ADMIN deve especificar um 'gabinete: { id: ... }' para criar usuários.");
+                return ResponseEntity.badRequest().body("SUPER_ADMIN deve especificar um 'gabinete: { id: ... }'.");
             }
         } else {
-            // 2. Lógica do ADMIN de Gabinete (Logado)
+            // ADMIN criando
             Gabinete meuGabinete = repositorioGabinete.findById(gabineteId)
-                    .orElseThrow(() -> new RuntimeException("Gabinete do admin não encontrado"));
-
-            // A. Vincula o novo usuário ao mesmo gabinete do Admin logado
+                    .orElseThrow(() -> new RuntimeException("Gabinete não encontrado"));
             usuario.setGabinete(meuGabinete);
 
-            // B. TRAVA DE SEGURANÇA:
-            // Admin de gabinete NÃO pode criar Super Admin.
             if (usuario.getTipoUsuario() == TipoUsuario.SUPER_ADMIN) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Administradores de gabinete não podem criar Super Admins.");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Não pode criar Super Admin.");
             }
-
-            // C. Se o tipo não foi enviado, define como USER por padrão.
-            // (Isso permite criar ADMIN se o JSON vier com "tipoUsuario": "ADMIN")
             if (usuario.getTipoUsuario() == null) {
                 usuario.setTipoUsuario(TipoUsuario.USER);
             }
         }
 
-        // Codifica a senha antes de salvar
-        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
+        // --- DEFINIR PERMISSÕES INICIAIS ---
+        if (usuario.getTipoUsuario() == TipoUsuario.SUPER_ADMIN || usuario.getTipoUsuario() == TipoUsuario.ADMIN) {
+            // Admins nascem com permissão TOTAL
+            usuario.setPermissao(new Permissao(true));
+        } else {
+            // Usuários comuns nascem SEM permissão (admin tem que liberar depois)
+            usuario.setPermissao(new Permissao(false));
+        }
 
+        usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
         Usuario salvo = repositorioUsuario.save(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
+    }
+
+    // --- NOVO ENDPOINT: ATUALIZAR PERMISSÕES ---
+    @PutMapping("/{id}/permissoes")
+    public ResponseEntity<?> atualizarPermissoes(@PathVariable Long id, @RequestBody Permissao novasPermissoes) {
+        Usuario usuarioAlvo = repositorioUsuario.findById(id).orElse(null);
+        if (usuarioAlvo == null) return ResponseEntity.notFound().build();
+
+        Permissao permAtual = usuarioAlvo.getPermissao();
+        if (permAtual == null) {
+            permAtual = new Permissao(); // Cria se não existir
+            usuarioAlvo.setPermissao(permAtual);
+        }
+
+        // Atualiza campos
+        permAtual.setVerDashboard(novasPermissoes.isVerDashboard());
+        permAtual.setEditarDashboard(novasPermissoes.isEditarDashboard());
+        permAtual.setVerAcoes(novasPermissoes.isVerAcoes());
+        permAtual.setEditarAcoes(novasPermissoes.isEditarAcoes());
+        permAtual.setVerKanban(novasPermissoes.isVerKanban());
+        permAtual.setEditarKanban(novasPermissoes.isEditarKanban());
+        permAtual.setVerFinanceiro(novasPermissoes.isVerFinanceiro());
+        permAtual.setEditarFinanceiro(novasPermissoes.isEditarFinanceiro());
+        permAtual.setVerConfiguracoes(novasPermissoes.isVerConfiguracoes());
+        permAtual.setEditarConfiguracoes(novasPermissoes.isEditarConfiguracoes());
+
+        repositorioUsuario.save(usuarioAlvo);
+        return ResponseEntity.ok("Permissões atualizadas!");
     }
 
     @PutMapping("/{id}/senha")
     public ResponseEntity<?> alterarSenha(@PathVariable Long id, @RequestParam String novaSenha) {
         MeuUserDetails userLogado = getUsuarioLogado();
-
-        // Regra: Usuário só pode alterar a própria senha
         if (!userLogado.getUsuarioId().equals(id)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Você não pode alterar a senha de outro usuário.");
         }
-
         return repositorioUsuario.findById(id)
                 .map(user -> {
                     user.setPassword(passwordEncoder.encode(novaSenha));
@@ -128,35 +149,31 @@ public class UsuarioController {
         Long idAdminLogado = adminLogado.getUsuarioId();
         Long gabineteIdAdmin = adminLogado.getGabineteId();
 
-        // Regra 1: Ninguém pode deletar a si mesmo
-        if (id.equals(idAdminLogado)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+        if (id.equals(idAdminLogado)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         Optional<Usuario> usuarioParaDeletarOpt = repositorioUsuario.findById(id);
-
-        if (usuarioParaDeletarOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
+        if (usuarioParaDeletarOpt.isEmpty()) return ResponseEntity.notFound().build();
         Usuario usuarioParaDeletar = usuarioParaDeletarOpt.get();
 
-        // Regra 2: SUPER_ADMIN pode deletar qualquer um
-        if (adminLogado.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"))) {
+        boolean isSuperAdmin = adminLogado.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+
+        if (isSuperAdmin) {
             repositorioUsuario.deleteById(id);
             return ResponseEntity.noContent().build();
         }
 
-        // Regra 3: ADMIN só pode deletar usuários do SEU gabinete
         if (usuarioParaDeletar.getGabinete() != null && usuarioParaDeletar.getGabinete().getId().equals(gabineteIdAdmin)) {
-            // (Opcional) Bloquear deleção de outros ADMINs se quiser, ou permitir:
-            // if(usuarioParaDeletar.getTipoUsuario() == TipoUsuario.ADMIN) { ... }
-
             repositorioUsuario.deleteById(id);
             return ResponseEntity.noContent().build();
         }
 
-        // Se chegou aqui, sem permissão
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+    @GetMapping("/me")
+    public ResponseEntity<Usuario> getMeuPerfil() {
+        MeuUserDetails userDetails = getUsuarioLogado();
+        return repositorioUsuario.findById(userDetails.getUsuarioId())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
