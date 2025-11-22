@@ -1,7 +1,6 @@
 package residencia.sistema_gestao_politica.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -31,7 +30,7 @@ public class UsuarioController {
     private GabineteRepository repositorioGabinete;
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // Injetado para codificar senhas
+    private PasswordEncoder passwordEncoder;
 
     // Helper para pegar o usuário logado
     private MeuUserDetails getUsuarioLogado() {
@@ -60,21 +59,33 @@ public class UsuarioController {
         MeuUserDetails adminLogado = getUsuarioLogado();
         Long gabineteId = adminLogado.getGabineteId();
 
+        // --- LÓGICA DE CRIAÇÃO ATUALIZADA ---
+
         if (gabineteId == null) {
-            // Se for SUPER_ADMIN, ele PODE criar outros ADMINS
-            // Mas ele DEVE fornecer um gabinete_id no corpo da requisição.
+            // 1. Lógica do SUPER_ADMIN (Logado)
+            // Ele pode criar qualquer tipo, mas deve especificar o gabinete no JSON
             if (usuario.getGabinete() == null || usuario.getGabinete().getId() == null) {
                 return ResponseEntity.badRequest().body("SUPER_ADMIN deve especificar um 'gabinete: { id: ... }' para criar usuários.");
             }
-            // SUPER_ADMIN pode definir o TipoUsuario
         } else {
-            // Se for ADMIN, ele SÓ PODE criar usuários para o PRÓPRIO gabinete
-            // E o tipo DEVE ser 'USER'
+            // 2. Lógica do ADMIN de Gabinete (Logado)
             Gabinete meuGabinete = repositorioGabinete.findById(gabineteId)
                     .orElseThrow(() -> new RuntimeException("Gabinete do admin não encontrado"));
 
+            // A. Vincula o novo usuário ao mesmo gabinete do Admin logado
             usuario.setGabinete(meuGabinete);
-            usuario.setTipoUsuario(TipoUsuario.USER); // Força o tipo para USER
+
+            // B. TRAVA DE SEGURANÇA:
+            // Admin de gabinete NÃO pode criar Super Admin.
+            if (usuario.getTipoUsuario() == TipoUsuario.SUPER_ADMIN) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Administradores de gabinete não podem criar Super Admins.");
+            }
+
+            // C. Se o tipo não foi enviado, define como USER por padrão.
+            // (Isso permite criar ADMIN se o JSON vier com "tipoUsuario": "ADMIN")
+            if (usuario.getTipoUsuario() == null) {
+                usuario.setTipoUsuario(TipoUsuario.USER);
+            }
         }
 
         // Codifica a senha antes de salvar
@@ -95,7 +106,6 @@ public class UsuarioController {
 
         return repositorioUsuario.findById(id)
                 .map(user -> {
-                    // Codifica a nova senha
                     user.setPassword(passwordEncoder.encode(novaSenha));
                     repositorioUsuario.save(user);
                     return ResponseEntity.ok("Senha atualizada com sucesso!");
@@ -116,7 +126,7 @@ public class UsuarioController {
 
         // Regra 1: Ninguém pode deletar a si mesmo
         if (id.equals(idAdminLogado)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         Optional<Usuario> usuarioParaDeletarOpt = repositorioUsuario.findById(id);
@@ -127,7 +137,7 @@ public class UsuarioController {
 
         Usuario usuarioParaDeletar = usuarioParaDeletarOpt.get();
 
-        // Regra 2: SUPER_ADMIN pode deletar qualquer um (menos ele mesmo)
+        // Regra 2: SUPER_ADMIN pode deletar qualquer um
         if (adminLogado.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"))) {
             repositorioUsuario.deleteById(id);
             return ResponseEntity.noContent().build();
@@ -135,15 +145,14 @@ public class UsuarioController {
 
         // Regra 3: ADMIN só pode deletar usuários do SEU gabinete
         if (usuarioParaDeletar.getGabinete() != null && usuarioParaDeletar.getGabinete().getId().equals(gabineteIdAdmin)) {
-            // E não pode deletar outro ADMIN (segurança extra)
-            if(usuarioParaDeletar.getTipoUsuario() == TipoUsuario.ADMIN) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Não pode deletar outro admin
-            }
+            // (Opcional) Bloquear deleção de outros ADMINs se quiser, ou permitir:
+            // if(usuarioParaDeletar.getTipoUsuario() == TipoUsuario.ADMIN) { ... }
+
             repositorioUsuario.deleteById(id);
             return ResponseEntity.noContent().build();
         }
 
-        // Se chegou aqui, não é SUPER_ADMIN e o usuário não é do seu gabinete
+        // Se chegou aqui, sem permissão
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 }
