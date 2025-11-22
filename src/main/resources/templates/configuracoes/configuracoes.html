@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações</title>
     <link rel="stylesheet" href="/configuracoes/style.css">
-    <link rel="stylesheet" href="/AssistenteIA/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+
 <div class="container">
     <aside class="sidebar">
         <div class="logo">
@@ -18,10 +18,10 @@
             <ul>
                 <li><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
-                <li><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
+                <li><a href="/kanban"><i class="fas fa-tasks"></i> Tarefas</a></li>
                 <li><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
                 <li class="active"><a href="#"><i class="fas fa-cog"></i> Configurações</a></li>
-                <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente Virtual I.A.</a></li>
+                <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente IA</a></li>
             </ul>
         </nav>
         <div class="logout">
@@ -35,92 +35,132 @@
                 <i class="fas fa-cog"></i>
                 <h2>Configurações</h2>
             </div>
-            <p id="headerDescription">Gerencie suas configurações de usuário</p>
+            <p id="headerDescription">Gerencie as configurações do sistema</p>
         </header>
 
         <section class="config-container">
+
             <nav class="config-tabs">
                 <button class="tab-button active" data-tab="cadastro">Cadastro</button>
                 <button class="tab-button" data-tab="seguranca">Segurança</button>
-                <button class="tab-button" data-tab="administracao">Administração de Usuários</button>
+                <button class="tab-button hidden-initially" data-tab="gabinetes" id="tabGabinetesBtn">Gabinetes</button>
+                <button class="tab-button" data-tab="administracao">Administração</button>
             </nav>
 
             <div class="tab-content-wrapper">
 
-                <!-- ===================== ABA CADASTRO ===================== -->
                 <div class="tab-pane active" id="cadastro">
-                    <h3 class="pane-title">Cadastro de Usuário</h3>
+                    <h3 class="pane-title">Novo Usuário</h3>
                     <form id="cadastroForm" class="config-form">
+                        <label for="nome">Nome Completo</label>
+                        <input type="text" id="nome" name="nome" placeholder="Ex: João da Silva" required>
 
-                        <label for="nome">Nome</label>
-                        <input type="text" id="nome" name="nome" placeholder="Digite o nome completo">
+                        <label for="email">E-mail de Acesso</label>
+                        <input type="email" id="email" name="email" placeholder="usuario@exemplo.com" required>
 
-                        <label for="email">E-mail</label>
-                        <input type="email" id="email" name="email" placeholder="email@exemplo.com">
+                        <label for="password">Senha Temporária</label>
+                        <input type="password" id="password" name="password" placeholder="******" required>
 
-                        <label for="password">Senha</label>
-                        <input type="password" id="password" name="password" placeholder="Digite uma senha temporária">
-
-                        <label for="tipoUsuario">Tipo de Usuário</label>
+                        <label for="tipoUsuario">Perfil de Acesso</label>
                         <select id="tipoUsuario" name="tipoUsuario" required>
                             <option value="">Selecione...</option>
                             <option value="USER">Usuário Comum</option>
                             <option value="ADMIN">Administrador</option>
                         </select>
-                        <div id="gabineteSelectorContainer" class="form-group" style="display: none;">
-                            <label for="gabineteId">Vincular ao Gabinete</label>
+
+                        <div id="gabineteSelectorContainer" class="super-admin-box hidden-initially">
+                            <label for="gabineteId" class="label-danger">
+                                <i class="fas fa-crown"></i> Vincular ao Gabinete
+                            </label>
                             <select id="gabineteId" name="gabineteId">
-                                <option value="">Carregando gabinetes...</option>
+                                <option value="">Carregando lista...</option>
                             </select>
                         </div>
 
                         <div class="save-button-container">
-                            <button type="submit" class="salvar-btn">Cadastrar Usuário</button>
+                            <button type="submit" class="salvar-btn">
+                                <i class="fas fa-user-plus"></i> Cadastrar Usuário
+                            </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- ===================== ABA SEGURANÇA ===================== -->
                 <div class="tab-pane" id="seguranca">
-                    <h3 class="pane-title">Alterar Senha</h3>
-                    <p class="security-text">Preencha os campos abaixo para alterar sua senha com segurança.</p>
+                    <h3 class="pane-title">Segurança da Conta</h3>
+                    <p class="security-text">Mantenha sua conta segura alterando sua senha periodicamente.</p>
 
-                    <form id="segurancaForm" class="config-form security-form">
-                        <label for="emailVinculado">Email Vinculado</label>
-                        <input type="email" id="emailVinculado" name="emailVinculado" placeholder="email@exemplo.com" readonly>
+                    <form id="segurancaForm" class="config-form">
+                        <label>E-mail Vinculado</label>
+                        <input type="email" id="emailVinculado" readonly>
 
-                        <label for="senhaAtual">Senha atual</label>
+                        <label for="senhaAtual">Senha Atual</label>
                         <div class="password-group">
-                            <input type="password" id="senhaAtual" name="senhaAtual" placeholder="Digite sua senha" required>
+                            <input type="password" id="senhaAtual" placeholder="Digite sua senha atual" required>
                             <i class="fas fa-eye toggle-password" data-target="senhaAtual"></i>
                         </div>
 
-                        <label for="novaSenha">Nova senha</label>
+                        <label for="novaSenha">Nova Senha</label>
                         <div class="password-group">
-                            <input type="password" id="novaSenha" name="novaSenha" placeholder="Digite sua nova senha" required>
+                            <input type="password" id="novaSenha" required placeholder="Digite sua nova senha">
                             <i class="fas fa-eye toggle-password" data-target="novaSenha"></i>
                         </div>
 
-                        <label for="confirmarSenha">Confirmar nova senha</label>
+                        <label for="confirmarSenha">Confirmar Nova Senha</label>
                         <div class="password-group">
-                            <input type="password" id="confirmarSenha" name="confirmarSenha" placeholder="Confirme sua nova senha" required>
+                            <input type="password" id="confirmarSenha" required placeholder="Confirme sua nova senha">
                             <i class="fas fa-eye toggle-password" data-target="confirmarSenha"></i>
                         </div>
 
                         <div class="save-button-container">
-                            <button type="submit" class="salvar-btn">Alterar Senha</button>
+                            <button type="submit" class="salvar-btn">
+                                <i class="fas fa-lock"></i> Atualizar Senha
+                            </button>
                         </div>
                     </form>
                 </div>
 
-                <!-- ===================== ABA ADMINISTRAÇÃO ===================== -->
+                <div class="tab-pane" id="gabinetes">
+                    <h3 class="pane-title">Gestão de Gabinetes</h3>
+
+                    <form id="gabineteForm" class="config-form form-inline">
+                        <div class="input-wrapper-grow">
+                            <label for="nomeGabineteInput">Nome do Gabinete</label>
+                            <input type="text" id="nomeGabineteInput" placeholder="Ex: Gabinete Vereador Pedro">
+                        </div>
+                        <button type="submit" class="salvar-btn btn-inline">
+                            <i class="fas fa-plus-circle"></i> Criar Gabinete
+                        </button>
+                    </form>
+
+                    <div class="table-container-admin">
+                        <table class="data-table-admin">
+                            <thead>
+                            <tr>
+                                <th class="col-small">ID</th>
+                                <th class="col-large">Nome do Gabinete</th>
+                                <th class="col-action">Ações</th>
+                            </tr>
+                            </thead>
+                            <tbody id="gabinetesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="tab-pane" id="administracao">
                     <div class="admin-header-row">
-                        <h3 class="pane-title">Administração de Usuários</h3>
-                        <button class="action-btn update-list-btn" id="atualizarListaBtn">Atualizar Lista</button>
-                    </div>
+                        <h3 class="pane-title no-border no-margin">Usuários do Sistema</h3>
 
-                    <p class="admin-info-text">Gerencie usuários e permissões do sistema.</p>
+                        <div class="header-controls">
+                            <select id="filtroGabineteAdmin" class="filter-select hidden-initially">
+                                <option value="">Todos os Gabinetes</option>
+                            </select>
+
+                            <button class="update-list-btn" id="atualizarListaBtn">
+                                <i class="fas fa-sync-alt"></i> Atualizar
+                            </button>
+                        </div>
+                    </div>
 
                     <div class="table-container-admin">
                         <table class="data-table-admin">
@@ -131,17 +171,17 @@
                                 <th>Perfil</th>
                             </tr>
                             </thead>
-                            <tbody id="usuariosTableBody"></tbody>
+                            <tbody id="usuariosTableBody">
+                            </tbody>
                         </table>
                     </div>
 
-
                     <div class="admin-actions-footer">
                         <button class="action-btn edit-perms-btn">
-                            <i class="fas fa-edit"></i> Editar Permissões
+                            <i class="fas fa-shield-alt"></i> Permissões
                         </button>
                         <button class="action-btn remove-user-btn">
-                            <i class="fas fa-trash-alt"></i> Remover Usuário
+                            <i class="fas fa-trash"></i> Remover Usuário
                         </button>
                     </div>
                 </div>
@@ -151,99 +191,45 @@
     </main>
 </div>
 
-<!-- ============== MODAL DE PERMISSÕES ============== -->
 <div id="permissionsModal" class="modal-perms">
     <div class="modal-content-perms">
         <span class="close-btn-perms">&times;</span>
         <h2 class="modal-title-perms" id="modalTitle">Permissões</h2>
+        <p class="control-title">Defina o que este usuário pode acessar.</p>
 
-        <h3 class="control-title">Controle de Acesso</h3>
-
-        <form id="permissionsForm" class="permissions-form">
-
+        <form id="permissionsForm">
             <div class="permissions-header">
-                <span class="col-title">Página / Visualizar</span>
-                <span class="col-edit-title">Permitir Edição</span>
+                <span>Módulo</span>
+                <span>Acesso / Edição</span>
             </div>
-
             <div class="permission-list">
-
-                <div class="permission-row">
-                    <label class="access-label">
-                        <input type="checkbox" name="dashboard_access" class="access-cb"> Dashboard
-                    </label>
-                    <label class="edit-label">
-                        <input type="checkbox" name="dashboard_edit" class="edit-cb">
-                    </label>
-                </div>
-
-                <div class="permission-row">
-                    <label class="access-label">
-                        <input type="checkbox" name="acoes_access" class="access-cb"> Ações
-                    </label>
-                    <label class="edit-label">
-                        <input type="checkbox" name="acoes_edit" class="edit-cb">
-                    </label>
-                </div>
-
-                <div class="permission-row">
-                    <label class="access-label">
-                        <input type="checkbox" name="kanban_access" class="access-cb"> Gestão de Tarefas
-                    </label>
-                    <label class="edit-label">
-                        <input type="checkbox" name="kanban_edit" class="edit-cb">
-                    </label>
-                </div>
-
-                <div class="permission-row">
-                    <label class="access-label">
-                        <input type="checkbox" name="financeiro_access" class="access-cb"> Financeiro
-                    </label>
-                    <label class="edit-label">
-                        <input type="checkbox" name="financeiro_edit" class="edit-cb">
-                    </label>
-                </div>
-
-                <div class="permission-row">
-                    <label class="access-label">
-                        <input type="checkbox" name="configuracoes_access" class="access-cb"> Configurações
-                    </label>
-                    <label class="edit-label">
-                        <input type="checkbox" name="configuracoes_edit" class="edit-cb">
-                    </label>
-                </div>
-
+                <div class="permission-row"><label class="access-label"><input type="checkbox" name="dashboard_access" class="access-cb"> Dashboard</label><label class="edit-label"><input type="checkbox" name="dashboard_edit" class="edit-cb"></label></div>
+                <div class="permission-row"><label class="access-label"><input type="checkbox" name="acoes_access" class="access-cb"> Ações</label><label class="edit-label"><input type="checkbox" name="acoes_edit" class="edit-cb"></label></div>
+                <div class="permission-row"><label class="access-label"><input type="checkbox" name="kanban_access" class="access-cb"> Tarefas</label><label class="edit-label"><input type="checkbox" name="kanban_edit" class="edit-cb"></label></div>
+                <div class="permission-row"><label class="access-label"><input type="checkbox" name="financeiro_access" class="access-cb"> Financeiro</label><label class="edit-label"><input type="checkbox" name="financeiro_edit" class="edit-cb"></label></div>
+                <div class="permission-row"><label class="access-label"><input type="checkbox" name="configuracoes_access" class="access-cb"> Configurações</label><label class="edit-label"><input type="checkbox" name="configuracoes_edit" class="edit-cb"></label></div>
             </div>
-
             <div class="modal-footer-perms">
-                <button type="submit" class="salvar-btn">Salvar Permissões</button>
+                <button type="submit" class="salvar-btn">Salvar Alterações</button>
             </div>
         </form>
     </div>
 </div>
-<!-- ============== ASSISTENTE IA ============== -->
+
 <div class="assistant-chat-panel" id="assistantChatPanel">
     <div class="chat-header">
-        <h4>Assistente I.A.</h4>
+        <h4>Assistente IA</h4>
         <button class="close-chat-btn" id="closeChatBtn">&times;</button>
     </div>
-
     <div class="chat-body" id="chatBody">
-        <div class="chat-message-ai">
-            Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
-        </div>
+        <div class="chat-message-ai">Olá! Como posso ajudar na gestão hoje?</div>
     </div>
-
     <div class="chat-footer">
-        <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
-        <button id="sendChatBtn" class="send-chat-btn">
-            <i class="fas fa-paper-plane"></i>
-        </button>
+        <input type="text" id="chatInput" placeholder="Digite sua dúvida...">
+        <button id="sendChatBtn" class="send-chat-btn"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
 
-<!-- ================= SCRIPTS ================= -->
 <script src="/configuracoes/script.js"></script>
-<script src="/AssistenteIA/script.js"></script>
 </body>
 </html>

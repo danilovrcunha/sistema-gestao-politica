@@ -42,14 +42,18 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> listarUsuarios() {
+    public ResponseEntity<List<Usuario>> listarUsuarios(@RequestParam(required = false) Long gabineteId) {
         MeuUserDetails userDetails = getUsuarioLogado();
 
-        if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"))) {
-            // SUPER_ADMIN vê todos
+        boolean isSuperAdmin = userDetails.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+
+        if (isSuperAdmin) {
+            if (gabineteId != null) {
+                return ResponseEntity.ok(repositorioUsuario.findByGabineteId(gabineteId));
+            }
             return ResponseEntity.ok(repositorioUsuario.findAll());
         } else {
-            // ADMIN vê apenas os de seu gabinete
             return ResponseEntity.ok(repositorioUsuario.findByGabineteId(userDetails.getGabineteId()));
         }
     }

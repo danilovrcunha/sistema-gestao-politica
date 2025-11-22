@@ -34,8 +34,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. Verifica se o banco já tem usuários.
-        // Se tiver, não faz nada para não duplicar.
         if (usuarioRepository.count() > 0) {
             log.info("O banco de dados já está populado. Inicializador pulado.");
             return;
@@ -43,28 +41,26 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("Banco de dados vazio. Populando com dados iniciais...");
 
-        // 2. Criar o Gabinete
+
         Gabinete gabineteKaido = new Gabinete("Gabinete Principal do Kaido");
         gabineteRepository.save(gabineteKaido);
         log.info("Gabinete 1 criado.");
 
-        // 3. Criar o Super Admin
         Usuario superAdmin = new Usuario();
         superAdmin.setNome("Super Administrador");
         superAdmin.setEmail("super@admin.com");
-        superAdmin.setPassword(passwordEncoder.encode("super123")); // Senha codificada
+        superAdmin.setPassword(passwordEncoder.encode("super123"));
         superAdmin.setTipoUsuario(TipoUsuario.SUPER_ADMIN);
         superAdmin.setGabinete(null); // Super Admin não tem gabinete
         usuarioRepository.save(superAdmin);
         log.info("Usuário SUPER_ADMIN (super@admin.com) criado.");
 
-        // 4. Criar o Admin Kaido
         Usuario adminKaido = new Usuario();
         adminKaido.setNome("Kaido");
         adminKaido.setEmail("kaido@admin.com");
-        adminKaido.setPassword(passwordEncoder.encode("kaido123")); // Senha codificada
+        adminKaido.setPassword(passwordEncoder.encode("kaido123"));
         adminKaido.setTipoUsuario(TipoUsuario.ADMIN);
-        adminKaido.setGabinete(gabineteKaido); // Associado ao gabinete 1
+        adminKaido.setGabinete(gabineteKaido);
         usuarioRepository.save(adminKaido);
         log.info("Usuário ADMIN (kaido@admin.com) criado.");
 

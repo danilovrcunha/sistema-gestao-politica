@@ -42,8 +42,7 @@ public class ConfiguracaoSeguranca {
                         .requestMatchers(HttpMethod.POST, "/usuarios").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/usuarios/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*/senha").authenticated()
-                        // Protege o resto da aplicação
-                        // Você precisará adicionar suas outras rotas aqui (kanban, financeiro, etc)
+                        .requestMatchers("/gabinetes/**").hasRole("SUPER_ADMIN")
                         .requestMatchers("/home/**").authenticated()
                         .requestMatchers("/acoes/**").authenticated()
                         .requestMatchers("/kanban/**").authenticated()
