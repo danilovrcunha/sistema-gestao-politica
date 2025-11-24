@@ -17,7 +17,7 @@
         </div>
         <nav class="nav-menu">
             <ul>
-                <li id="menu-dashboard">><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li id="menu-dashboard"><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li id="menu-acoes"><a href="/acoes"><i class="fas fa-chart-line"></i> Ações</a></li>
                 <li id="menu-kanban"><a href="/kanban"><i class="fas fa-tasks"></i> Gestão de Tarefas</a></li>
                 <li id="menu-financeiro"><a href="/financeiro"><i class="fas fa-dollar-sign"></i> Financeiro</a></li>
@@ -204,11 +204,52 @@
                 <span>Acesso / Edição</span>
             </div>
             <div class="permission-list">
-                <div class="permission-row"><label class="access-label"><input type="checkbox" name="dashboard_access" class="access-cb"> Dashboard</label><label class="edit-label"><input type="checkbox" name="dashboard_edit" class="edit-cb"></label></div>
-                <div class="permission-row"><label class="access-label"><input type="checkbox" name="acoes_access" class="access-cb"> Ações</label><label class="edit-label"><input type="checkbox" name="acoes_edit" class="edit-cb"></label></div>
-                <div class="permission-row"><label class="access-label"><input type="checkbox" name="kanban_access" class="access-cb"> Tarefas</label><label class="edit-label"><input type="checkbox" name="kanban_edit" class="edit-cb"></label></div>
-                <div class="permission-row"><label class="access-label"><input type="checkbox" name="financeiro_access" class="access-cb"> Financeiro</label><label class="edit-label"><input type="checkbox" name="financeiro_edit" class="edit-cb"></label></div>
-                <div class="permission-row"><label class="access-label"><input type="checkbox" name="configuracoes_access" class="access-cb"> Configurações</label><label class="edit-label"><input type="checkbox" name="configuracoes_edit" class="edit-cb"></label></div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="dashboard_access" class="access-cb"> Dashboard
+                    </label>
+                    <label class="edit-label" style="opacity: 0.3; cursor: default;">
+                        <i class="fas fa-ban" title="Não aplicável"></i>
+                    </label>
+                </div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="acoes_access" class="access-cb"> Ações
+                    </label>
+                    <label class="edit-label">
+                        <input type="checkbox" name="acoes_edit" class="edit-cb">
+                    </label>
+                </div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="kanban_access" class="access-cb"> Tarefas
+                    </label>
+                    <label class="edit-label">
+                        <input type="checkbox" name="kanban_edit" class="edit-cb">
+                    </label>
+                </div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="financeiro_access" class="access-cb"> Financeiro
+                    </label>
+                    <label class="edit-label">
+                        <input type="checkbox" name="financeiro_edit" class="edit-cb">
+                    </label>
+                </div>
+
+                <div class="permission-row">
+                    <label class="access-label">
+                        <input type="checkbox" name="configuracoes_access" class="access-cb"> Configurações
+                    </label>
+                    <label class="edit-label" style="opacity: 0.3; cursor: default;">
+                        <i class="fas fa-ban" title="Não aplicável"></i>
+                    </label>
+                </div>
+
             </div>
             <div class="modal-footer-perms">
                 <button type="submit" class="salvar-btn">Salvar Alterações</button>

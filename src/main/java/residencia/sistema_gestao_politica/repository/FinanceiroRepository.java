@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface FinanceiroRepository extends JpaRepository<Financeiro, Long> {
-    List<Financeiro> findAllByOrderByIdDesc();
+    List<Financeiro> findByGabineteId(Long gabineteId);
 }

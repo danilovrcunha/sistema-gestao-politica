@@ -3,6 +3,8 @@ package residencia.sistema_gestao_politica.model;
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 
 @Entity
 @Table(name = "acoes")
@@ -26,6 +28,11 @@ public class Acao {
 
     private String imagem;
     private Boolean removerImagem;
+
+    @JsonBackReference // Evita loop infinito no JSON
+    @ManyToOne
+    @JoinColumn(name = "gabinete_id")
+    private Gabinete gabinete;
 
     // === GETTERS E SETTERS ===
 
@@ -59,4 +66,7 @@ public class Acao {
 
     public Boolean getRemoverImagem() { return removerImagem; }
     public void setRemoverImagem(Boolean removerImagem) { this.removerImagem = removerImagem; }
+
+    public Gabinete getGabinete() { return gabinete; }
+    public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
 }

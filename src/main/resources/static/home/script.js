@@ -3,8 +3,42 @@ document.addEventListener('DOMContentLoaded', function () {
     let responsibleChartInstance = null;
     let progressChartInstance = null;
 
-    let responsaveis = [];         // [{id, nome, qtd}, ...]
+    let responsaveis = [];
     let selectedResponsavelId = null;
+
+    // =================== URL BUILDER (FILTRO SUPER ADMIN) ===================
+    // Esta função garante que o filtro de gabinete seja enviado para a API
+    function buildUrl(endpoint, params = {}) {
+        const url = new URL(window.location.origin + endpoint);
+
+        // Adiciona parâmetros normais (ex: responsavelId)
+        Object.keys(params).forEach(key => {
+            if (params[key]) url.searchParams.append(key, params[key]);
+        });
+
+        // Lógica do Super Admin: Pega do LocalStorage
+        const role = localStorage.getItem("userRole");
+        const filtroId = localStorage.getItem("superAdminGabineteFilter");
+
+        if (role === "SUPER_ADMIN" && filtroId) {
+            url.searchParams.append("gabineteId", filtroId);
+        }
+
+        return url;
+    }
+
+    // =================== SEGURANÇA VISUAL ===================
+    function aplicarSegurancaDash() {
+        if (window.podeEditar && !window.podeEditar("editarDashboard")) {
+            // Se houver botões de edição no dashboard futuro, esconda aqui.
+            // Ex: const editBtns = document.querySelectorAll('.btn-edit');
+            // editBtns.forEach(btn => btn.style.display = 'none');
+        }
+    }
+    // Aguarda permissões
+    if (localStorage.getItem("userRole")) aplicarSegurancaDash();
+    document.addEventListener("permissoesCarregadas", aplicarSegurancaDash);
+
 
     // Util: destrói gráfico antigo antes de recriar
     function resetChart(instance) {
@@ -17,7 +51,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Carrega e desenha: Status (pizza)
     // ==============================
     function loadStatus(responsavelId = null) {
-        const url = responsavelId ? `/api/tarefas/status?responsavelId=${responsavelId}` : '/api/tarefas/status';
+        // Usa o buildUrl para incluir automaticamente o gabineteId se necessário
+        const url = buildUrl('/api/tarefas/status', { responsavelId: responsavelId });
+
         fetch(url)
             .then(res => res.json())
             .then(data => {
@@ -73,7 +109,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Carrega e desenha: Responsáveis (barra)
     // ===================================
     function loadResponsaveis() {
-        fetch('/api/tarefas/responsaveis')
+        const url = buildUrl('/api/tarefas/responsaveis');
+
+        fetch(url)
             .then(res => res.json())
             .then(data => {
                 responsaveis = data; // [{id, nome, qtd}]
@@ -111,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                             // Seleciona / alterna filtro
                             if (selectedResponsavelId === resp.id) {
-                                selectedResponsavelId = null; // desmarca se clicar no mesmo
+                                selectedResponsavelId = null;
                             } else {
                                 selectedResponsavelId = resp.id;
                             }
@@ -123,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 });
 
-                // Duplo clique no canvas para limpar filtro
                 const canvas = document.getElementById('responsibleChart');
                 canvas.addEventListener('dblclick', () => {
                     selectedResponsavelId = null;
@@ -136,17 +173,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ==============================
     // Carrega e desenha: Progresso (barras empilhadas)
-    // Azul = Em Andamento | Verde = Concluídas | Amarelo = A Fazer
     // ==============================
     function loadProgresso(responsavelId = null) {
-        const url = responsavelId ? `/api/tarefas/progresso?responsavelId=${responsavelId}` : '/api/tarefas/progresso';
+        const url = buildUrl('/api/tarefas/progresso', { responsavelId: responsavelId });
+
         fetch(url)
             .then(res => res.json())
             .then(data => {
                 const labels = data.meses || [];
-                const emAndamento = Object.values(data.emAndamento || {}); // Azul
-                const concluidas = Object.values(data.concluidas || {});   // Verde
-                const aFazer = Object.values(data.aFazer || {});           // Amarelo
+                const emAndamento = Object.values(data.emAndamento || {});
+                const concluidas = Object.values(data.concluidas || {});
+                const aFazer = Object.values(data.aFazer || {});
 
                 const ctx = document.getElementById('progressChart').getContext('2d');
                 resetChart(progressChartInstance);
@@ -159,21 +196,21 @@ document.addEventListener('DOMContentLoaded', function () {
                             {
                                 label: 'Em Andamento',
                                 data: emAndamento,
-                                backgroundColor: '#3498db', // Azul
+                                backgroundColor: '#3498db',
                                 borderRadius: 5,
                                 stack: 'stack1'
                             },
                             {
                                 label: 'Concluídas',
                                 data: concluidas,
-                                backgroundColor: '#2ecc71', // Verde
+                                backgroundColor: '#2ecc71',
                                 borderRadius: 5,
                                 stack: 'stack1'
                             },
                             {
                                 label: 'A Fazer',
                                 data: aFazer,
-                                backgroundColor: '#f1c40f', // Amarelo
+                                backgroundColor: '#f1c40f',
                                 borderRadius: 5,
                                 stack: 'stack1'
                             }
@@ -192,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(err => console.error("Erro ao carregar progresso:", err));
     }
 
-    // Inicializa tudo (sem filtro)
+    // Inicializa tudo (sem filtro de responsável, mas com filtro de gabinete se houver)
     loadResponsaveis();
     loadStatus(null);
     loadProgresso(null);

@@ -7,6 +7,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const acordeaoHeaders = document.querySelectorAll('.acordeao-header');
 
     // =======================================================
+    // === 0. SEGURANÇA (NOVO) ===
+    // =======================================================
+    function aplicarSegurancaFinanceiro() {
+        // Verifica se a função global existe e checa permissão
+        if (window.podeEditar && !window.podeEditar("editarFinanceiro")) {
+            console.log("🔒 Modo Leitura: Financeiro");
+
+            // 1. Esconde botão "Salvar Informações"
+            if (salvarBtn) salvarBtn.style.display = "none";
+
+            // 2. Desabilita os inputs para deixar claro que é só leitura
+            const inputs = document.querySelectorAll("#registroFinanceiroForm input, #registroFinanceiroForm select, #registroFinanceiroForm textarea");
+            inputs.forEach(i => i.disabled = true);
+        }
+    }
+
+    // Verifica permissões assim que o global.js avisar ou se já estiver em cache
+    if (localStorage.getItem("userRole")) {
+        aplicarSegurancaFinanceiro();
+    }
+    document.addEventListener("permissoesCarregadas", aplicarSegurancaFinanceiro);
+
+
+    // =======================================================
     // === 1. MÁSCARA MONETÁRIA (FORMATAÇÃO VISUAL)
     // =======================================================
     if (valorDespesaInput) {
@@ -37,6 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (salvarBtn) {
         salvarBtn.addEventListener('click', (e) => {
             e.preventDefault();
+
+            // Bloqueio extra de segurança no clique
+            if (window.podeEditar && !window.podeEditar("editarFinanceiro")) {
+                alert("Você não tem permissão para criar registros financeiros.");
+                return;
+            }
 
             if (!registroForm.checkValidity()) {
                 registroForm.reportValidity();
@@ -81,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const header = fields.map(f => `"${f.label}"`).join(';');
 
+        // Pega dados do formulário atual para exportar
         const dataRow = fields.map(f => {
             const input = document.getElementById(f.id);
             let value = input ? sanitizeCSVText(input.value) : '';
@@ -106,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
         link.click();
         document.body.removeChild(link);
 
-        alert('Dados financeiros exportados com sucesso para CSV!');
+        alert('Dados exportados com sucesso para CSV!');
     }
 
     if (exportBtn) {

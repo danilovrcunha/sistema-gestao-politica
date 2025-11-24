@@ -3,6 +3,7 @@ package residencia.sistema_gestao_politica.model;
 import jakarta.persistence.*;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "financeiro")
@@ -17,6 +18,11 @@ public class Financeiro {
     private String tipoTransacao;
     private String categoria;
     private String descricao;
+
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "gabinete_id")
+    private Gabinete gabinete;
 
     @Transient
     private String valorFormatado;
@@ -40,6 +46,8 @@ public class Financeiro {
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }
 
+    public Gabinete getGabinete() { return gabinete; }
+    public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
     // ===== Valor formatado em R$ =====
     public String getValorFormatado() {
         if (valorDespesa == null) return "R$ 0,00";

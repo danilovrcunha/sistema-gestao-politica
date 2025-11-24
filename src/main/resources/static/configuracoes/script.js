@@ -23,6 +23,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const atualizarListaBtn = document.getElementById("atualizarListaBtn");
     const removerBtn = document.querySelector(".remove-user-btn");
 
+    // Modal de Permissões
+    const editPermsBtn = document.querySelector(".edit-perms-btn");
+    const permsModal = document.getElementById("permissionsModal");
+    const permsForm = document.getElementById("permissionsForm");
+    const permsTitle = document.getElementById("modalTitle");
+    const closePermsBtn = document.querySelector(".close-btn-perms");
+
     const tabTexts = {
         cadastro: "Gerencie o cadastro de novos usuários do sistema",
         seguranca: "Altere sua senha com segurança",
@@ -30,7 +37,45 @@ document.addEventListener("DOMContentLoaded", () => {
         administracao: "Gerencie usuários e permissões do sistema",
     };
 
-    // =================== SISTEMA DE ABAS ===================
+    // =================== 1. CONTROLE DE ABAS (CORRIGIDO) ===================
+    function aplicarRestricoesDeAbas() {
+        const role = localStorage.getItem("userRole");
+        // Se for Admin/Super, não faz nada (deixa cadastro aberto)
+        if (role === "ADMIN" || role === "SUPER_ADMIN") return;
+
+        console.log("🔒 Modo Usuário: Forçando aba Segurança.");
+
+        // 1. Esconde botões das abas proibidas
+        const btnCadastro = document.querySelector('.tab-button[data-tab="cadastro"]');
+        const btnAdmin = document.querySelector('.tab-button[data-tab="administracao"]');
+
+        if (btnCadastro) btnCadastro.style.display = 'none';
+        if (btnAdmin) btnAdmin.style.display = 'none';
+
+        // 2. REMOVE ACTIVE DAS ABAS PROIBIDAS (AQUI ESTAVA O ERRO)
+        // O HTML vem com "active" no cadastro, precisamos tirar na força
+        if (btnCadastro) btnCadastro.classList.remove("active");
+        const paneCadastro = document.getElementById("cadastro");
+        if (paneCadastro) paneCadastro.classList.remove("active");
+
+        // 3. FORÇA ACTIVE NA ABA SEGURANÇA
+        const btnSeguranca = document.querySelector('.tab-button[data-tab="seguranca"]');
+        const paneSeguranca = document.getElementById("seguranca");
+
+        if (btnSeguranca) btnSeguranca.classList.add("active");
+        if (paneSeguranca) paneSeguranca.classList.add("active");
+
+        // Atualiza o texto do header
+        if (headerDescription) headerDescription.textContent = tabTexts["seguranca"];
+    }
+
+    if (localStorage.getItem("userRole")) {
+        aplicarRestricoesDeAbas();
+    } else {
+        document.addEventListener("permissoesCarregadas", aplicarRestricoesDeAbas);
+    }
+
+    // Eventos de clique nas abas
     tabButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
             tabButtons.forEach((b) => b.classList.remove("active"));
@@ -39,299 +84,303 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const tab = btn.getAttribute("data-tab");
             const targetPane = document.getElementById(tab);
-            if (targetPane) targetPane.classList.add("active");
+            if(targetPane) targetPane.classList.add("active");
 
-            if (headerDescription && tabTexts[tab]) {
-                headerDescription.textContent = tabTexts[tab];
-            }
+            if (headerDescription && tabTexts[tab]) headerDescription.textContent = tabTexts[tab];
 
-            // Carrega dados específicos da aba
             if (tab === "gabinetes") carregarGabinetes();
             if (tab === "administracao") carregarUsuarios();
         });
     });
 
-    // =================== LÓGICA DO SUPER ADMIN (Exibir/Ocultar Campos) ===================
+    // =================== SUPER ADMIN (FILTRO & UI) ===================
     function configurarAmbienteSuperAdmin() {
         fetch(`${API_BASE}/me`)
-            .then(res => { if(!res.ok) return null; return res.json(); })
+            .then(res => res.ok ? res.json() : null)
             .then(user => {
                 if (user && user.tipoUsuario === "SUPER_ADMIN") {
-                    // Mostra componentes
-                    if (tabGabinetesBtn) tabGabinetesBtn.style.display = "block";
-                    if (gabineteContainer) gabineteContainer.style.display = "block";
-                    if (filtroGabineteAdmin) {
+                    if(tabGabinetesBtn) tabGabinetesBtn.style.display = "block";
+                    if(gabineteContainer) gabineteContainer.style.display = "block";
+
+                    if(filtroGabineteAdmin) {
                         filtroGabineteAdmin.style.display = "block";
-                        filtroGabineteAdmin.addEventListener("change", () => carregarUsuarios());
+                        const salvo = localStorage.getItem("superAdminGabineteFilter");
+                        if(salvo) filtroGabineteAdmin.value = salvo;
+
+                        filtroGabineteAdmin.addEventListener("change", () => {
+                            const val = filtroGabineteAdmin.value;
+                            if (val) localStorage.setItem("superAdminGabineteFilter", val);
+                            else localStorage.removeItem("superAdminGabineteFilter");
+                            carregarUsuarios();
+                        });
                     }
                     carregarGabinetesNosSelects();
-                } else {
-                    // Esconde componentes
-                    if (tabGabinetesBtn) tabGabinetesBtn.style.display = "none";
-                    if (gabineteContainer) gabineteContainer.style.display = "none";
-                    if (filtroGabineteAdmin) filtroGabineteAdmin.style.display = "none";
                 }
             })
             .catch(console.error);
     }
 
     function carregarGabinetesNosSelects() {
-        fetch(API_GABINETES)
-            .then(res => res.json())
-            .then(gabinetes => {
-                // Select Cadastro
-                if (gabineteSelect) {
-                    gabineteSelect.innerHTML = '<option value="">Selecione o Gabinete...</option>';
-                    gabinetes.forEach(gab => {
-                        const option = document.createElement("option");
-                        option.value = gab.id;
-                        option.textContent = `${gab.id} - ${gab.nomeResponsavel}`;
-                        gabineteSelect.appendChild(option);
-                    });
+        fetch(API_GABINETES).then(r => r.json()).then(gabinetes => {
+            [gabineteSelect, filtroGabineteAdmin].forEach(select => {
+                if (select) {
+                    const defText = select === filtroGabineteAdmin ? "Todos os Gabinetes" : "Selecione...";
+                    select.innerHTML = `<option value="">${defText}</option>`;
+                    gabinetes.forEach(g => select.innerHTML += `<option value="${g.id}">${g.nomeResponsavel}</option>`);
                 }
-                // Select Filtro Admin
-                if (filtroGabineteAdmin) {
-                    filtroGabineteAdmin.innerHTML = '<option value="">Todos os Gabinetes</option>';
-                    gabinetes.forEach(gab => {
-                        const option = document.createElement("option");
-                        option.value = gab.id;
-                        option.textContent = `${gab.id} - ${gab.nomeResponsavel}`;
-                        filtroGabineteAdmin.appendChild(option);
-                    });
-                }
-            })
-            .catch(console.error);
+            });
+            const salvo = localStorage.getItem("superAdminGabineteFilter");
+            if(filtroGabineteAdmin && salvo) {
+                filtroGabineteAdmin.value = salvo;
+                if(document.getElementById("administracao").classList.contains("active")) carregarUsuarios();
+            }
+        });
     }
-
     configurarAmbienteSuperAdmin();
 
-    // =================== GABINETES (CRUD) ===================
+    // =================== GABINETES CRUD ===================
     function carregarGabinetes() {
         if (!gabinetesTableBody) return;
-        fetch(API_GABINETES).then(r => {
-            if(r.status===403) throw new Error("Sem permissão"); return r.json();
-        }).then(gabinetes => {
+        fetch(API_GABINETES).then(r => r.status===403 ? [] : r.json()).then(gabinetes => {
             gabinetesTableBody.innerHTML = "";
-            if (!gabinetes || !gabinetes.length) return;
-
+            if(!gabinetes.length) {
+                gabinetesTableBody.innerHTML = "<tr><td colspan='3' style='text-align:center'>Nenhum gabinete.</td></tr>";
+                return;
+            }
             gabinetes.sort((a, b) => a.id - b.id);
-            gabinetes.forEach(gab => {
+            gabinetes.forEach(g => {
                 const tr = document.createElement("tr");
-                tr.innerHTML = `
-                    <td>${gab.id}</td>
-                    <td>${gab.nomeResponsavel}</td>
-                    <td style="text-align: center;">
-                        <button class="action-btn delete-btn" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-                    </td>
-                `;
-                tr.querySelector(".delete-btn").onclick = () => confirmarDelecaoGabinete(gab.id, gab.nomeResponsavel);
+                tr.innerHTML = `<td>${g.id}</td><td>${g.nomeResponsavel}</td><td style="text-align:center"><button class="action-btn delete-btn"><i class="fas fa-trash-alt"></i></button></td>`;
+                tr.querySelector(".delete-btn").onclick = () => confirmarDelecaoGabinete(g.id, g.nomeResponsavel);
                 gabinetesTableBody.appendChild(tr);
             });
-        }).catch(console.error);
+        });
     }
 
     function confirmarDelecaoGabinete(id, nome) {
-        if (!confirm(`Excluir Gabinete "${nome}"?`)) return;
-        fetch(`${API_GABINETES}/${id}`, { method: "DELETE" })
-            .then(res => {
-                if (!res.ok) throw new Error("Erro ao excluir (Verifique usuários vinculados).");
+        if(confirm(`ATENÇÃO: Excluir o Gabinete "${nome}" apagará TODOS os usuários e dados vinculados. Continuar?`)) {
+            fetch(`${API_GABINETES}/${id}`, {method:"DELETE"}).then(r=>{
+                if(!r.ok) throw new Error();
                 alert("✅ Gabinete excluído!");
                 carregarGabinetes();
                 carregarGabinetesNosSelects();
-            }).catch(e => alert(e.message));
+            }).catch(()=>alert("Erro ao excluir gabinete."));
+        }
     }
 
-    if (gabineteForm) {
-        gabineteForm.addEventListener("submit", (e) => {
+    if(gabineteForm) {
+        gabineteForm.onsubmit = (e) => {
             e.preventDefault();
             const nome = document.getElementById("nomeGabineteInput").value.trim();
-            if (!nome) return;
+            if(!nome)return;
             fetch(API_GABINETES, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nomeResponsavel: nome })
-            }).then(r => r.json()).then(() => {
-                alert("✅ Gabinete criado!");
-                document.getElementById("nomeGabineteInput").value = "";
+                method:"POST", headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({nomeResponsavel: nome})
+            }).then(()=>{
+                alert("✅ Gabinete Criado!");
+                document.getElementById("nomeGabineteInput").value="";
                 carregarGabinetes();
                 carregarGabinetesNosSelects();
             });
-        });
+        };
     }
 
-    // =================== CADASTRO DE USUÁRIO ===================
+    // =================== USUÁRIOS CRUD ===================
     if (cadastroForm) {
-        cadastroForm.addEventListener("submit", (e) => {
+        cadastroForm.onsubmit = (e) => {
             e.preventDefault();
-            const nome = document.getElementById("nome").value.trim();
-            const email = document.getElementById("email").value.trim();
-            const password = document.getElementById("password").value.trim();
+
+            const nome = document.getElementById("nome").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
             const tipoUsuario = document.getElementById("tipoUsuario").value;
             const gabineteId = gabineteSelect ? gabineteSelect.value : null;
 
-            if (gabineteContainer.style.display !== "none" && !gabineteId) {
-                alert("Selecione um Gabinete."); return;
-            }
+            const role = localStorage.getItem("userRole");
 
-            fetch(API_BASE, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ nome, email, password, tipoUsuario, gabinete: gabineteId ? { id: gabineteId } : null })
-            }).then(res => {
-                if(!res.ok) return res.text().then(t => { throw new Error(t) });
-                alert("✅ Usuário cadastrado!");
-                cadastroForm.reset();
-                carregarUsuarios();
-            }).catch(e => alert(e.message));
-        });
-    }
-
-    // =================== LISTAGEM DE USUÁRIOS ===================
-    function carregarUsuarios() {
-        if (!tabelaUsuarios) return;
-        let url = API_BASE;
-        if (filtroGabineteAdmin && filtroGabineteAdmin.value) url += `?gabineteId=${filtroGabineteAdmin.value}`;
-
-        fetch(url).then(r => {
-            if(!r.ok) return []; return r.json();
-        }).then(usuarios => {
-            tabelaUsuarios.innerHTML = "";
-            if (!usuarios.length) {
-                tabelaUsuarios.innerHTML = `<tr><td colspan="3" style="text-align: center">Nenhum usuário.</td></tr>`;
+            if (role === "SUPER_ADMIN" && !gabineteId) {
+                alert("⚠️ Como Super Admin, você deve selecionar um Gabinete para vincular o usuário.");
                 return;
             }
 
-            const prioridade = { "SUPER_ADMIN": 1, "ADMIN": 2, "USER": 3 };
-            usuarios.sort((a, b) => (prioridade[a.tipoUsuario]||99) - (prioridade[b.tipoUsuario]||99));
+            fetch(API_BASE, {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({
+                    nome, email, password, tipoUsuario,
+                    gabinete: gabineteId ? {id: gabineteId} : null
+                })
+            }).then(r=>{
+                if(!r.ok) return r.text().then(t => { throw new Error(t) });
+                alert("✅ Usuário Cadastrado!");
+                cadastroForm.reset();
+                if(document.getElementById("administracao").classList.contains("active")) carregarUsuarios();
+            }).catch(e => alert("Erro ao cadastrar: " + e.message));
+        };
+    }
 
-            usuarios.forEach(u => {
-                const tr = document.createElement("tr");
-                tr.setAttribute('data-user-id', u.id);
-                tr.setAttribute('data-user-email', u.email);
-                tr.innerHTML = `<td>${u.nome}</td><td>${u.email}</td><td><span class="tag tag-${u.tipoUsuario.toLowerCase()}">${u.tipoUsuario}</span></td>`;
-                tr.onclick = () => {
-                    tabelaUsuarios.querySelectorAll('tr').forEach(x => x.classList.remove('selected'));
-                    tr.classList.add('selected');
+    function carregarUsuarios() {
+        if(!tabelaUsuarios) return;
+        let url = API_BASE;
+        const filtroVal = (filtroGabineteAdmin && filtroGabineteAdmin.value) ? filtroGabineteAdmin.value : localStorage.getItem("superAdminGabineteFilter");
+        if(filtroVal) url += `?gabineteId=${filtroVal}`;
+
+        fetch(url).then(r=>r.ok?r.json():[]).then(users => {
+            tabelaUsuarios.innerHTML = "";
+            if(!users.length) {
+                tabelaUsuarios.innerHTML="<tr><td colspan='3' style='text-align:center'>Nenhum usuário encontrado.</td></tr>";
+                return;
+            }
+            const p = {"SUPER_ADMIN":1,"ADMIN":2,"USER":3};
+            users.sort((a,b) => (p[a.tipoUsuario]||99)-(p[b.tipoUsuario]||99));
+
+            users.forEach(u => {
+                const tr=document.createElement("tr");
+                tr.setAttribute("data-user-id",u.id);
+                tr.setAttribute("data-user-email",u.email);
+                tr.innerHTML=`<td>${u.nome}</td><td>${u.email}</td><td><span class="tag tag-${u.tipoUsuario.toLowerCase()}">${u.tipoUsuario}</span></td>`;
+                tr.onclick=()=>{
+                    tabelaUsuarios.querySelectorAll("tr").forEach(x=>x.classList.remove("selected"));
+                    tr.classList.add("selected");
                 };
                 tabelaUsuarios.appendChild(tr);
             });
         });
     }
-    carregarUsuarios(); // Load inicial
+
     if(atualizarListaBtn) atualizarListaBtn.onclick = carregarUsuarios;
 
-    // Remover Usuário
-    if (removerBtn) {
+    if(removerBtn) {
         removerBtn.onclick = () => {
-            const row = tabelaUsuarios.querySelector('.selected');
-            if (!row) { alert("Selecione um usuário."); return; }
-            const id = row.getAttribute('data-user-id');
-
-            if(!confirm("Remover usuário?")) return;
-            fetch(`${API_BASE}/${id}`, { method: "DELETE" })
-                .then(r => {
-                    if(!r.ok) throw new Error("Erro ou sem permissão");
-                    alert("✅ Usuário removido!");
-                    carregarUsuarios();
-                }).catch(e => alert(e.message));
+            const row=tabelaUsuarios.querySelector(".selected");
+            if(!row){alert("Selecione um usuário na lista.");return;}
+            const id=row.getAttribute("data-user-id");
+            if(confirm("Tem certeza que deseja remover este usuário?")) {
+                fetch(`${API_BASE}/${id}`, {method:"DELETE"})
+                    .then(r=>{
+                        if(!r.ok) throw new Error();
+                        alert("✅ Usuário removido!");
+                        carregarUsuarios();
+                    }).catch(()=>alert("Erro ao excluir usuário."));
+            }
         };
     }
 
-    // =================== MODAL DE PERMISSÕES ===================
-    const editPermsBtn = document.querySelector(".edit-perms-btn");
-    const permsModal = document.getElementById("permissionsModal");
-    const permsForm = document.getElementById("permissionsForm");
-    const permsTitle = document.getElementById("modalTitle");
+    // =================== MODAL PERMISSÕES ===================
+    const setChecked = (name, value) => { const el = permsForm.elements[name]; if (el) el.checked = value || false; };
+    const getChecked = (name) => { const el = permsForm.elements[name]; return el ? el.checked : false; };
 
-    if(editPermsBtn) {
+    if (editPermsBtn) {
         editPermsBtn.onclick = () => {
-            const row = tabelaUsuarios.querySelector('.selected');
-            if(!row) { alert("Selecione um usuário."); return; }
-            const email = row.getAttribute('data-user-email');
+            const row = tabelaUsuarios.querySelector(".selected");
+            if (!row) { alert("Selecione um usuário na lista."); return; }
+            const email = row.getAttribute("data-user-email");
 
-            // Busca usuário na lista (Admin já tem acesso)
-            fetch(API_BASE).then(r=>r.json()).then(lista => {
+            fetch(API_BASE).then(r => r.json()).then(lista => {
                 const user = lista.find(u => u.email === email);
-                if(!user) return;
+                if (!user) return;
+
+                if (user.tipoUsuario === "ADMIN" || user.tipoUsuario === "SUPER_ADMIN") {
+                    alert("🔒 Administradores possuem acesso total por padrão.");
+                    return;
+                }
 
                 permsTitle.textContent = `Permissões: ${user.nome}`;
                 permsModal.dataset.editingUserId = user.id;
                 const p = user.permissao || {};
-                const f = permsForm;
 
-                f.dashboard_access.checked = p.verDashboard; f.dashboard_edit.checked = p.editarDashboard;
-                f.acoes_access.checked = p.verAcoes; f.acoes_edit.checked = p.editarAcoes;
-                f.kanban_access.checked = p.verKanban; f.kanban_edit.checked = p.editarKanban;
-                f.financeiro_access.checked = p.verFinanceiro; f.financeiro_edit.checked = p.editarFinanceiro;
-                f.configuracoes_access.checked = p.verConfiguracoes; f.configuracoes_edit.checked = p.editarConfiguracoes;
+                setChecked('dashboard_access', p.verDashboard);
+                setChecked('acoes_access', p.verAcoes); setChecked('acoes_edit', p.editarAcoes);
+                setChecked('kanban_access', p.verKanban); setChecked('kanban_edit', p.editarKanban);
+                setChecked('financeiro_access', p.verFinanceiro); setChecked('financeiro_edit', p.editarFinanceiro);
+                setChecked('configuracoes_access', p.verConfiguracoes);
 
-                // Atualiza visual dos checkboxes
                 document.querySelectorAll('.access-cb').forEach(cb => cb.dispatchEvent(new Event('change')));
                 permsModal.style.display = "flex";
             });
         };
     }
 
-    // UI Checkboxes
     document.querySelectorAll('.access-cb').forEach(cb => {
         cb.addEventListener('change', (e) => {
-            const editCb = e.target.closest('.permission-row').querySelector('.edit-cb');
-            if (!e.target.checked) { editCb.checked = false; editCb.disabled = true; }
-            else { editCb.disabled = false; }
+            const row = e.target.closest('.permission-row');
+            const editCb = row.querySelector('.edit-cb');
+            if (editCb) {
+                if (!e.target.checked) {
+                    editCb.checked = false;
+                    editCb.disabled = true;
+                } else {
+                    editCb.disabled = false;
+                }
+            }
         });
     });
 
-    if(permsForm) {
+    if (permsForm) {
         permsForm.onsubmit = (e) => {
             e.preventDefault();
             const id = permsModal.dataset.editingUserId;
-            const f = permsForm;
-
             const payload = {
-                verDashboard: f.dashboard_access.checked, editarDashboard: f.dashboard_edit.checked,
-                verAcoes: f.acoes_access.checked, editarAcoes: f.acoes_edit.checked,
-                verKanban: f.kanban_access.checked, editarKanban: f.kanban_edit.checked,
-                verFinanceiro: f.financeiro_access.checked, editarFinanceiro: f.financeiro_edit.checked,
-                verConfiguracoes: f.configuracoes_access.checked, editarConfiguracoes: f.configuracoes_edit.checked
+                verDashboard: getChecked('dashboard_access'), editarDashboard: false,
+                verAcoes: getChecked('acoes_access'), editarAcoes: getChecked('acoes_edit'),
+                verKanban: getChecked('kanban_access'), editarKanban: getChecked('kanban_edit'),
+                verFinanceiro: getChecked('financeiro_access'), editarFinanceiro: getChecked('financeiro_edit'),
+                verConfiguracoes: getChecked('configuracoes_access'), editarConfiguracoes: false
             };
-
             fetch(`${API_BASE}/${id}/permissoes`, {
                 method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
             }).then(r => {
-                if(!r.ok) throw new Error("Erro ao salvar");
-                alert("✅ Permissões salvas!");
-                permsModal.style.display = "none";
-                carregarUsuarios();
-            }).catch(e => alert(e.message));
+                if(!r.ok) throw new Error(); alert("✅ Permissões salvas!"); permsModal.style.display = "none"; carregarUsuarios();
+            }).catch(() => alert("Erro ao salvar."));
         };
     }
-    document.querySelector(".close-btn-perms").onclick = () => permsModal.style.display = "none";
 
-    // =================== SEGURANÇA (SENHA) ===================
+    if(closePermsBtn) {
+        closePermsBtn.onclick = () => { permsModal.style.display = "none"; };
+    }
+    window.onclick = (e) => { if (e.target === permsModal) permsModal.style.display = "none"; };
+
+    // =================== SENHA (VALIDAÇÃO BACKEND) ===================
     const segForm = document.getElementById("segurancaForm");
-    if(segForm) {
+
+    function carregarDadosSeguranca() {
         fetch(`${API_BASE}/me`).then(r=>r.json()).then(u => {
             if(document.getElementById("emailVinculado")) document.getElementById("emailVinculado").value = u.email;
-        });
-
-        segForm.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const nova = document.getElementById("novaSenha").value;
-            const conf = document.getElementById("confirmarSenha").value;
-            const id = localStorage.getItem("userId");
-
-            if(nova !== conf) { alert("Senhas não conferem"); return; }
-
-            fetch(`${API_BASE}/${id}/senha?novaSenha=${encodeURIComponent(nova)}`, { method: "PUT" })
-                .then(r => {
-                    if(!r.ok) throw new Error("Erro");
-                    alert("✅ Senha alterada!");
-                    segForm.reset();
-                }).catch(e => alert(e.message));
-        });
+            localStorage.setItem("userId", u.id);
+        }).catch(console.error);
     }
 
-    // Toggle Password
+    if(segForm) {
+        carregarDadosSeguranca();
+
+        segForm.onsubmit = (e) => {
+            e.preventDefault();
+            const atual = document.getElementById("senhaAtual").value.trim();
+            const nova = document.getElementById("novaSenha").value.trim();
+            const conf = document.getElementById("confirmarSenha").value.trim();
+            const id = localStorage.getItem("userId");
+
+            if(!id) { alert("Erro de sessão. Recarregue a página."); return; }
+            if(!atual) { alert("Digite sua senha atual."); return; }
+            if(!nova) { alert("Digite a nova senha."); return; }
+            if(nova !== conf) { alert("As senhas não conferem!"); return; }
+
+            const url = `${API_BASE}/${id}/senha?senhaAtual=${encodeURIComponent(atual)}&novaSenha=${encodeURIComponent(nova)}`;
+
+            fetch(url, { method: "PUT" })
+                .then(async (res) => {
+                    if(!res.ok) {
+                        const errorText = await res.text();
+                        throw new Error(errorText || "Erro ao alterar senha.");
+                    }
+                    alert("✅ Senha alterada com sucesso!");
+                    segForm.reset();
+                    carregarDadosSeguranca();
+                })
+                .catch((err) => alert("❌ " + err.message));
+        };
+    }
+
     document.querySelectorAll(".toggle-password").forEach(i => {
         i.onclick = () => {
             const el = document.getElementById(i.dataset.target);
@@ -339,4 +388,8 @@ document.addEventListener("DOMContentLoaded", () => {
             i.classList.toggle("fa-eye"); i.classList.toggle("fa-eye-slash");
         };
     });
+
+    if(document.getElementById("administracao") && document.getElementById("administracao").classList.contains("active")) {
+        carregarUsuarios();
+    }
 });

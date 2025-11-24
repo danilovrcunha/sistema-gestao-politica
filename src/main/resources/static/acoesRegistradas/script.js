@@ -1,8 +1,39 @@
 console.log('[Ações Registradas] Script carregado.');
 
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Verifica e esconde o botão de "Registrar" imediatamente (Segurança Visual)
+    verificarBotaoNovo();
+
+    // 2. Carrega a tabela
     carregarTabela();
 });
+
+// Função auxiliar para verificar permissão de forma SEGURA e RÁPIDA
+function usuarioPodeEditar() {
+    // 1. Tenta usar a função global se ela já existir
+    if (typeof window.podeEditar === 'function') {
+        return window.podeEditar('editarAcoes');
+    }
+
+    // 2. Fallback: Se a global não carregou, verifica direto no localStorage
+    const role = localStorage.getItem("userRole");
+    if (role === 'ADMIN' || role === 'SUPER_ADMIN') return true;
+
+    const perms = JSON.parse(localStorage.getItem("userPerms") || "{}");
+    return perms['editarAcoes'] === true;
+}
+
+function verificarBotaoNovo() {
+    if (!usuarioPodeEditar()) {
+        // Esconde o botão "+ Registrar Ação"
+        const btnNovo = document.querySelector('.register-btn');
+        if (btnNovo) btnNovo.style.display = 'none';
+
+        // Esconde qualquer outro botão de criar que tiver na tela
+        const actionBtns = document.querySelectorAll('.action-btn.register-btn');
+        actionBtns.forEach(btn => btn.style.display = 'none');
+    }
+}
 
 // Função para buscar dados e preencher a tabela
 async function carregarTabela() {
@@ -10,11 +41,22 @@ async function carregarTabela() {
     const emptyState = document.getElementById('empty-state');
 
     // Limpa a tabela antes de carregar
-    tbody.innerHTML = '';
+    if (tbody) tbody.innerHTML = '';
 
     try {
-        // Faz a requisição GET para sua API
-        const response = await fetch('/api/acoes');
+        // =================== LÓGICA DO FILTRO (SUPER ADMIN) ===================
+        let url = '/api/acoes';
+        const role = localStorage.getItem("userRole");
+        const filtroId = localStorage.getItem("superAdminGabineteFilter");
+
+        // Se for Super Admin e tiver um filtro selecionado, adiciona na URL
+        if (role === "SUPER_ADMIN" && filtroId) {
+            url += `?gabineteId=${filtroId}`;
+            console.log("🔎 Filtrando ações pelo Gabinete ID:", filtroId);
+        }
+        // ======================================================================
+
+        const response = await fetch(url);
 
         if (!response.ok) {
             throw new Error('Erro na resposta da API');
@@ -22,25 +64,42 @@ async function carregarTabela() {
 
         const listaAcoes = await response.json();
 
-        // Verifica se a lista está vazia
         if (!listaAcoes || listaAcoes.length === 0) {
-            emptyState.style.display = 'block';
+            if (emptyState) emptyState.style.display = 'block';
             return;
         } else {
-            emptyState.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'none';
         }
 
-        // Cria as linhas da tabela
+        // VERIFICA PERMISSÃO UMA VEZ ANTES DO LOOP
+        const podeEditar = usuarioPodeEditar();
+
         listaAcoes.forEach(acao => {
             const tr = document.createElement('tr');
 
-            // Formata a data (ex: 2025-11-20 -> 20/11/2025)
             let dataFormatada = '-';
             if (acao.data) {
-                // Se vier com hora (T), quebra na data
-                const dataParte = acao.data.split('T')[0];
-                const [ano, mes, dia] = dataParte.split('-');
-                dataFormatada = `${dia}/${mes}/${ano}`;
+                try {
+                    const dataParte = acao.data.split('T')[0];
+                    const [ano, mes, dia] = dataParte.split('-');
+                    dataFormatada = `${dia}/${mes}/${ano}`;
+                } catch (e) { dataFormatada = acao.data; }
+            }
+
+            // LÓGICA DOS BOTÕES NA TABELA
+            let botoesHtml = '';
+
+            if (podeEditar) {
+                botoesHtml = `
+                    <a href="/editarAcao/${acao.id}" class="btn-icon edit" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button class="btn-icon delete" onclick="deletarAcao(${acao.id})" title="Excluir">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+            } else {
+                botoesHtml = `<span style="color:#ccc; font-size:0.85em; font-style:italic;">Somente Leitura</span>`;
             }
 
             tr.innerHTML = `
@@ -50,27 +109,26 @@ async function carregarTabela() {
                     <span class="badge-tipo">${acao.tipoAcao || 'Geral'}</span>
                 </td>
                 <td>${dataFormatada}</td>
-                <td class="actions-cell">
-                    <a href="/editarAcao/${acao.id}" class="btn-icon edit" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    
-                    <button class="btn-icon delete" onclick="deletarAcao(${acao.id})" title="Excluir">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
+                <td class="actions-cell">${botoesHtml}</td>
             `;
-            tbody.appendChild(tr);
+
+            if (tbody) tbody.appendChild(tr);
         });
 
     } catch (err) {
         console.error('Erro ao carregar tabela:', err);
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Erro ao carregar dados.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:red;">Erro ao carregar dados.</td></tr>';
     }
 }
 
-// Função GLOBAL para deletar (precisa ser acessível pelo onclick do HTML)
+// Função GLOBAL para deletar
 window.deletarAcao = async function(id) {
+    // Bloqueio extra no clique
+    if (!usuarioPodeEditar()) {
+        alert("Acesso Negado: Você não tem permissão para excluir.");
+        return;
+    }
+
     if (!id) return;
 
     if (!confirm('Tem certeza que deseja excluir esta ação? Essa operação não pode ser desfeita.')) {
@@ -78,17 +136,14 @@ window.deletarAcao = async function(id) {
     }
 
     try {
-        // Chama o endpoint DELETE do Java
         const res = await fetch(`/api/acoes/${id}`, {
             method: 'DELETE'
         });
 
         if (res.ok) {
             alert('Ação excluída com sucesso!');
-            // Recarrega a tabela para sumir com o item
             carregarTabela();
         } else {
-            // Tenta ler a mensagem de erro do backend
             const txt = await res.text();
             alert('Erro ao excluir: ' + txt);
         }

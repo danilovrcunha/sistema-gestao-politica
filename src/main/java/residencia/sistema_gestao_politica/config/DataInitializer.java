@@ -35,31 +35,14 @@ public class DataInitializer implements CommandLineRunner {
 
         log.info("Populando banco de dados...");
 
-        // 1. Criar Gabinete
-        Gabinete gabineteKaido = new Gabinete("Gabinete Principal do Kaido");
-        gabineteRepository.save(gabineteKaido);
-
-        // 2. Criar Super Admin
         Usuario superAdmin = new Usuario();
         superAdmin.setNome("Super Administrador");
         superAdmin.setEmail("super@admin.com");
         superAdmin.setPassword(passwordEncoder.encode("super123"));
         superAdmin.setTipoUsuario(TipoUsuario.SUPER_ADMIN);
         superAdmin.setGabinete(null);
-        // Permissão Total
         superAdmin.setPermissao(new Permissao(true));
         usuarioRepository.save(superAdmin);
-
-        // 3. Criar Admin Kaido
-        Usuario adminKaido = new Usuario();
-        adminKaido.setNome("Kaido");
-        adminKaido.setEmail("kaido@admin.com");
-        adminKaido.setPassword(passwordEncoder.encode("kaido123"));
-        adminKaido.setTipoUsuario(TipoUsuario.ADMIN);
-        adminKaido.setGabinete(gabineteKaido);
-        // Permissão Total
-        adminKaido.setPermissao(new Permissao(true));
-        usuarioRepository.save(adminKaido);
 
         log.info("Dados iniciais criados com sucesso!");
     }

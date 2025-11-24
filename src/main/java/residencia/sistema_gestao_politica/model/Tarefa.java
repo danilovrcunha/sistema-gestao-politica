@@ -3,6 +3,8 @@ package residencia.sistema_gestao_politica.model;
 import jakarta.persistence.*;
 import residencia.sistema_gestao_politica.model.enums.StatusTarefa;
 import java.time.ZonedDateTime;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 
 @Entity
 @Table(name = "tarefas")
@@ -30,6 +32,11 @@ public class Tarefa {
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private ZonedDateTime dataCriacao = ZonedDateTime.now();
+
+    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "gabinete_id")
+    private Gabinete gabinete;
 
     public Tarefa() {}
 
@@ -61,4 +68,7 @@ public class Tarefa {
 
     public ZonedDateTime getDataCriacao() { return dataCriacao; }
     public void setDataCriacao(ZonedDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
+
+    public Gabinete getGabinete() { return gabinete; }
+    public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
 }

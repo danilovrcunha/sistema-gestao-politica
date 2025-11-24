@@ -1,47 +1,73 @@
-console.log('[Ações] Mapa Inteligente V4');
+console.log('[Ações] Mapa V12 - Núcleo do Nome + Filtro Super Admin');
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // =================== SEGURANÇA ===================
+    function verificarBotaoNovo() {
+        if (window.podeEditar && !window.podeEditar("editarAcoes")) {
+            const btnNovo = document.querySelector('a[href="/registrarAcoes"]');
+            if (btnNovo) btnNovo.style.display = 'none';
+            document.querySelectorAll('.primary-btn').forEach(btn => {
+                if(btn.textContent.includes("Nova") || btn.textContent.includes("Registrar")) btn.style.display = 'none';
+            });
+        }
+    }
+    if (localStorage.getItem("userRole")) verificarBotaoNovo();
+    document.addEventListener("permissoesCarregadas", verificarBotaoNovo);
+    // ================================================
+
     if (!window.L) return;
 
-    // Configurações
-    const JITTER_RADIUS = 15;
+    // MAPA BASE
+    const brazilBounds = [[5.5, -76.0], [-34.0, -32.0]];
+    const map = L.map('map', {
+        minZoom: 5,
+        maxBounds: brazilBounds,
+        maxBoundsViscosity: 1.0
+    }).setView([-10.9472, -37.0731], 12);
 
-    // Utils
-    const delay = (ms) => new Promise(r => setTimeout(r, ms));
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OSM', noWrap: true
+    }).addTo(map);
+
+    let heatLayer = null;
+    let infoLayer = L.layerGroup().addTo(map);
+
+    // DISPERSÃO
     const offsetMeters = (lat, lng, dx, dy) => {
         const dLat = dy / 111111;
         const dLng = dx / (111111 * Math.cos(lat * Math.PI / 180));
         return { lat: lat + dLat, lng: lng + dLng };
     };
 
-    // Jitter: Espalha pontos levemente para não ficarem empilhados
     function jitterPoints(lat, lng, count) {
         if (count <= 1) return [[lat, lng, 1.0]];
         const pts = [];
-        const max = Math.min(count, 40);
+        const max = Math.min(count, 50);
         for(let i=0; i<max; i++) {
-            const r = Math.random() ** 0.6 * (JITTER_RADIUS * Math.sqrt(count));
+            const r = Math.random() ** 0.6 * (15 * Math.sqrt(count));
             const theta = Math.random() * Math.PI * 2;
             const p = offsetMeters(lat, lng, r * Math.cos(theta), r * Math.sin(theta));
-            pts.push([p.lat, p.lng, 0.8]);
+            pts.push([p.lat, p.lng, 0.7]);
         }
         return pts;
     }
 
-    // Mapa Base
-    const map = L.map('map').setView([-10.9472, -37.0731], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
-
-    let heatLayer = null;
-    let infoLayer = L.layerGroup().addTo(map);
-
-    // Execução
     montarMapa();
 
     async function montarMapa() {
         if (!L.heatLayer) return;
         try {
-            const res = await fetch('/api/acoes');
+            // --- ALTERAÇÃO DE FILTRO (SUPER ADMIN) ---
+            let url = '/api/acoes';
+            const role = localStorage.getItem("userRole");
+            const filtroId = localStorage.getItem("superAdminGabineteFilter");
+            if (role === "SUPER_ADMIN" && filtroId) {
+                url += `?gabineteId=${filtroId}`;
+            }
+            // -----------------------------------------
+
+            const res = await fetch(url);
             if(!res.ok) return;
             const acoes = await res.json();
 
@@ -51,39 +77,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
             for (const g of grupos) {
                 if (!g.cep) continue;
-
-                // GEOLOCALIZAÇÃO INTELIGENTE
                 const geo = await geocodeSmart(g.cep);
 
                 if (geo) {
-                    // 1. Mapa de Calor
                     pontosHeat.push(...jitterPoints(geo.lat, geo.lng, g.count));
 
-                    // 2. Marcador de Clique (Rua)
+                    let aviso = '';
+                    let cor = '#2c3e50';
+
+                    if (geo.precisao === 'bairro') {
+                        aviso = '<br><strong style="color:#e67e22">(📍 Centro do Bairro)</strong>';
+                        cor = '#e67e22';
+                    }
+                    if (geo.precisao === 'nucleo') {
+                        aviso = '<br><strong style="color:#27ae60">(📍 Via Localizada)</strong>';
+                    }
+
                     L.circleMarker([geo.lat, geo.lng], {
-                        radius: 20, color: 'transparent', fillColor: '#000', fillOpacity: 0
+                        radius: 12, color: 'transparent', fillColor: '#333', fillOpacity: 0.0
                     }).bindPopup(`
                         <div style="text-align:center; font-family:sans-serif;">
-                            <b style="font-size:14px; color:#333;">${geo.rua}</b><br>
-                            <span style="color:#666; font-size:12px;">CEP: ${g.cep}</span>
-                            <hr style="margin:5px 0; border:0; border-top:1px solid #ddd;">
-                            <b style="color:#d35400;">${g.count} Ações</b>
+                            <b style="font-size:13px; color:${cor};">${geo.rua || geo.bairro}</b>${aviso}<br>
+                            <span style="color:#7f8c8d; font-size:11px;">${geo.bairro} - ${g.cep}</span>
+                            <hr style="margin:4px 0; border:0; border-top:1px solid #eee;">
+                            <b style="color:#2980b9;">${g.count} Ações</b>
                         </div>
                     `).addTo(infoLayer);
                 }
-                await delay(800); // Respeito à API
+                await new Promise(r => setTimeout(r, 1200));
             }
 
             if (pontosHeat.length) {
                 if (heatLayer) heatLayer.remove();
                 heatLayer = L.heatLayer(pontosHeat, {
-                    radius: 25, blur: 20, maxZoom: 17, minOpacity: 0.4,
-                    gradient: { 0.3: 'lime', 0.6: 'yellow', 1.0: 'red' }
+                    radius: 20, blur: 35, maxZoom: 15, minOpacity: 0.4,
+                    gradient: { 0.3: '#2ecc71', 0.6: '#f39c12', 1.0: '#e74c3c' }
                 }).addTo(map);
-
                 infoLayer.bringToFront();
-                const bounds = L.latLngBounds(pontosHeat.map(p=>[p[0],p[1]]));
-                map.fitBounds(bounds.pad(0.1));
             }
         } catch (e) { console.error(e); }
     }
@@ -101,55 +131,92 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.from(m.values());
     }
 
-    // A Mágica: ViaCEP (Nome da Rua) + Nominatim (Busca Estruturada)
+    // =================== LÓGICA DE EXTRACTOR DE NOME ===================
+
+    function extrairNucleoNome(logradouro) {
+        if (!logradouro) return "";
+        let limpo = logradouro.split(' - ')[0].trim();
+        const regexPrefixos = /^(Rua|R\.|Avenida|Av\.|Travessa|Tv\.|Alameda|Al\.|Praça|Pça\.|Rodovia|Estrada|Largo|Beco)\s+/i;
+        const regexTitulos = /^(Doutor|Dr\.|Professor|Prof\.|Coronel|Cel\.|General|Gen\.|Marechal|Mal\.|Desembargador|Des\.|Ministro|Min\.|Padre|Pe\.|Dom|Governador|Gov\.|Presidente|Pres\.|Deputado|Dep\.|Engenheiro|Eng\.)\s+/i;
+
+        limpo = limpo.replace(regexPrefixos, '').trim();
+        limpo = limpo.replace(regexTitulos, '').trim();
+        limpo = limpo.replace(regexPrefixos, '').trim();
+        return limpo;
+    }
+
+    async function buscarNominatim(params) {
+        const url = new URL('https://nominatim.openstreetmap.org/search');
+        url.searchParams.set('format', 'jsonv2');
+        url.searchParams.set('limit', '1');
+        url.searchParams.set('country', 'Brazil');
+
+        if(params.street) url.searchParams.set('street', params.street);
+        if(params.city) url.searchParams.set('city', params.city);
+        if(params.state) url.searchParams.set('state', params.state);
+
+        const res = await fetch(url);
+        const data = await res.json();
+        return data.length > 0 ? { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) } : null;
+    }
+
     async function geocodeSmart(cep) {
-        const CACHE_KEY = 'geoV4_' + cep;
+        const CACHE_KEY = 'geoV12_' + cep;
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) return JSON.parse(cached);
 
         try {
-            // A. ViaCEP para garantir o nome correto da rua
             const viaRes = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
             const viaData = await viaRes.json();
             if (viaData.erro) return null;
 
-            // B. Nominatim Structured Search
-            // Procura especificamente pela RUA e CIDADE
-            const url = new URL('https://nominatim.openstreetmap.org/search');
-            url.searchParams.set('format', 'jsonv2');
-            url.searchParams.set('limit', '1');
-            url.searchParams.set('street', viaData.logradouro); // <--- O PULO DO GATO
-            url.searchParams.set('city', viaData.localidade);
-            url.searchParams.set('state', 'Sergipe');
-            url.searchParams.set('country', 'Brazil');
+            const ruaOriginal = viaData.logradouro.split(' - ')[0].trim();
+            const nomeNucleo = extrairNucleoNome(ruaOriginal);
 
-            const nomRes = await fetch(url);
-            const nomData = await nomRes.json();
+            let coords = null;
+            let precisao = 'exata';
 
-            if (nomData.length > 0) {
-                const res = {
-                    lat: parseFloat(nomData[0].lat),
-                    lng: parseFloat(nomData[0].lon),
-                    rua: viaData.logradouro
-                };
-                localStorage.setItem(CACHE_KEY, JSON.stringify(res));
-                return res;
+            // TENTATIVA 1: Busca Padrão
+            coords = await buscarNominatim({
+                street: ruaOriginal,
+                city: viaData.localidade,
+                state: viaData.uf
+            });
+
+            // TENTATIVA 2: Busca Apenas o Núcleo
+            if (!coords && nomeNucleo.length > 3) {
+                coords = await buscarNominatim({
+                    street: nomeNucleo,
+                    city: viaData.localidade,
+                    state: viaData.uf
+                });
+                if (coords) precisao = 'nucleo';
             }
 
-            // Fallback: se não achar a rua pelo nome, tenta o CEP direto
-            const fbRes = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${cep},Brazil`);
-            const fbData = await fbRes.json();
-            if(fbData.length > 0) {
-                const res = {
-                    lat: parseFloat(fbData[0].lat),
-                    lng: parseFloat(fbData[0].lon),
-                    rua: viaData.logradouro
-                };
-                localStorage.setItem(CACHE_KEY, JSON.stringify(res));
-                return res;
+            // TENTATIVA 3: Fallback para Bairro
+            if (!coords && viaData.bairro) {
+                const query = `Bairro ${viaData.bairro}, ${viaData.localidade}, ${viaData.uf}`;
+                const resBairro = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`);
+                const dataBairro = await resBairro.json();
+                if(dataBairro.length > 0) {
+                    coords = { lat: parseFloat(dataBairro[0].lat), lng: parseFloat(dataBairro[0].lon) };
+                    precisao = 'bairro';
+                }
             }
 
-        } catch (e) { console.error(e); }
+            if (coords) {
+                const result = {
+                    lat: coords.lat,
+                    lng: coords.lng,
+                    rua: ruaOriginal,
+                    bairro: viaData.bairro,
+                    precisao: precisao
+                };
+                localStorage.setItem(CACHE_KEY, JSON.stringify(result));
+                return result;
+            }
+
+        } catch (e) { console.error("Erro geocode:", e); }
         return null;
     }
 });

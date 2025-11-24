@@ -1,22 +1,54 @@
 document.addEventListener("DOMContentLoaded", () => {
     const API_BASE_USER = "http://localhost:8081/usuarios";
 
-    // =================== 1. MAPA DE ROTAS X PERMISSÕES ===================
-    // Aqui definimos qual permissão é necessária para ver cada página (URL)
+    // =================== 1. FILTRO GLOBAL (SUPER ADMIN) ===================
+    // Verifica se o Super Admin escolheu um gabinete e aplica nas telas de gestão
+    function aplicarFiltroGlobalSuperAdmin() {
+        const role = localStorage.getItem("userRole");
+        if (role !== "SUPER_ADMIN") return;
+
+        const filtroId = localStorage.getItem("superAdminGabineteFilter");
+        if (!filtroId) return;
+
+        // Páginas que carregam dados via servidor (Thymeleaf) precisam recarregar com parametro
+        const paginasServerSide = ["/kanban", "/financeiro", "/home"];
+        const path = window.location.pathname;
+
+        // Se estiver numa dessas páginas e a URL NÃO tiver o parametro, recarrega
+        if (paginasServerSide.some(p => path.includes(p)) && !window.location.search.includes("gabineteId=")) {
+            console.log("🔄 Aplicando filtro de gabinete salvo:", filtroId);
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('gabineteId', filtroId);
+            window.location.search = urlParams.toString();
+        }
+    }
+    aplicarFiltroGlobalSuperAdmin();
+
+    // =================== 2. MAPA DE ROTAS X PERMISSÕES ===================
     const regrasDeAcesso = {
         "/home": "verDashboard",
         "/acoes": "verAcoes",
         "/kanban": "verKanban",
         "/financeiro": "verFinanceiro",
         "/configuracoes": "verConfiguracoes",
-        "/gabinetes": "verConfiguracoes" // Super Admin geralmente tem essa
+        "/gabinetes": "verConfiguracoes"
     };
 
-    // =================== 2. APLICAR PERMISSÕES GLOBALMENTE ===================
+    // =================== 3. FUNÇÃO GLOBAL: PODE EDITAR? ===================
+    window.podeEditar = function(funcionalidade) {
+        const role = localStorage.getItem("userRole");
+
+        // REGRA DE OURO: Admin e Super Admin editam tudo
+        if (role === "ADMIN" || role === "SUPER_ADMIN") return true;
+
+        // User comum: verifica permissão específica
+        const perms = JSON.parse(localStorage.getItem("userPerms") || "{}");
+        return perms[funcionalidade] === true;
+    };
+
+    // =================== 4. INICIAR SEGURANÇA ===================
     function iniciarSeguranca() {
         const emailLocal = localStorage.getItem("userEmail");
-
-        // Se não tem usuário logado, deixa o Spring Security cuidar (ou redireciona pro login)
         if (!emailLocal) return;
 
         fetch(`${API_BASE_USER}/me`)
@@ -25,31 +57,32 @@ document.addEventListener("DOMContentLoaded", () => {
                 return res.json();
             })
             .then(user => {
-                // 1. Salva dados atualizados
                 const perms = user.permissao || {};
+
                 localStorage.setItem("userId", user.id);
+                localStorage.setItem("userRole", user.tipoUsuario);
                 localStorage.setItem("userPerms", JSON.stringify(perms));
 
-                // 2. Configura o Menu Lateral (Esconde botões)
-                configurarMenuVisual(perms);
-
-                // 3. VERIFICA A PÁGINA ATUAL (Bloqueio de Conteúdo)
+                configurarMenuVisual(perms, user.tipoUsuario);
                 verificarAcessoPaginaAtual(perms, user);
+
+                // Avisa outros scripts que as permissões chegaram
+                document.dispatchEvent(new Event("permissoesCarregadas"));
             })
-            .catch(err => {
-                console.error("Erro de segurança:", err);
-                // Opcional: forçar logout se der erro de validação
-                // window.location.href = "/login/login.html";
-            });
+            .catch(err => console.error("Erro de segurança:", err));
     }
 
-    // Esconde os links do menu lateral
-    function configurarMenuVisual(perms) {
-        const toggle = (id, podeVer) => {
+    function configurarMenuVisual(perms, tipoUsuario) {
+        const isAdmin = (tipoUsuario === "ADMIN" || tipoUsuario === "SUPER_ADMIN");
+
+        const toggle = (id, permissaoEspecifica) => {
             const el = document.getElementById(id);
             if (el) {
-                if (!podeVer) el.classList.remove("active");
-                el.style.display = podeVer ? "block" : "none";
+                // Se for Admin, vê tudo. Se for User, obedece a permissão estritamente.
+                const deveMostrar = isAdmin ? true : permissaoEspecifica;
+
+                if (!deveMostrar) el.classList.remove("active");
+                el.style.display = deveMostrar ? "block" : "none";
             }
         };
 
@@ -57,51 +90,49 @@ document.addEventListener("DOMContentLoaded", () => {
         toggle("menu-acoes", perms.verAcoes);
         toggle("menu-kanban", perms.verKanban);
         toggle("menu-financeiro", perms.verFinanceiro);
-        toggle("menu-config", perms.verConfiguracoes || true); // Config sempre visível para troca de senha
+
+        // Estrito: Se não tiver permissão "verConfiguracoes", o botão some.
+        toggle("menu-config", perms.verConfiguracoes);
+
+        // Assistente IA vinculado ao Dashboard
+        toggle("assistant-toggle-btn", perms.verDashboard);
     }
 
-    // Bloqueia a tela se o usuário estiver onde não deve
     function verificarAcessoPaginaAtual(perms, user) {
-        const path = window.location.pathname; // Ex: "/home" ou "/financeiro"
+        // Admins nunca são bloqueados
+        if (user.tipoUsuario === "ADMIN" || user.tipoUsuario === "SUPER_ADMIN") return;
 
-        // Verifica se a página atual requer alguma permissão especial
-        // Usamos 'Object.keys' para ver se a URL atual contém alguma das chaves do nosso mapa
+        const path = window.location.pathname;
         const regraEncontrada = Object.keys(regrasDeAcesso).find(rota => path.includes(rota));
 
         if (regraEncontrada) {
             const permissaoNecessaria = regrasDeAcesso[regraEncontrada];
 
-            // Se a permissão for FALSE ou Indefinida
+            // Se a permissão for false, bloqueia a tela
             if (!perms[permissaoNecessaria]) {
                 bloquearTela(user.nome);
             }
         }
     }
 
-    // Substitui o conteúdo da página por uma mensagem de bloqueio
     function bloquearTela(nomeUsuario) {
-        console.warn("⛔ Acesso bloqueado para esta rota.");
-
         const mainContent = document.querySelector(".main-content");
         if (mainContent) {
             mainContent.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: #2c3e50;">
-                    <i class="fas fa-lock" style="font-size: 4rem; color: #e74c3c; margin-bottom: 20px;"></i>
-                    <h2 style="margin-bottom: 10px; color: #7f8c8d">Acesso Restrito</h2>
-                    <p style="font-size: 1.1em; color: #7f8c8d; max-width: 500px;">
-                        Olá, <strong>${nomeUsuario}</strong>. Seu usuário está vinculado ao gabinete, mas você ainda não possui permissão para visualizar este módulo.
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: #4d6e8d; padding: 20px;">
+                    <i class="fas fa-lock" style="font-size: 4rem; color: #e74c3c; margin-bottom: 25px;"></i>
+                    <h2 style="margin-bottom: 15px; font-weight: 700;">Acesso Restrito</h2>
+                    <p style="font-size: 1.1em; color: #7f8c8d; max-width: 600px; line-height: 1.6;">
+                        Olá, <strong>${nomeUsuario}</strong>. Você não possui permissão para visualizar este módulo.
                     </p>
-                    <p style="margin-top: 20px; font-size: 0.9em; color: #95a5a6;">
-                        Solicite a liberação ao Administrador do seu gabinete.
-                    </p>
-                </div>
-            `;
+                    <div style="margin-top: 30px; padding: 15px; background-color: #f8d7da; color: #721c24; border-radius: 8px; border: 1px solid #f5c6cb;">
+                        Solicite a liberação ao <strong>Administrador</strong> do seu gabinete.
+                    </div>
+                </div>`;
         } else {
-            // Caso extremo: remove o body todo
             document.body.innerHTML = "<h1 style='text-align:center; margin-top:50px;'>Acesso Negado</h1>";
         }
     }
 
-    // Inicia o processo
     iniciarSeguranca();
 });
