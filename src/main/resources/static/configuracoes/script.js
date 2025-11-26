@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const atualizarListaBtn = document.getElementById("atualizarListaBtn");
     const removerBtn = document.querySelector(".remove-user-btn");
 
-    // Modal de Permissões
+    // Modal
     const editPermsBtn = document.querySelector(".edit-perms-btn");
     const permsModal = document.getElementById("permissionsModal");
     const permsForm = document.getElementById("permissionsForm");
@@ -37,36 +37,46 @@ document.addEventListener("DOMContentLoaded", () => {
         administracao: "Gerencie usuários e permissões do sistema",
     };
 
+    // =================== FUNÇÃO PARA ATUALIZAR LINKS DO MENU===================
+    function atualizarLinksImediatamente(filtroId) {
+        const links = document.querySelectorAll('.nav-menu a');
+        const paginasAfetadas = ["/kanban", "/financeiro", "/home", "/acoes"];
+
+        links.forEach(link => {
+            const path = link.getAttribute('href').split('?')[0];
+
+            if (paginasAfetadas.includes(path)) {
+                if (filtroId) {
+                    link.href = `${path}?gabineteId=${filtroId}`;
+                } else {
+                    link.href = path;
+                }
+            }
+        });
+        console.log("🔗 Links do menu atualizados para Gabinete:", filtroId || "Todos");
+    }
+
     // =================== CONTROLE DE ABAS ===================
     function aplicarRestricoesDeAbas() {
         const role = localStorage.getItem("userRole");
-        // Se for Admin/Super, não faz nada (deixa cadastro aberto)
         if (role === "ADMIN" || role === "SUPER_ADMIN") return;
 
-        console.log("🔒 Modo Usuário: Forçando aba Segurança.");
-
-        // Esconde botões das abas proibidas
         const btnCadastro = document.querySelector('.tab-button[data-tab="cadastro"]');
         const btnAdmin = document.querySelector('.tab-button[data-tab="administracao"]');
 
         if (btnCadastro) btnCadastro.style.display = 'none';
         if (btnAdmin) btnAdmin.style.display = 'none';
 
-        // REMOVE ACTIVE DAS ABAS PROIBIDAS (AQUI ESTAVA O ERRO)
-        // O HTML vem com "active" no cadastro, precisamos tirar na força
-        if (btnCadastro) btnCadastro.classList.remove("active");
-        const paneCadastro = document.getElementById("cadastro");
-        if (paneCadastro) paneCadastro.classList.remove("active");
-
-        //  FORÇA ACTIVE NA ABA SEGURANÇA
+        // Força aba de segurança
         const btnSeguranca = document.querySelector('.tab-button[data-tab="seguranca"]');
-        const paneSeguranca = document.getElementById("seguranca");
+        if (btnSeguranca && !document.querySelector('.tab-button.active')) {
+            // Remove active do cadastro (que vem do HTML)
+            document.getElementById("cadastro").classList.remove("active");
+            document.querySelector('.tab-button[data-tab="cadastro"]').classList.remove("active");
 
-        if (btnSeguranca) btnSeguranca.classList.add("active");
-        if (paneSeguranca) paneSeguranca.classList.add("active");
-
-        // Atualiza o texto do header
-        if (headerDescription) headerDescription.textContent = tabTexts["seguranca"];
+            // Ativa segurança
+            btnSeguranca.click();
+        }
     }
 
     if (localStorage.getItem("userRole")) {
@@ -75,7 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.addEventListener("permissoesCarregadas", aplicarRestricoesDeAbas);
     }
 
-    // Eventos de clique nas abas
     tabButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
             tabButtons.forEach((b) => b.classList.remove("active"));
@@ -84,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const tab = btn.getAttribute("data-tab");
             const targetPane = document.getElementById(tab);
-            if(targetPane) targetPane.classList.add("active");
+            if (targetPane) targetPane.classList.add("active");
 
             if (headerDescription && tabTexts[tab]) headerDescription.textContent = tabTexts[tab];
 
@@ -104,13 +113,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     if(filtroGabineteAdmin) {
                         filtroGabineteAdmin.style.display = "block";
-                        const salvo = localStorage.getItem("superAdminGabineteFilter");
-                        if(salvo) filtroGabineteAdmin.value = salvo;
 
+                        // Restaura filtro salvo
+                        const salvo = localStorage.getItem("superAdminGabineteFilter");
+                        if(salvo) {
+                            filtroGabineteAdmin.value = salvo;
+                            atualizarLinksImediatamente(salvo);
+                        }
+
+                        // Salva filtro ao mudar E atualiza links na hora
                         filtroGabineteAdmin.addEventListener("change", () => {
                             const val = filtroGabineteAdmin.value;
+
                             if (val) localStorage.setItem("superAdminGabineteFilter", val);
                             else localStorage.removeItem("superAdminGabineteFilter");
+
+                            // Chama a função mágica
+                            atualizarLinksImediatamente(val);
                             carregarUsuarios();
                         });
                     }
@@ -129,10 +148,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     gabinetes.forEach(g => select.innerHTML += `<option value="${g.id}">${g.nomeResponsavel}</option>`);
                 }
             });
+
             const salvo = localStorage.getItem("superAdminGabineteFilter");
             if(filtroGabineteAdmin && salvo) {
                 filtroGabineteAdmin.value = salvo;
-                if(document.getElementById("administracao").classList.contains("active")) carregarUsuarios();
+                if(document.getElementById("administracao").classList.contains("active")) {
+                    carregarUsuarios();
+                }
             }
         });
     }
@@ -222,6 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function carregarUsuarios() {
         if(!tabelaUsuarios) return;
         let url = API_BASE;
+
         const filtroVal = (filtroGabineteAdmin && filtroGabineteAdmin.value) ? filtroGabineteAdmin.value : localStorage.getItem("superAdminGabineteFilter");
         if(filtroVal) url += `?gabineteId=${filtroVal}`;
 
@@ -320,6 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
         permsForm.onsubmit = (e) => {
             e.preventDefault();
             const id = permsModal.dataset.editingUserId;
+
             const payload = {
                 verDashboard: getChecked('dashboard_access'), editarDashboard: false,
                 verAcoes: getChecked('acoes_access'), editarAcoes: getChecked('acoes_edit'),
@@ -327,11 +351,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 verFinanceiro: getChecked('financeiro_access'), editarFinanceiro: getChecked('financeiro_edit'),
                 verConfiguracoes: getChecked('configuracoes_access'), editarConfiguracoes: false
             };
+
             fetch(`${API_BASE}/${id}/permissoes`, {
                 method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload)
             }).then(r => {
-                if(!r.ok) throw new Error(); alert("✅ Permissões salvas!"); permsModal.style.display = "none"; carregarUsuarios();
-            }).catch(() => alert("Erro ao salvar."));
+                if(!r.ok) throw new Error();
+                alert("✅ Permissões salvas com sucesso!");
+                permsModal.style.display = "none";
+                carregarUsuarios();
+            }).catch(() => alert("Erro ao salvar permissões."));
         };
     }
 
@@ -340,7 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     window.onclick = (e) => { if (e.target === permsModal) permsModal.style.display = "none"; };
 
-    // =================== SENHA (VALIDAÇÃO BACKEND) ===================
+    // =================== SENHA ===================
     const segForm = document.getElementById("segurancaForm");
 
     function carregarDadosSeguranca() {
@@ -362,7 +390,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if(!id) { alert("Erro de sessão. Recarregue a página."); return; }
             if(!atual) { alert("Digite sua senha atual."); return; }
-            if(!nova) { alert("Digite a nova senha."); return; }
             if(nova !== conf) { alert("As senhas não conferem!"); return; }
 
             const url = `${API_BASE}/${id}/senha?senhaAtual=${encodeURIComponent(atual)}&novaSenha=${encodeURIComponent(nova)}`;
