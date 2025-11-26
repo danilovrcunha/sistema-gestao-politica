@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // ============================================================
-    // 1. SELETORES DE ELEMENTOS
+    // SELETORES DE ELEMENTOS
     // ============================================================
     const form = document.getElementById('registroForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnRemovePreview = document.getElementById('btnRemovePreview');
 
     // ============================================================
-    // 2. LÓGICA DE UPLOAD, PREVIEW E REMOÇÃO
+    // LÓGICA DE UPLOAD, PREVIEW E REMOÇÃO
     // ============================================================
 
     // Clique na área tracejada abre a janela de arquivos
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================================
-    // 3. LÓGICA DE BUSCA DE CEP (ViaCEP)
+    // LÓGICA DE BUSCA DE CEP (ViaCEP)
     // ============================================================
 
     // Máscara simples para o CEP (00000-000)
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================================
-    // 4. ENVIO DO FORMULÁRIO (COM INJEÇÃO DE GABINETE ID)
+    // ENVIO DO FORMULÁRIO
     // ============================================================
     submitBtn.addEventListener('click', async (e) => {
         e.preventDefault();

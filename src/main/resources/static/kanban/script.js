@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let draggedItem = null;
 
     // =========================================================================
-    // 1. GESTÃO DE PERMISSÕES E ROLES
+    // GESTÃO DE PERMISSÕES E ROLES
     // =========================================================================
 
     // Ajusta parâmetros de URL para Super Admins (filtro de gabinete)
@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("permissoesCarregadas", aplicarSegurancaKanban);
 
     // =========================================================================
-    // 2. LÓGICA DE NEGÓCIO E API
+    // LÓGICA DE NEGÓCIO E API
     // =========================================================================
 
     // Mapeamento: Frontend ID -> Backend Enum
@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================================================================
-    // 3. HANDLERS DE DRAG & DROP
+    // HANDLERS DE DRAG & DROP
     // =========================================================================
 
     // Configuração dos Cards (Draggables)
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // =========================================================================
-    // 4. EVENT LISTENERS AUXILIARES
+    // EVENT LISTENERS AUXILIARES
     // =========================================================================
 
     document.querySelectorAll(".delete-task-btn").forEach(btn => {

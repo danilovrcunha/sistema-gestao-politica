@@ -21,7 +21,6 @@ public class KanbanController {
     @Autowired
     private TarefaRepository tarefaRepository;
 
-    // --- ÚNICO MÉTODO GET PARA /kanban ---
     @GetMapping("/kanban")
     public String exibirKanban(Model model, @RequestParam(required = false) Long gabineteId) {
         MeuUserDetails user = (MeuUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -30,15 +29,18 @@ public class KanbanController {
 
         if (user.getGabineteId() == null) { // Super Admin
             if (gabineteId != null) {
+                // FILTRA pelo ID da URL
                 tarefas = tarefaRepository.findByGabineteId(gabineteId);
             } else {
+                // SEM FILTRO: Mostra tudo (Comportamento padrão se clicar no menu sem JS ter atuado)
                 tarefas = tarefaRepository.findAll();
             }
         } else {
-            // Admin ou User Comum: Vê apenas do seu gabinete
+            // Admin Comum: Vê só o seu
             tarefas = tarefaRepository.findByGabineteId(user.getGabineteId());
         }
 
+        // Filtragem por status
         List<Tarefa> tarefasAFazer = tarefas.stream().filter(t -> t.getStatus() == StatusTarefa.A_FAZER).collect(Collectors.toList());
         List<Tarefa> tarefasEmAndamento = tarefas.stream().filter(t -> t.getStatus() == StatusTarefa.EM_ANDAMENTO).collect(Collectors.toList());
         List<Tarefa> tarefasConcluidas = tarefas.stream().filter(t -> t.getStatus() == StatusTarefa.CONCLUIDO).collect(Collectors.toList());
@@ -50,25 +52,21 @@ public class KanbanController {
         return "kanban/kanban";
     }
 
+    // ... Mantenha os métodos PUT e DELETE abaixo (já enviados anteriormente) ...
     @PutMapping("/tarefas/{id}/status")
     @ResponseBody
     public ResponseEntity<String> atualizarStatus(@PathVariable Long id, @RequestParam("novoStatus") String novoStatus) {
         MeuUserDetails user = (MeuUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Tarefa tarefa = tarefaRepository.findById(id).orElse(null);
-
         if (tarefa == null) return ResponseEntity.notFound().build();
-
         if (user.getGabineteId() != null && !tarefa.getGabinete().getId().equals(user.getGabineteId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Não pode alterar tarefa de outro gabinete");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso negado.");
         }
-
         try {
             tarefa.setStatus(StatusTarefa.valueOf(novoStatus));
             tarefaRepository.save(tarefa);
-            return ResponseEntity.ok("Status atualizado com sucesso!");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Status inválido.");
-        }
+            return ResponseEntity.ok("Atualizado");
+        } catch (Exception e) { return ResponseEntity.badRequest().body("Erro"); }
     }
 
     @DeleteMapping("/tarefas/{id}")
@@ -76,18 +74,11 @@ public class KanbanController {
     public ResponseEntity<String> excluirTarefa(@PathVariable Long id) {
         MeuUserDetails user = (MeuUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Tarefa tarefa = tarefaRepository.findById(id).orElse(null);
-
         if (tarefa == null) return ResponseEntity.notFound().build();
-
         if (user.getGabineteId() != null && !tarefa.getGabinete().getId().equals(user.getGabineteId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Não pode excluir tarefa de outro gabinete");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acesso negado.");
         }
-
-        try {
-            tarefaRepository.delete(tarefa);
-            return ResponseEntity.ok("Tarefa excluída com sucesso!");
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Erro ao excluir a tarefa.");
-        }
+        tarefaRepository.delete(tarefa);
+        return ResponseEntity.ok("Deletado");
     }
 }

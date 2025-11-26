@@ -1,6 +1,4 @@
-// =======================================================
-// === 5. ASSISTENTE I.A.
-// =======================================================
+
 const assistantToggleBtn = document.getElementById('assistant-toggle-btn');
 const chatPanel = document.getElementById('assistantChatPanel');
 const closeChatBtn = document.getElementById('closeChatBtn');

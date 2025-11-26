@@ -21,14 +21,18 @@ public class TarefaController {
         return (MeuUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
+    // === MÉTODO CENTRAL DE FILTRO ===
     private List<Tarefa> getTarefasFiltradas(Long gabineteIdExterno) {
         MeuUserDetails user = getUsuarioLogado();
-        if (user.getGabineteId() == null) {
+
+        if (user.getGabineteId() == null) { // Super Admin
             if (gabineteIdExterno != null) {
                 return tarefaRepository.findByGabineteId(gabineteIdExterno);
             }
             return tarefaRepository.findAll();
         }
+
+        // Admin Comum
         return tarefaRepository.findByGabineteId(user.getGabineteId());
     }
 
@@ -36,39 +40,26 @@ public class TarefaController {
 
     @GetMapping("/responsaveis")
     public List<ResponsavelResumo> getResponsaveis(@RequestParam(required = false) Long gabineteId) {
-        List<Tarefa> todas = getTarefasFiltradas(gabineteId);
+        List<Tarefa> todas = getTarefasFiltradas(gabineteId); // <--- Usa o filtro
 
-        // Mapa: Chave = Nome (Ativo ou Histórico), Valor = Contagem
-        Map<String, Long> contagemPorNome = new HashMap<>();
-        // Mapa auxiliar para guardar IDs se existirem
-        Map<String, Long> idMap = new HashMap<>();
-
-        for (Tarefa t : todas) {
-            String nome;
-            Long id = -1L; // ID padrão para usuários excluídos
-
-            if (t.getResponsavel() != null) {
-                nome = t.getResponsavel().getNome();
-                id = t.getResponsavel().getId();
-            } else if (t.getNomeHistorico() != null) {
-                nome = t.getNomeHistorico();
-            } else {
-                nome = "Sem Responsável";
-            }
-
-            contagemPorNome.put(nome, contagemPorNome.getOrDefault(nome, 0L) + 1);
-            if (id != -1L) idMap.put(nome, id);
-        }
+        Map<Long, Long> contagem = todas.stream()
+                .filter(t -> t.getResponsavel() != null)
+                .collect(Collectors.groupingBy(t -> t.getResponsavel().getId(), Collectors.counting()));
 
         List<ResponsavelResumo> lista = new ArrayList<>();
-        long fakeId = 9900;
-
-        for (Map.Entry<String, Long> entry : contagemPorNome.entrySet()) {
-            Long idFinal = idMap.getOrDefault(entry.getKey(), fakeId++);
-            lista.add(new ResponsavelResumo(idFinal, entry.getKey(), entry.getValue()));
+        for (Map.Entry<Long, Long> e : contagem.entrySet()) {
+            String nome = todas.stream()
+                    .filter(t -> t.getResponsavel() != null && t.getResponsavel().getId().equals(e.getKey()))
+                    .map(t -> t.getResponsavel().getNome())
+                    .findFirst().orElse("Desconhecido");
+            lista.add(new ResponsavelResumo(e.getKey(), nome, e.getValue()));
         }
 
-        lista.sort(Comparator.comparing(ResponsavelResumo::qtd).reversed().thenComparing(ResponsavelResumo::nome));
+        // Adiciona tarefas sem responsável
+        long semDono = todas.stream().filter(t -> t.getResponsavel() == null).count();
+        if (semDono > 0) lista.add(new ResponsavelResumo(-1L, "Sem Responsável", semDono));
+
+        lista.sort(Comparator.comparing(ResponsavelResumo::qtd).reversed());
         return lista;
     }
 
@@ -76,18 +67,11 @@ public class TarefaController {
     public Map<String, Long> getStatus(@RequestParam(required = false) Long responsavelId,
                                        @RequestParam(required = false) Long gabineteId) {
 
-        List<Tarefa> base = getTarefasFiltradas(gabineteId);
+        List<Tarefa> base = getTarefasFiltradas(gabineteId); // <--- Usa o filtro
 
         if (responsavelId != null) {
-            // Se o ID for maior que 9000 (fakeId) ou -1, é usuário excluído/sem dono.
-            // Filtramos por aqueles sem responsável.
-            if (responsavelId == -1L || responsavelId >= 9900) {
-                base = base.stream().filter(t -> t.getResponsavel() == null).toList();
-            } else {
-                base = base.stream()
-                        .filter(t -> t.getResponsavel() != null && t.getResponsavel().getId().equals(responsavelId))
-                        .toList();
-            }
+            if(responsavelId == -1L) base = base.stream().filter(t -> t.getResponsavel() == null).toList();
+            else base = base.stream().filter(t -> t.getResponsavel() != null && t.getResponsavel().getId().equals(responsavelId)).toList();
         }
 
         Map<String, Long> result = new HashMap<>();
@@ -107,16 +91,11 @@ public class TarefaController {
         Map<String, Long> aFazer = new LinkedHashMap<>();
         meses.forEach(m -> { emAndamento.put(m, 0L); concluidas.put(m, 0L); aFazer.put(m, 0L); });
 
-        List<Tarefa> base = getTarefasFiltradas(gabineteId);
+        List<Tarefa> base = getTarefasFiltradas(gabineteId); // <--- Usa o filtro
 
         if (responsavelId != null) {
-            if (responsavelId == -1L || responsavelId >= 9900) {
-                base = base.stream().filter(t -> t.getResponsavel() == null).toList();
-            } else {
-                base = base.stream()
-                        .filter(t -> t.getResponsavel() != null && t.getResponsavel().getId().equals(responsavelId))
-                        .toList();
-            }
+            if(responsavelId == -1L) base = base.stream().filter(t -> t.getResponsavel() == null).toList();
+            else base = base.stream().filter(t -> t.getResponsavel() != null && t.getResponsavel().getId().equals(responsavelId)).toList();
         }
 
         for (Tarefa t : base) {

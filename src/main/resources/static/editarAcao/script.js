@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Variável de controle para deletar a imagem
     let removerImagemFlag = false;
 
-    // 1. Identificar ID da Ação
+    // Identificar ID da Ação
     let ACAO_ID = window.ACAO_ID;
     if (!ACAO_ID) {
         const parts = window.location.pathname.split('/');
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // 2. Carregar Dados Iniciais (GET)
+    // Carregar Dados Iniciais (GET)
     fetch(`/api/acoes/${ACAO_ID}`)
         .then(res => {
             if (!res.ok) throw new Error('Falha ao buscar dados.');
@@ -56,8 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Lógica de Imagem Existente
             if (data.imagem) {
-                // Ajuste o caminho conforme sua configuração de pasta (ex: /uploads/)
-                // Se o backend já manda o caminho completo, use data.imagem direto
                 currentImage.src = `/uploads/${data.imagem}`;
                 currentImageContainer.style.display = 'block';
                 fileNameDisplay.textContent = 'Alterar Imagem (Substituir atual)';
@@ -68,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Erro ao carregar dados.');
         });
 
-    // 3. Lógica de Busca de CEP (Igual ao registro)
+    // Lógica de Busca de CEP (Igual ao registro)
     cepInput.addEventListener('input', (e) => {
         let val = e.target.value.replace(/\D/g, '');
         if (val.length > 5) val = val.replace(/^(\d{5})(\d)/, '$1-$2');
@@ -96,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error(e); }
     });
 
-    // 4. Lógica de Remover Imagem Existente
+    // Lógica de Remover Imagem Existente
     btnRemoveExisting.addEventListener('click', (e) => {
         e.preventDefault();
         if (confirm('Deseja remover a imagem atual desta ação?')) {
@@ -107,12 +105,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 5. Preview de Nova Imagem
+    // Preview de Nova Imagem
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Se usuario seleciona nova foto, cancelamos a flag de remover
-            // (pois a nova vai substituir a velha de qualquer jeito)
+            // Se usuario seleciona nova foto, cancela a flag de remover
             removerImagemFlag = false;
             currentImageContainer.style.display = 'none'; // Esconde a velha para mostrar a nova
 
@@ -127,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 6. Salvar Alterações (PUT)
+    // Salvar Alterações (PUT)
     submitBtn.addEventListener('click', async () => {
         if (!form.checkValidity()) {
             form.reportValidity();

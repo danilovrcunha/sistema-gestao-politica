@@ -30,9 +30,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // =================== SEGURANÇA VISUAL ===================
     function aplicarSegurancaDash() {
         if (window.podeEditar && !window.podeEditar("editarDashboard")) {
-            // Se houver botões de edição no dashboard futuro, esconda aqui.
-            // Ex: const editBtns = document.querySelectorAll('.btn-edit');
-            // editBtns.forEach(btn => btn.style.display = 'none');
         }
     }
     // Aguarda permissões

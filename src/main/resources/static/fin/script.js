@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // ============================================================
-    // 1. SELETORES (ORIGINAIS + NOVOS)
+    // SELETORES
     // ============================================================
     const registroForm = document.getElementById('registroFinanceiroForm');
     const valorDespesaInput = document.getElementById('valorDespesa');
@@ -8,16 +8,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const salvarBtn = document.querySelector('.salvar-btn');
     const acordeaoHeaders = document.querySelectorAll('.acordeao-header');
 
-    // Novos seletores de filtro
+    // seletores de filtro
     const btnFiltrarMes = document.getElementById('btnFiltrarMes');
     const btnLimparFiltro = document.getElementById('btnLimparFiltro');
     const filtroMesInput = document.getElementById('filtroMesInput');
 
     // ============================================================
-    // 2. NOVAS FUNÇÕES (SEGURANÇA E FILTRO)
+    // FUNÇÕES (SEGURANÇA E FILTRO)
     // ============================================================
 
-    // A. Injeta ID do Gabinete (Super Admin)
+    // Injeta ID do Gabinete (Super Admin)
     function injetarGabineteId() {
         const role = localStorage.getItem("userRole");
         const filtroId = localStorage.getItem("superAdminGabineteFilter");
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     injetarGabineteId();
 
-    // B. Aplica Permissões (Bloqueia Edição)
+    // Aplica Permissões (Bloqueia Edição)
     function aplicarSegurancaFinanceiro() {
         if (window.podeEditar && !window.podeEditar("editarFinanceiro")) {
             console.log("🔒 Modo Leitura: Financeiro");
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (localStorage.getItem("userRole")) aplicarSegurancaFinanceiro();
     document.addEventListener("permissoesCarregadas", aplicarSegurancaFinanceiro);
 
-    // C. Lógica de Filtro por Mês
+    // Lógica de Filtro por Mês
     if (btnFiltrarMes) {
         btnFiltrarMes.addEventListener('click', () => {
             const mes = filtroMesInput.value;
@@ -71,10 +71,6 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.search = urlParams.toString();
         });
     }
-
-    // ============================================================
-    // 3. SEU CÓDIGO ORIGINAL (MANTIDO)
-    // ============================================================
 
     // --- MÁSCARA MONETÁRIA ---
     if (valorDespesaInput) {
@@ -212,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ============================================================
-// 4. FUNÇÃO GLOBAL DE EXCLUSÃO (Fora do DOMContentLoaded)
+// FUNÇÃO GLOBAL DE EXCLUSÃO
 // ============================================================
 window.deletarFinanceiro = function(id) {
     if (window.podeEditar && !window.podeEditar("editarFinanceiro")) {

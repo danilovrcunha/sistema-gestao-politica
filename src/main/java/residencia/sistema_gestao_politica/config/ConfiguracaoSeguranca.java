@@ -24,49 +24,40 @@ public class ConfiguracaoSeguranca {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/global/**").permitAll()
 
-                        // ======================================================================
-                        // 1. LIBERAÇÃO DE ESTILOS E SCRIPTS (SEM CAUSAR ERRO 500)
-                        // ======================================================================
-                        // Liberamos explicitamente arquivos .css e .js dentro de cada pasta.
-                        // O uso de *.css é seguro e não quebra o Spring Boot.
-
-                        .requestMatchers("/financeiro/*.css", "/financeiro/*.js").permitAll()
-                        .requestMatchers("/kanban/*.css", "/kanban/*.js").permitAll()
-                        .requestMatchers("/acoes/*.css", "/acoes/*.js").permitAll()
-                        .requestMatchers("/configuracoes/*.css", "/configuracoes/*.js").permitAll()
-                        .requestMatchers("/registrarAcoes/*.css", "/registrarAcoes/*.js").permitAll()
-                        .requestMatchers("/editarAcao/*.css", "/editarAcao/*.js").permitAll()
-                        .requestMatchers("/acoesRegistradas/*.css", "/acoesRegistradas/*.js").permitAll()
-                        .requestMatchers("/criarTarefa/*.css", "/criarTarefa/*.js").permitAll()
-                        .requestMatchers("/home/*.css", "/home/*.js").permitAll()
-
-                        // Libera pastas globais (caso você use no futuro)
+                        // Libera pastas padrões do Spring Boot
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
-                        .requestMatchers("/AssistenteIA/**").permitAll() // Libera o assistente se estiver numa pasta
 
-                        // 2. LIBERAÇÃO DO LOGIN
+                        // Libera o Assistente IA
+                        .requestMatchers("/AssistenteIA/**").permitAll()
+
+                        .requestMatchers("/financeiro/*.js").permitAll()
+                        .requestMatchers("/kanban/*.js").permitAll()
+                        .requestMatchers("/acoes/*.js").permitAll()
+                        .requestMatchers("/configuracoes/*.js").permitAll()
+                        .requestMatchers("/registrarAcoes/*.js").permitAll()
+                        .requestMatchers("/editarAcao/*.js").permitAll()
+                        .requestMatchers("/acoesRegistradas/*.js").permitAll()
+                        .requestMatchers("/criarTarefa/*.js").permitAll()
+                        .requestMatchers("/home/*.js").permitAll()
+
                         .requestMatchers("/login/**", "/login", "/login/login.html").permitAll()
 
-                        // ======================================================================
-                        // 3. REGRAS DE NEGÓCIO (CONTROLLERS)
-                        // ======================================================================
 
                         .requestMatchers(HttpMethod.GET, "/usuarios/me").authenticated()
 
-                        // Admins
+                        // Regras de Admin
                         .requestMatchers(HttpMethod.GET, "/usuarios").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/usuarios/tipos").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/usuarios").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/usuarios/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*/senha").authenticated()
 
-                        // Super Admin
+                        // Regras de Super Admin
                         .requestMatchers("/gabinetes/**").hasRole("SUPER_ADMIN")
 
-                        // Páginas do Sistema
-                        // (Aqui o Spring vai diferenciar a página "/financeiro" do arquivo "/financeiro/style.css"
-                        //  porque a regra do .css veio ANTES lá em cima com permitAll)
+                        // Páginas do Sistema (Views)
                         .requestMatchers(
                                 "/home/**",
                                 "/acoes/**", "/registrarAcoes/**", "/acoesRegistradas/**", "/editarAcao/**",

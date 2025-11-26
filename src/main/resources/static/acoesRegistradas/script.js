@@ -1,13 +1,13 @@
 console.log('[Ações Registradas] Script carregado.');
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Verifica e esconde o botão de "Registrar" imediatamente (Segurança Visual)
+    // Verifica e esconde o botão de "Registrar" imediatamente (Segurança Visual)
     verificarBotaoNovo();
 
-    // 2. Carrega a tabela
+    // Carrega a tabela
     carregarTabela();
 
-    // 3. Eventos dos Filtros (NOVO)
+    //  Eventos dos Filtros (NOVO)
     const btnFiltrar = document.getElementById('btnFiltrar');
     const btnLimpar = document.getElementById('btnLimpar');
 
@@ -28,12 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Função auxiliar para verificar permissão de forma SEGURA e RÁPIDA
 function usuarioPodeEditar() {
-    // 1. Tenta usar a função global se ela já existir
+    // Tenta usar a função global se ela já existir
     if (typeof window.podeEditar === 'function') {
         return window.podeEditar('editarAcoes');
     }
 
-    // 2. Fallback: Se a global não carregou, verifica direto no localStorage
+    // Fallback: Se a global não carregou, verifica direto no localStorage
     const role = localStorage.getItem("userRole");
     if (role === 'ADMIN' || role === 'SUPER_ADMIN') return true;
 
@@ -63,7 +63,7 @@ async function carregarTabela() {
 
     try {
         // =================== MONTAGEM DA URL COM FILTROS ===================
-        // 1. Inicia a URL base
+        // Inicia a URL base
         let url = new URL(window.location.origin + '/api/acoes');
 
         // 2. Filtro do Super Admin (Gabinete)
@@ -74,7 +74,7 @@ async function carregarTabela() {
             console.log("🔎 Filtrando ações pelo Gabinete ID:", filtroId);
         }
 
-        // 3. Filtros da Tela (Bairro e Mês) - NOVO
+        // 3. Filtros da Tela (Bairro e Mês)
         const bairroVal = document.getElementById('filtroBairro')?.value;
         const mesVal = document.getElementById('filtroMes')?.value;
 

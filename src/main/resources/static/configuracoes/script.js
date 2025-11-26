@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         administracao: "Gerencie usuários e permissões do sistema",
     };
 
-    // =================== 1. CONTROLE DE ABAS (CORRIGIDO) ===================
+    // =================== CONTROLE DE ABAS ===================
     function aplicarRestricoesDeAbas() {
         const role = localStorage.getItem("userRole");
         // Se for Admin/Super, não faz nada (deixa cadastro aberto)
@@ -45,20 +45,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log("🔒 Modo Usuário: Forçando aba Segurança.");
 
-        // 1. Esconde botões das abas proibidas
+        // Esconde botões das abas proibidas
         const btnCadastro = document.querySelector('.tab-button[data-tab="cadastro"]');
         const btnAdmin = document.querySelector('.tab-button[data-tab="administracao"]');
 
         if (btnCadastro) btnCadastro.style.display = 'none';
         if (btnAdmin) btnAdmin.style.display = 'none';
 
-        // 2. REMOVE ACTIVE DAS ABAS PROIBIDAS (AQUI ESTAVA O ERRO)
+        // REMOVE ACTIVE DAS ABAS PROIBIDAS (AQUI ESTAVA O ERRO)
         // O HTML vem com "active" no cadastro, precisamos tirar na força
         if (btnCadastro) btnCadastro.classList.remove("active");
         const paneCadastro = document.getElementById("cadastro");
         if (paneCadastro) paneCadastro.classList.remove("active");
 
-        // 3. FORÇA ACTIVE NA ABA SEGURANÇA
+        //  FORÇA ACTIVE NA ABA SEGURANÇA
         const btnSeguranca = document.querySelector('.tab-button[data-tab="seguranca"]');
         const paneSeguranca = document.getElementById("seguranca");
 

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!window.L) return;
 
-    // 1. CONFIGURAÇÃO DO MAPA
+    // CONFIGURAÇÃO DO MAPA
     // Limites do Brasil para evitar navegar para o oceano ou Europa
     const brazilBounds = [[5.5, -76.0], [-34.0, -32.0]];
 
@@ -97,14 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Gera os pontos espalhados ao redor do centro
                     const pontosDispersos = gerarPontosDispersos(centro.lat, centro.lng, g.count);
 
-                    // 1. Adiciona ao Array do Mapa de Calor (Visual)
+                    // Adiciona ao Array do Mapa de Calor
                     pontosDispersos.forEach(p => {
                         pontosHeatMap.push([p.lat, p.lng, p.intensity]);
                     });
 
-                    // 2. Adiciona Marcadores Invisíveis para CLIQUE (Interatividade)
-                    // Criamos um marcador transparente no centro da mancha
-                    // para que o usuário possa clicar e ver os dados.
+                    // 2. Adiciona Marcadores Invisíveis para clique
 
                     let msgPrecisao = '';
                     if (geo.precisao === 'bairro') msgPrecisao = '<br><small style="color:orange">(Centro do Bairro)</small>';
@@ -197,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.from(m.values());
     }
 
-    // =================== GEOCODIFICAÇÃO INTELIGENTE (V12) ===================
+    // =================== GEOCODIFICAÇÃO INTELIGENTE ===================
     function extrairNucleoNome(logradouro) {
         if (!logradouro) return "";
         let limpo = logradouro.split(' - ')[0].trim();
