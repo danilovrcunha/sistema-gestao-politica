@@ -1,52 +1,57 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Referências do DOM
     const taskLists = document.querySelectorAll(".task-list");
+    const cards = document.querySelectorAll(".task-card");
     let draggedItem = null;
 
-    // =================== NOVO: AJUSTAR LINK "NOVA TAREFA" (SUPER ADMIN) ===================
+    // =========================================================================
+    // 1. GESTÃO DE PERMISSÕES E ROLES
+    // =========================================================================
+
+    // Ajusta parâmetros de URL para Super Admins (filtro de gabinete)
     function ajustarLinkNovaTarefa() {
         const role = localStorage.getItem("userRole");
         const filtroId = localStorage.getItem("superAdminGabineteFilter");
-        const btnNova = document.querySelector('.new-task-btn'); // Botão no HTML
+        const btnNova = document.querySelector('.new-task-btn');
 
         if (btnNova && role === "SUPER_ADMIN" && filtroId) {
-            // Altera o link para já levar o ID do gabinete na URL (ex: /criarTarefa?gabineteId=5)
             btnNova.href = `/criarTarefa?gabineteId=${filtroId}`;
-            console.log("🔗 Link 'Nova Tarefa' ajustado para filtro:", filtroId);
         }
     }
-    // Chama imediatamente ao carregar
-    ajustarLinkNovaTarefa();
 
-
-    // =================== SEGURANÇA E EDIÇÃO ===================
+    // Aplica restrições de interface (Modo Leitura)
     function aplicarSegurancaKanban() {
-        // Verifica se a função existe e se a permissão é falsa
         if (window.podeEditar && !window.podeEditar("editarKanban")) {
-            console.log("🔒 Modo Leitura: Kanban");
+            console.info("Kanban: Modo leitura ativo.");
 
-            // 1. Remove botão "Nova Tarefa"
+            // Remove controles de criação
             const btnNova = document.querySelector(".new-task-btn");
             if (btnNova) btnNova.style.display = "none";
 
-            // 2. Remove botões de lixeira dos cards já renderizados
+            // Remove controles de exclusão
             document.querySelectorAll(".delete-task-btn").forEach(btn => btn.remove());
 
-            // 3. Trava Drag & Drop visualmente
+            // Desabilita interações de drag & drop
             document.querySelectorAll(".task-card").forEach(card => {
                 card.setAttribute("draggable", "false");
                 card.style.cursor = "default";
+                card.classList.add("locked");
             });
         }
     }
 
-    // Espera as permissões carregarem ou executa se já tiver em cache
+    // Inicialização de segurança
+    ajustarLinkNovaTarefa();
     if (localStorage.getItem("userRole")) aplicarSegurancaKanban();
     document.addEventListener("permissoesCarregadas", aplicarSegurancaKanban);
 
+    // =========================================================================
+    // 2. LÓGICA DE NEGÓCIO E API
+    // =========================================================================
 
-    // =================== LÓGICA KANBAN ===================
-    function mapearStatus(coluna) {
-        switch (coluna) {
+    // Mapeamento: Frontend ID -> Backend Enum
+    function mapearStatus(colunaStatus) {
+        switch (colunaStatus) {
             case "todo": return "A_FAZER";
             case "in-progress": return "EM_ANDAMENTO";
             case "done": return "CONCLUIDO";
@@ -54,80 +59,123 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Persistência de mudança de status
     function atualizarStatusNoBanco(id, novoStatus) {
-        // Bloqueio de segurança
         if (window.podeEditar && !window.podeEditar("editarKanban")) return;
 
         fetch(`/tarefas/${id}/status?novoStatus=${novoStatus}`, { method: "PUT" })
-            .then(r => { if (!r.ok) throw new Error(); })
-            .catch(() => alert("Erro ao atualizar status."));
+            .then(response => {
+                if (!response.ok) throw new Error("Erro na resposta da API");
+            })
+            .catch(error => {
+                console.error("Falha ao atualizar status:", error);
+                alert("Erro de sincronização. Verifique sua conexão.");
+            });
     }
 
+    // Exclusão de registros
     function excluirTarefa(id, card) {
-        // Bloqueio de segurança
         if (window.podeEditar && !window.podeEditar("editarKanban")) {
-            alert("Sem permissão para excluir.");
+            alert("Ação não permitida.");
             return;
         }
-        if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+
+        if (confirm("Confirma a exclusão permanente desta tarefa?")) {
             fetch(`/tarefas/${id}`, { method: "DELETE" })
-                .then(r => {
-                    if (!r.ok) throw new Error();
+                .then(response => {
+                    if (!response.ok) throw new Error();
                     card.remove();
+                    atualizarContadores();
                 })
-                .catch(() => alert("Erro ao excluir."));
+                .catch(() => alert("Falha ao excluir tarefa."));
         }
     }
 
-    // Drag & Drop Events
-    document.querySelectorAll(".task-card").forEach(card => {
-        card.addEventListener("dragstart", e => {
-            // Bloqueio final de segurança ao tentar arrastar
+    // Atualização dos contadores de coluna na UI
+    function atualizarContadores() {
+        taskLists.forEach(list => {
+            const count = list.children.length;
+            const headerCount = list.parentElement.querySelector(".task-count");
+            if (headerCount) headerCount.innerText = count;
+        });
+    }
+
+    // =========================================================================
+    // 3. HANDLERS DE DRAG & DROP
+    // =========================================================================
+
+    // Configuração dos Cards (Draggables)
+    cards.forEach(card => {
+        card.addEventListener("dragstart", (e) => {
             if (window.podeEditar && !window.podeEditar("editarKanban")) {
                 e.preventDefault();
                 return false;
             }
-            draggedItem = e.target;
-            e.target.style.opacity = "0.5";
+
+            draggedItem = card;
+
+            // Timeout para garantir renderização correta da imagem de arraste
+            setTimeout(() => {
+                card.style.opacity = "0.5";
+                card.classList.add("dragging");
+            }, 0);
         });
 
-        card.addEventListener("dragend", e => {
-            e.target.style.opacity = "1";
-            draggedItem = null;
+        card.addEventListener("dragend", () => {
+            if (draggedItem) {
+                draggedItem.style.opacity = "1";
+                draggedItem.classList.remove("dragging");
+                draggedItem = null;
+            }
+
+            // Limpeza visual
+            taskLists.forEach(list => list.style.backgroundColor = "");
         });
     });
 
+    // Configuração das Colunas (Dropzones)
     taskLists.forEach(list => {
-        list.addEventListener("dragover", e => {
+        list.addEventListener("dragover", (e) => {
+            e.preventDefault(); // Necessário para permitir o drop
+
             if (window.podeEditar && !window.podeEditar("editarKanban")) return;
-            e.preventDefault();
-            list.style.backgroundColor = "#e9ecef";
+
+            list.style.backgroundColor = "rgba(0, 0, 0, 0.03)";
         });
 
         list.addEventListener("dragleave", () => {
             list.style.backgroundColor = "";
         });
 
-        list.addEventListener("drop", e => {
+        list.addEventListener("drop", (e) => {
             e.preventDefault();
             list.style.backgroundColor = "";
 
-            // Verifica se pode editar antes de mover no DOM
-            if (draggedItem && window.podeEditar && window.podeEditar("editarKanban")) {
+            if (draggedItem) {
+                // Manipulação do DOM
                 list.appendChild(draggedItem);
+
+                // Preparação de dados para API
                 const tarefaId = draggedItem.getAttribute("data-id");
-                const novoStatus = mapearStatus(list.getAttribute("data-status"));
-                atualizarStatusNoBanco(tarefaId, novoStatus);
+                const colunaStatus = list.getAttribute("data-status");
+                const novoStatusBackend = mapearStatus(colunaStatus);
+
+                atualizarStatusNoBanco(tarefaId, novoStatusBackend);
+                atualizarContadores();
             }
         });
     });
 
-    // Botões de Exclusão
+    // =========================================================================
+    // 4. EVENT LISTENERS AUXILIARES
+    // =========================================================================
+
     document.querySelectorAll(".delete-task-btn").forEach(btn => {
-        btn.addEventListener("click", e => {
-            e.stopPropagation();
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation(); // Previne disparo de eventos no card pai
             const card = e.target.closest(".task-card");
-            excluirTarefa(card.getAttribute("data-id"), card);
+            const id = card.getAttribute("data-id");
+            excluirTarefa(id, card);
         });
     });
 });
