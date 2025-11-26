@@ -16,51 +16,78 @@ public class ConfiguracaoSeguranca {
 
     @Bean
     public PasswordEncoder codificadorDeSenha() {
-        // --- MUDANÇA IMPORTANTE ---
-        // Trocamos de NoOpPasswordEncoder para BCryptPasswordEncoder.
-        // Isso é o padrão de segurança e o motivo de precisarmos de hashes.
         return new BCryptPasswordEncoder();
-        // --- FIM DA MUDANÇA ---
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Desativa CSRF
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Libera o login e arquivos estáticos
-                        .requestMatchers(
-                                "/login/**",
-                                "/login",
-                                "/css/**", "/js/**", "/images/**", "/webjars/**",
-                                "/login/login.html"
-                        ).permitAll()
 
-                        // Protege os endpoints de usuários
+                        // ======================================================================
+                        // 1. LIBERAÇÃO DE ESTILOS E SCRIPTS (SEM CAUSAR ERRO 500)
+                        // ======================================================================
+                        // Liberamos explicitamente arquivos .css e .js dentro de cada pasta.
+                        // O uso de *.css é seguro e não quebra o Spring Boot.
+
+                        .requestMatchers("/financeiro/*.css", "/financeiro/*.js").permitAll()
+                        .requestMatchers("/kanban/*.css", "/kanban/*.js").permitAll()
+                        .requestMatchers("/acoes/*.css", "/acoes/*.js").permitAll()
+                        .requestMatchers("/configuracoes/*.css", "/configuracoes/*.js").permitAll()
+                        .requestMatchers("/registrarAcoes/*.css", "/registrarAcoes/*.js").permitAll()
+                        .requestMatchers("/editarAcao/*.css", "/editarAcao/*.js").permitAll()
+                        .requestMatchers("/acoesRegistradas/*.css", "/acoesRegistradas/*.js").permitAll()
+                        .requestMatchers("/criarTarefa/*.css", "/criarTarefa/*.js").permitAll()
+                        .requestMatchers("/home/*.css", "/home/*.js").permitAll()
+
+                        // Libera pastas globais (caso você use no futuro)
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
+                        .requestMatchers("/AssistenteIA/**").permitAll() // Libera o assistente se estiver numa pasta
+
+                        // 2. LIBERAÇÃO DO LOGIN
+                        .requestMatchers("/login/**", "/login", "/login/login.html").permitAll()
+
+                        // ======================================================================
+                        // 3. REGRAS DE NEGÓCIO (CONTROLLERS)
+                        // ======================================================================
+
                         .requestMatchers(HttpMethod.GET, "/usuarios/me").authenticated()
+
+                        // Admins
                         .requestMatchers(HttpMethod.GET, "/usuarios").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.GET, "/usuarios/tipos").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.POST, "/usuarios").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/usuarios/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*/senha").authenticated()
+
+                        // Super Admin
                         .requestMatchers("/gabinetes/**").hasRole("SUPER_ADMIN")
-                        .requestMatchers("/home/**").authenticated()
-                        .requestMatchers("/acoes/**").authenticated()
-                        .requestMatchers("/kanban/**").authenticated()
-                        .requestMatchers("/financeiro/**").authenticated()
-                        .requestMatchers("/configuracoes/**").authenticated()
+
+                        // Páginas do Sistema
+                        // (Aqui o Spring vai diferenciar a página "/financeiro" do arquivo "/financeiro/style.css"
+                        //  porque a regra do .css veio ANTES lá em cima com permitAll)
+                        .requestMatchers(
+                                "/home/**",
+                                "/acoes/**", "/registrarAcoes/**", "/acoesRegistradas/**", "/editarAcao/**",
+                                "/kanban/**", "/criarTarefa/**",
+                                "/financeiro/**",
+                                "/configuracoes/**"
+                        ).authenticated()
+
+                        .requestMatchers("/api/**").authenticated()
 
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login/login.html") // Sua página de login
-                        .loginProcessingUrl("/login") // Endpoint que o Spring Security ouve
-                        .defaultSuccessUrl("/home", true) // Para onde vai após login
-                        .failureUrl("/login/login.html?error=true") // Para onde vai se errar
+                        .loginPage("/login/login.html")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login/login.html?error=true")
                         .permitAll()
                 )
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout")) // URL de logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/login/login.html?logout=true")
                         .permitAll()
                 );

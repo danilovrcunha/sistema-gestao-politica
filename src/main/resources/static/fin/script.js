@@ -1,38 +1,82 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // === SELETORES ===
+    // ============================================================
+    // 1. SELETORES (ORIGINAIS + NOVOS)
+    // ============================================================
     const registroForm = document.getElementById('registroFinanceiroForm');
     const valorDespesaInput = document.getElementById('valorDespesa');
     const exportBtn = document.querySelector('.export-btn');
     const salvarBtn = document.querySelector('.salvar-btn');
     const acordeaoHeaders = document.querySelectorAll('.acordeao-header');
 
-    // =======================================================
-    // === 0. SEGURANÇA (NOVO) ===
-    // =======================================================
+    // Novos seletores de filtro
+    const btnFiltrarMes = document.getElementById('btnFiltrarMes');
+    const btnLimparFiltro = document.getElementById('btnLimparFiltro');
+    const filtroMesInput = document.getElementById('filtroMesInput');
+
+    // ============================================================
+    // 2. NOVAS FUNÇÕES (SEGURANÇA E FILTRO)
+    // ============================================================
+
+    // A. Injeta ID do Gabinete (Super Admin)
+    function injetarGabineteId() {
+        const role = localStorage.getItem("userRole");
+        const filtroId = localStorage.getItem("superAdminGabineteFilter");
+
+        if (role === "SUPER_ADMIN" && filtroId) {
+            if (document.getElementById("gabineteIdHidden")) return;
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "gabineteIdSelecionado";
+            input.id = "gabineteIdHidden";
+            input.value = filtroId;
+            if (registroForm) registroForm.appendChild(input);
+        }
+    }
+    injetarGabineteId();
+
+    // B. Aplica Permissões (Bloqueia Edição)
     function aplicarSegurancaFinanceiro() {
-        // Verifica se a função global existe e checa permissão
         if (window.podeEditar && !window.podeEditar("editarFinanceiro")) {
             console.log("🔒 Modo Leitura: Financeiro");
 
-            // 1. Esconde botão "Salvar Informações"
             if (salvarBtn) salvarBtn.style.display = "none";
 
-            // 2. Desabilita os inputs para deixar claro que é só leitura
+            // Esconde botões de excluir do histórico
+            document.querySelectorAll('.btn-excluir-financa').forEach(btn => btn.style.display = 'none');
+
             const inputs = document.querySelectorAll("#registroFinanceiroForm input, #registroFinanceiroForm select, #registroFinanceiroForm textarea");
             inputs.forEach(i => i.disabled = true);
         }
     }
 
-    // Verifica permissões assim que o global.js avisar ou se já estiver em cache
-    if (localStorage.getItem("userRole")) {
-        aplicarSegurancaFinanceiro();
-    }
+    if (localStorage.getItem("userRole")) aplicarSegurancaFinanceiro();
     document.addEventListener("permissoesCarregadas", aplicarSegurancaFinanceiro);
 
+    // C. Lógica de Filtro por Mês
+    if (btnFiltrarMes) {
+        btnFiltrarMes.addEventListener('click', () => {
+            const mes = filtroMesInput.value;
+            if (!mes) { alert("Por favor, selecione um mês."); return; }
 
-    // =======================================================
-    // === 1. MÁSCARA MONETÁRIA (FORMATAÇÃO VISUAL)
-    // =======================================================
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('mes', mes);
+            window.location.search = urlParams.toString();
+        });
+    }
+
+    if (btnLimparFiltro) {
+        btnLimparFiltro.addEventListener('click', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.delete('mes');
+            window.location.search = urlParams.toString();
+        });
+    }
+
+    // ============================================================
+    // 3. SEU CÓDIGO ORIGINAL (MANTIDO)
+    // ============================================================
+
+    // --- MÁSCARA MONETÁRIA ---
     if (valorDespesaInput) {
         valorDespesaInput.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '');
@@ -55,16 +99,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // =======================================================
-    // === 2. CONVERSÃO ANTES DE ENVIAR AO BACK-END
-    // =======================================================
+    // --- BOTÃO SALVAR ---
     if (salvarBtn) {
         salvarBtn.addEventListener('click', (e) => {
             e.preventDefault();
 
-            // Bloqueio extra de segurança no clique
+            // Adicionei apenas essa verificação de segurança extra aqui
             if (window.podeEditar && !window.podeEditar("editarFinanceiro")) {
-                alert("Você não tem permissão para criar registros financeiros.");
+                alert("Sem permissão para salvar.");
                 return;
             }
 
@@ -73,7 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Converte de "R$ 1.234,56" -> "1234.56"
             const valor = valorDespesaInput.value
                 .replace(/[R$\s]/g, '')
                 .replace(/\./g, '')
@@ -84,16 +125,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // =======================================================
-    // === 3. EXPORTAÇÃO PARA CSV (UTF-8 + ACENTOS + #### FIX)
-    // =======================================================
-
-    // 🔹 Função auxiliar para limpar texto e manter acentos corretos
+    // --- EXPORTAÇÃO CSV ---
     function sanitizeCSVText(text) {
         if (!text) return '';
-        return text
-            .replace(/\u00A0/g, ' ')  // remove espaços invisíveis (Â)
-            .replace(/["]/g, '""');   // escapa aspas
+        return text.replace(/\u00A0/g, ' ').replace(/["]/g, '""');
     }
 
     function exportToCSV() {
@@ -111,21 +146,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const header = fields.map(f => `"${f.label}"`).join(';');
 
-        // Pega dados do formulário atual para exportar
         const dataRow = fields.map(f => {
             const input = document.getElementById(f.id);
             let value = input ? sanitizeCSVText(input.value) : '';
-            // Força o Excel a exibir tudo como texto (evita #####)
             return `"'${value}"'`;
         }).join(';');
 
-        // 🔹 Adiciona BOM UTF-8 para Excel reconhecer acentuação
         const bom = "\uFEFF";
-
-        // 🔹 Limpa possíveis caracteres invisíveis e garante UTF-8
         const cleanData = (header + '\n' + dataRow)
-            .replace(/\u00A0/g, ' ')  // remove non-breaking spaces
-            .replace(/R\$\s?/g, 'R$ ') // garante espaço após R$
+            .replace(/\u00A0/g, ' ')
+            .replace(/R\$\s?/g, 'R$ ')
             .trim();
 
         const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(bom + cleanData);
@@ -147,9 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // =======================================================
-    // === 4. ACORDEÃO (HISTÓRICO DE TRANSAÇÕES)
-    // =======================================================
+    // --- ACORDEÃO ---
     if (acordeaoHeaders.length > 0) {
         acordeaoHeaders.forEach(header => {
             header.addEventListener('click', function() {
@@ -165,7 +193,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     body.style.paddingTop = '15px';
                     body.style.paddingBottom = '15px';
                 }
-
                 closeOtherAcordeons(this);
             });
         });
@@ -183,3 +210,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+// ============================================================
+// 4. FUNÇÃO GLOBAL DE EXCLUSÃO (Fora do DOMContentLoaded)
+// ============================================================
+window.deletarFinanceiro = function(id) {
+    if (window.podeEditar && !window.podeEditar("editarFinanceiro")) {
+        alert("Acesso Negado: Você não tem permissão para excluir.");
+        return;
+    }
+
+    if (confirm("Tem certeza que deseja excluir este registro permanentemente?")) {
+        fetch(`/financeiro/${id}`, { method: 'DELETE' })
+            .then(async res => {
+                if (res.ok) {
+                    alert("✅ Registro excluído com sucesso!");
+                    window.location.reload();
+                } else {
+                    const txt = await res.text();
+                    alert("Erro ao excluir: " + txt);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erro de conexão.");
+            });
+    }
+};

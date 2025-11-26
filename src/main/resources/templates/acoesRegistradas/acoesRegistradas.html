@@ -47,6 +47,26 @@
         <section class="acoes-registradas-content">
             <div class="registration-info"></div>
 
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label for="filtroBairro">Bairro:</label>
+                    <input type="text" id="filtroBairro" placeholder="Digite o bairro...">
+                </div>
+
+                <div class="filter-group">
+                    <label for="filtroMes">Mês:</label>
+                    <input type="month" id="filtroMes">
+                </div>
+
+                <div class="filter-actions">
+                    <button id="btnFiltrar" class="action-btn filter-btn">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <button id="btnLimpar" class="action-btn clean-btn" title="Limpar Filtros">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
@@ -82,7 +102,6 @@
         </div>
     </main>
 </div>
-<!-- Assistente I.A. -->
 <div class="assistant-chat-panel" id="assistantChatPanel">
     <div class="chat-header">
         <h4>Assistente I.A.</h4>
@@ -102,6 +121,7 @@
         </button>
     </div>
 </div>
+<script src="/global/script.js"></script>
 <script src="/acoesRegistradas/script.js" defer></script>
 </body>
 </html>

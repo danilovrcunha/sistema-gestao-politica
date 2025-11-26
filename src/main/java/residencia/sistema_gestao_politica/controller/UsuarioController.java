@@ -9,9 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import residencia.sistema_gestao_politica.model.Gabinete;
 import residencia.sistema_gestao_politica.model.Permissao;
+import residencia.sistema_gestao_politica.model.Tarefa;
 import residencia.sistema_gestao_politica.model.Usuario;
 import residencia.sistema_gestao_politica.model.enums.TipoUsuario;
 import residencia.sistema_gestao_politica.repository.GabineteRepository;
+import residencia.sistema_gestao_politica.repository.TarefaRepository;
 import residencia.sistema_gestao_politica.repository.UsuarioRepository;
 import residencia.sistema_gestao_politica.service.MeuUserDetails;
 
@@ -31,9 +33,11 @@ public class UsuarioController {
     private GabineteRepository repositorioGabinete;
 
     @Autowired
+    private TarefaRepository tarefaRepository; // Necessário para buscar tarefas do usuário
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Helper para pegar o usuário logado do contexto de segurança
     private MeuUserDetails getUsuarioLogado() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !(authentication.getPrincipal() instanceof MeuUserDetails)) {
@@ -42,7 +46,6 @@ public class UsuarioController {
         return (MeuUserDetails) authentication.getPrincipal();
     }
 
-    // --- 1. MEU PERFIL (Usado pelo Global.js para segurança) ---
     @GetMapping("/me")
     public ResponseEntity<Usuario> getMeuPerfil() {
         MeuUserDetails userDetails = getUsuarioLogado();
@@ -51,7 +54,6 @@ public class UsuarioController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // --- 2. LISTAR USUÁRIOS (Com Filtro de Gabinete para Super Admin) ---
     @GetMapping
     public ResponseEntity<List<Usuario>> listarUsuarios(@RequestParam(required = false) Long gabineteId) {
         MeuUserDetails userDetails = getUsuarioLogado();
@@ -59,30 +61,25 @@ public class UsuarioController {
                 .anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
 
         if (isSuperAdmin) {
-            // Se Super Admin mandou ID, filtra. Se não, traz tudo.
             if (gabineteId != null) {
                 return ResponseEntity.ok(repositorioUsuario.findByGabineteId(gabineteId));
             }
             return ResponseEntity.ok(repositorioUsuario.findAll());
         } else {
-            // Admin comum só vê o seu gabinete
             return ResponseEntity.ok(repositorioUsuario.findByGabineteId(userDetails.getGabineteId()));
         }
     }
 
-    // --- 3. CRIAR USUÁRIO ---
     @PostMapping
     public ResponseEntity<?> criarUsuario(@RequestBody Usuario usuario) {
         MeuUserDetails adminLogado = getUsuarioLogado();
         Long gabineteId = adminLogado.getGabineteId();
 
         if (gabineteId == null) {
-            // SUPER_ADMIN criando
             if (usuario.getGabinete() == null || usuario.getGabinete().getId() == null) {
                 return ResponseEntity.badRequest().body("SUPER_ADMIN deve especificar um 'gabinete: { id: ... }'.");
             }
         } else {
-            // ADMIN criando (Vincula automático)
             Gabinete meuGabinete = repositorioGabinete.findById(gabineteId)
                     .orElseThrow(() -> new RuntimeException("Gabinete não encontrado"));
             usuario.setGabinete(meuGabinete);
@@ -90,17 +87,15 @@ public class UsuarioController {
             if (usuario.getTipoUsuario() == TipoUsuario.SUPER_ADMIN) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Não pode criar Super Admin.");
             }
-            // Força criação como USER se não especificado
             if (usuario.getTipoUsuario() == null) {
                 usuario.setTipoUsuario(TipoUsuario.USER);
             }
         }
 
-        // Define Permissões Iniciais
         if (usuario.getTipoUsuario() == TipoUsuario.SUPER_ADMIN || usuario.getTipoUsuario() == TipoUsuario.ADMIN) {
-            usuario.setPermissao(new Permissao(true)); // Admin nasce com tudo
+            usuario.setPermissao(new Permissao(true));
         } else {
-            usuario.setPermissao(new Permissao(false)); // User nasce sem nada
+            usuario.setPermissao(new Permissao(false));
         }
 
         usuario.setPassword(passwordEncoder.encode(usuario.getPassword()));
@@ -108,7 +103,6 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(salvo);
     }
 
-    // --- 4. ATUALIZAR PERMISSÕES (Usado pelo Modal) ---
     @PutMapping("/{id}/permissoes")
     public ResponseEntity<?> atualizarPermissoes(@PathVariable Long id, @RequestBody Permissao novasPermissoes) {
         Usuario usuarioAlvo = repositorioUsuario.findById(id).orElse(null);
@@ -135,32 +129,23 @@ public class UsuarioController {
         return ResponseEntity.ok("Permissões atualizadas!");
     }
 
-    // --- 5. ALTERAR SENHA (COM VALIDAÇÃO DA ATUAL) ---
     @PutMapping("/{id}/senha")
-    public ResponseEntity<?> alterarSenha(@PathVariable Long id,
-                                          @RequestParam String senhaAtual,
-                                          @RequestParam String novaSenha) {
-
+    public ResponseEntity<?> alterarSenha(@PathVariable Long id, @RequestParam String senhaAtual, @RequestParam String novaSenha) {
         MeuUserDetails userLogado = getUsuarioLogado();
-
-        // Segurança: Só o próprio usuário muda sua senha
         if (!userLogado.getUsuarioId().equals(id)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Você não pode alterar a senha de outro usuário.");
         }
-
         Optional<Usuario> usuarioOpt = repositorioUsuario.findById(id);
         if (usuarioOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         Usuario user = usuarioOpt.get();
 
-        // VALIDAÇÃO: Senha atual confere?
         if (!passwordEncoder.matches(senhaAtual, user.getPassword())) {
             return ResponseEntity.badRequest().body("A senha atual está incorreta.");
         }
 
         user.setPassword(passwordEncoder.encode(novaSenha));
         repositorioUsuario.save(user);
-
         return ResponseEntity.ok("Senha atualizada com sucesso!");
     }
 
@@ -169,14 +154,13 @@ public class UsuarioController {
         return ResponseEntity.ok(Arrays.asList(TipoUsuario.values()));
     }
 
-    // --- 6. DELETAR USUÁRIO ---
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
+    public ResponseEntity<?> deletarUsuario(@PathVariable Long id) {
         MeuUserDetails adminLogado = getUsuarioLogado();
         Long idAdminLogado = adminLogado.getUsuarioId();
         Long gabineteIdAdmin = adminLogado.getGabineteId();
 
-        if (id.equals(idAdminLogado)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // Não pode se deletar
+        if (id.equals(idAdminLogado)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         Optional<Usuario> usuarioParaDeletarOpt = repositorioUsuario.findById(id);
         if (usuarioParaDeletarOpt.isEmpty()) return ResponseEntity.notFound().build();
@@ -184,17 +168,33 @@ public class UsuarioController {
 
         boolean isSuperAdmin = adminLogado.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_SUPER_ADMIN"));
 
-        if (isSuperAdmin) {
-            repositorioUsuario.deleteById(id);
-            return ResponseEntity.noContent().build();
+        if (!isSuperAdmin) {
+            if (usuarioParaDeletar.getGabinete() != null && !usuarioParaDeletar.getGabinete().getId().equals(gabineteIdAdmin)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Usuário pertence a outro gabinete.");
+            }
         }
 
-        // Admin só deleta do seu gabinete
-        if (usuarioParaDeletar.getGabinete() != null && usuarioParaDeletar.getGabinete().getId().equals(gabineteIdAdmin)) {
+        try {
+            // --- ADIÇÃO: Desvincular Tarefas antes de excluir ---
+            List<Tarefa> tarefasDoUsuario = tarefaRepository.findByResponsavelId(id);
+
+            if (!tarefasDoUsuario.isEmpty()) {
+                for (Tarefa t : tarefasDoUsuario) {
+                    // Salva o nome atual para histórico
+                    t.setNomeHistorico(usuarioParaDeletar.getNome() + " (Excluído)");
+                    // Remove o vínculo com o usuário
+                    t.setResponsavel(null);
+                }
+                tarefaRepository.saveAll(tarefasDoUsuario);
+                tarefaRepository.flush(); // Garante que o banco atualize as tarefas antes de deletar o user
+            }
+
             repositorioUsuario.deleteById(id);
             return ResponseEntity.noContent().build();
-        }
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Erro ao excluir usuário. Detalhe: " + e.getMessage());
+        }
     }
 }

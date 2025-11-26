@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ============================================================
-    // 4. ENVIO DO FORMULÁRIO
+    // 4. ENVIO DO FORMULÁRIO (COM INJEÇÃO DE GABINETE ID)
     // ============================================================
     submitBtn.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -145,6 +145,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (fileInput.files[0]) {
                 formData.append('imagem', fileInput.files[0]);
             }
+
+            // --- INJEÇÃO DO ID DO GABINETE (LÓGICA SUPER ADMIN) ---
+            const role = localStorage.getItem("userRole");
+            const filtroId = localStorage.getItem("superAdminGabineteFilter");
+
+            if (role === "SUPER_ADMIN" && filtroId) {
+                formData.append('gabineteId', filtroId);
+                console.log("👑 Enviando Ação para Gabinete ID:", filtroId);
+            }
+            // ------------------------------------------------------
 
             try {
                 submitBtn.textContent = 'Enviando...';

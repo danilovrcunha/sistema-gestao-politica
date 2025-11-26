@@ -6,9 +6,7 @@
   <title>Gestão de Tarefas</title>
   <link rel="stylesheet" href="/kanban/style.css" />
   <link rel="stylesheet" href="/AssistenteIA/style.css" />
-  <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
@@ -48,28 +46,25 @@
       <a href="/criarTarefa" class="new-task-btn">Nova Tarefa</a>
     </header>
 
-
     <section class="kanban-board">
 
-      <!-- 🟢 A FAZER -->
       <div class="kanban-column" id="todo-column">
         <div class="column-header">
           <h3>A Fazer</h3>
           <span class="task-count" th:text="${#lists.size(tarefasAFazer)}">0</span>
         </div>
-
         <div class="task-list" data-status="todo">
           <th:block th:each="tarefa : ${tarefasAFazer}">
             <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
               <div class="task-header">
                 <h4 th:text="${tarefa.titulo}"></h4>
-                <button class="delete-task-btn" title="Excluir tarefa">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <button class="delete-task-btn" title="Excluir tarefa"><i class="fas fa-trash"></i></button>
               </div>
               <p th:text="${tarefa.descricao}"></p>
               <div class="task-card-footer">
-                <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+                <small><i class="fas fa-user"></i>
+                  <span th:text="${tarefa.responsavel != null ? tarefa.responsavel.nome : (tarefa.nomeHistorico != null ? tarefa.nomeHistorico : 'Sem Responsável')}"></span>
+                </small>
                 <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
               </div>
             </div>
@@ -77,25 +72,23 @@
         </div>
       </div>
 
-      <!-- 🟡 EM ANDAMENTO -->
       <div class="kanban-column" id="in-progress-column">
         <div class="column-header">
           <h3>Em Andamento</h3>
           <span class="task-count" th:text="${#lists.size(tarefasEmAndamento)}">0</span>
         </div>
-
         <div class="task-list" data-status="in-progress">
           <th:block th:each="tarefa : ${tarefasEmAndamento}">
             <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
               <div class="task-header">
                 <h4 th:text="${tarefa.titulo}"></h4>
-                <button class="delete-task-btn" title="Excluir tarefa">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <button class="delete-task-btn" title="Excluir tarefa"><i class="fas fa-trash"></i></button>
               </div>
               <p th:text="${tarefa.descricao}"></p>
               <div class="task-card-footer">
-                <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+                <small><i class="fas fa-user"></i>
+                  <span th:text="${tarefa.responsavel != null ? tarefa.responsavel.nome : (tarefa.nomeHistorico != null ? tarefa.nomeHistorico : 'Sem Responsável')}"></span>
+                </small>
                 <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
               </div>
             </div>
@@ -103,57 +96,49 @@
         </div>
       </div>
 
-      <!-- 🟢 CONCLUÍDO -->
       <div class="kanban-column" id="done-column">
         <div class="column-header" style="background-color: #2ecc71">
           <h3>Concluído</h3>
           <span class="task-count" th:text="${#lists.size(tarefasConcluidas)}">0</span>
         </div>
-
         <div class="task-list" data-status="done">
           <th:block th:each="tarefa : ${tarefasConcluidas}">
             <div class="task-card" draggable="true" th:attr="data-id=${tarefa.id}">
               <div class="task-header">
                 <h4 th:text="${tarefa.titulo}"></h4>
-                <button class="delete-task-btn" title="Excluir tarefa">
-                  <i class="fas fa-trash"></i>
-                </button>
+                <button class="delete-task-btn" title="Excluir tarefa"><i class="fas fa-trash"></i></button>
               </div>
               <p th:text="${tarefa.descricao}"></p>
               <div class="task-card-footer">
-                <small><i class="fas fa-user"></i> <span th:text="${tarefa.responsavel.nome}"></span></small>
+                <small><i class="fas fa-user"></i>
+                  <span th:text="${tarefa.responsavel != null ? tarefa.responsavel.nome : (tarefa.nomeHistorico != null ? tarefa.nomeHistorico : 'Sem Responsável')}"></span>
+                </small>
                 <small><i class="fas fa-calendar-alt"></i> <span th:text="${tarefa.mes}"></span></small>
               </div>
             </div>
           </th:block>
         </div>
       </div>
+
     </section>
   </main>
 </div>
 
-<!-- ================= ASSISTENTE IA ================= -->
 <div class="assistant-chat-panel" id="assistantChatPanel">
   <div class="chat-header">
     <h4>Assistente I.A.</h4>
     <button class="close-chat-btn" id="closeChatBtn">&times;</button>
   </div>
-
   <div class="chat-body" id="chatBody">
-    <div class="chat-message-ai">
-      Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
-    </div>
+    <div class="chat-message-ai">Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?</div>
   </div>
-
   <div class="chat-footer">
     <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
-    <button id="sendChatBtn" class="send-chat-btn">
-      <i class="fas fa-paper-plane"></i>
-    </button>
+    <button id="sendChatBtn" class="send-chat-btn"><i class="fas fa-paper-plane"></i></button>
   </div>
 </div>
 
+<script src="/js/global.js"></script>
 <script src="/kanban/script.js" defer></script>
-<script src="/global/script.js"></script>
 </body>
 </html>

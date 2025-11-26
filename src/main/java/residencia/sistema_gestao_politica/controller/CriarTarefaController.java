@@ -24,14 +24,21 @@ public class CriarTarefaController {
     @Autowired private GabineteRepository gabineteRepository;
 
     @GetMapping("/criarTarefa")
-    public String exibirFormulario(Model model) {
+    public String exibirFormulario(Model model, @RequestParam(required = false) Long gabineteId) {
         MeuUserDetails user = (MeuUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        // Só mostra usuários do mesmo gabinete para serem responsáveis
         List<Usuario> usuarios;
-        if (user.getGabineteId() == null) {
-            usuarios = usuarioRepository.findAll();
+
+        if (user.getGabineteId() == null) { // Super Admin
+            if (gabineteId != null) {
+                System.out.println("🔍 Super Admin criando tarefa para Gabinete ID: " + gabineteId);
+                usuarios = usuarioRepository.findByGabineteId(gabineteId);
+            } else {
+                System.out.println("⚠️ Super Admin sem filtro: carregando todos os usuários.");
+                usuarios = usuarioRepository.findAll();
+            }
         } else {
+            // Admin Comum
             usuarios = usuarioRepository.findByGabineteId(user.getGabineteId());
         }
 
@@ -41,15 +48,24 @@ public class CriarTarefaController {
     }
 
     @PostMapping("/criarTarefa")
-    public String salvarTarefa(@ModelAttribute Tarefa tarefa) {
+    public String salvarTarefa(@ModelAttribute Tarefa tarefa, @RequestParam(required = false) Long gabineteIdSelecionado) {
         MeuUserDetails user = (MeuUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long finalId = user.getGabineteId();
 
-        if (user.getGabineteId() != null) {
-            Gabinete g = gabineteRepository.findById(user.getGabineteId()).orElseThrow();
-            tarefa.setGabinete(g);
+        // Lógica Super Admin no POST
+        if (finalId == null) {
+            if (gabineteIdSelecionado != null) {
+                finalId = gabineteIdSelecionado;
+            } else {
+                // Se não veio ID, redireciona para Kanban (segurança)
+                return "redirect:/kanban";
+            }
         }
 
+        Gabinete g = gabineteRepository.findById(finalId).orElseThrow();
+        tarefa.setGabinete(g);
         tarefa.setStatus(StatusTarefa.A_FAZER);
+
         tarefaRepository.save(tarefa);
         return "redirect:/kanban";
     }

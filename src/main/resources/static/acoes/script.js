@@ -1,4 +1,4 @@
-console.log('[Ações] Mapa V12 - Núcleo do Nome + Filtro Super Admin');
+console.log('[Ações] Mapa V15 - Interatividade + Agrupamento Ajustado');
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -18,8 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!window.L) return;
 
-    // MAPA BASE
+    // 1. CONFIGURAÇÃO DO MAPA
+    // Limites do Brasil para evitar navegar para o oceano ou Europa
     const brazilBounds = [[5.5, -76.0], [-34.0, -32.0]];
+
     const map = L.map('map', {
         minZoom: 5,
         maxBounds: brazilBounds,
@@ -31,24 +33,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }).addTo(map);
 
     let heatLayer = null;
-    let infoLayer = L.layerGroup().addTo(map);
+    let infoLayer = L.layerGroup().addTo(map); // Camada para os cliques
 
-    // DISPERSÃO
+    let coordenadasUsadas = [];
+
+    // 2. FUNÇÃO DE DISPERSÃO (JITTER) AJUSTADA
     const offsetMeters = (lat, lng, dx, dy) => {
         const dLat = dy / 111111;
         const dLng = dx / (111111 * Math.cos(lat * Math.PI / 180));
         return { lat: lat + dLat, lng: lng + dLng };
     };
 
-    function jitterPoints(lat, lng, count) {
-        if (count <= 1) return [[lat, lng, 1.0]];
+    function gerarPontosDispersos(lat, lng, count) {
         const pts = [];
-        const max = Math.min(count, 50);
-        for(let i=0; i<max; i++) {
-            const r = Math.random() ** 0.6 * (15 * Math.sqrt(count));
+        // Limita visualmente para não explodir o mapa se houver 1000 ações
+        const maxVisual = Math.min(count, 50);
+
+        for(let i=0; i<maxVisual; i++) {
+            // AJUSTE DE ESPALHAMENTO:
+            // Reduzi o multiplicador de 20 para 8.
+            // Isso deixa os circulos mais próximos da rua original.
+            const r = Math.random() ** 0.6 * (8 * Math.sqrt(count));
+
             const theta = Math.random() * Math.PI * 2;
             const p = offsetMeters(lat, lng, r * Math.cos(theta), r * Math.sin(theta));
-            pts.push([p.lat, p.lng, 0.7]);
+
+            // Retorna objeto com lat, lng e intensidade
+            pts.push({ lat: p.lat, lng: p.lng, intensity: 0.7 });
         }
         return pts;
     }
@@ -57,65 +68,120 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function montarMapa() {
         if (!L.heatLayer) return;
+
         try {
-            // --- ALTERAÇÃO DE FILTRO (SUPER ADMIN) ---
+            // Filtro Super Admin
             let url = '/api/acoes';
             const role = localStorage.getItem("userRole");
             const filtroId = localStorage.getItem("superAdminGabineteFilter");
-            if (role === "SUPER_ADMIN" && filtroId) {
-                url += `?gabineteId=${filtroId}`;
-            }
-            // -----------------------------------------
+            if (role === "SUPER_ADMIN" && filtroId) url += `?gabineteId=${filtroId}`;
 
             const res = await fetch(url);
             if(!res.ok) return;
             const acoes = await res.json();
 
             const grupos = groupByCep(acoes);
-            const pontosHeat = [];
+            const pontosHeatMap = []; // Array simples para o Leaflet.heat
+
             infoLayer.clearLayers();
+            coordenadasUsadas = [];
 
             for (const g of grupos) {
                 if (!g.cep) continue;
                 const geo = await geocodeSmart(g.cep);
 
                 if (geo) {
-                    pontosHeat.push(...jitterPoints(geo.lat, geo.lng, g.count));
+                    // Aplica anti-colisão (evita sobreposição exata de ruas muito próximas)
+                    const centro = aplicarDeslocamentoSeNecessario(geo.lat, geo.lng);
 
-                    let aviso = '';
-                    let cor = '#2c3e50';
+                    // Gera os pontos espalhados ao redor do centro
+                    const pontosDispersos = gerarPontosDispersos(centro.lat, centro.lng, g.count);
 
-                    if (geo.precisao === 'bairro') {
-                        aviso = '<br><strong style="color:#e67e22">(📍 Centro do Bairro)</strong>';
-                        cor = '#e67e22';
-                    }
-                    if (geo.precisao === 'nucleo') {
-                        aviso = '<br><strong style="color:#27ae60">(📍 Via Localizada)</strong>';
-                    }
+                    // 1. Adiciona ao Array do Mapa de Calor (Visual)
+                    pontosDispersos.forEach(p => {
+                        pontosHeatMap.push([p.lat, p.lng, p.intensity]);
+                    });
 
-                    L.circleMarker([geo.lat, geo.lng], {
-                        radius: 12, color: 'transparent', fillColor: '#333', fillOpacity: 0.0
-                    }).bindPopup(`
-                        <div style="text-align:center; font-family:sans-serif;">
-                            <b style="font-size:13px; color:${cor};">${geo.rua || geo.bairro}</b>${aviso}<br>
-                            <span style="color:#7f8c8d; font-size:11px;">${geo.bairro} - ${g.cep}</span>
-                            <hr style="margin:4px 0; border:0; border-top:1px solid #eee;">
-                            <b style="color:#2980b9;">${g.count} Ações</b>
+                    // 2. Adiciona Marcadores Invisíveis para CLIQUE (Interatividade)
+                    // Criamos um marcador transparente no centro da mancha
+                    // para que o usuário possa clicar e ver os dados.
+
+                    let msgPrecisao = '';
+                    if (geo.precisao === 'bairro') msgPrecisao = '<br><small style="color:orange">(Centro do Bairro)</small>';
+                    if (geo.precisao === 'nucleo') msgPrecisao = '<br><small style="color:green">(Via Localizada)</small>';
+
+                    const popupContent = `
+                        <div style="text-align:center; font-family:sans-serif; min-width: 150px;">
+                            <b style="font-size:14px; color:#2c3e50;">${geo.rua || geo.bairro}</b>${msgPrecisao}<br>
+                            <span style="color:#7f8c8d; font-size:12px;">CEP: ${g.cep}</span>
+                            <hr style="margin:6px 0; border:0; border-top:1px solid #eee;">
+                            <div style="background:#f1f2f6; padding:5px; border-radius:4px;">
+                                <b style="color:#e67e22; font-size: 16px;">${g.count}</b> 
+                                <span style="font-size:12px; color:#555;">Ações aqui</span>
+                            </div>
                         </div>
-                    `).addTo(infoLayer);
+                    `;
+
+                    // Coloca um marcador invisível, mas clicável, no centro da dispersão
+                    L.circleMarker([centro.lat, centro.lng], {
+                        radius: 15 + (g.count * 2), // O tamanho da área clicável aumenta conforme a quantidade
+                        color: 'transparent',       // Borda invisível
+                        fillColor: '#000',          // Cor de preenchimento (irrelevante pois opacity é 0)
+                        fillOpacity: 0.0,           // Totalmente transparente
+                        opacity: 0                  // Totalmente transparente
+                    }).bindPopup(popupContent).addTo(infoLayer);
                 }
-                await new Promise(r => setTimeout(r, 1200));
+
+                // Pequeno delay para não bloquear o navegador
+                await new Promise(r => setTimeout(r, 300));
             }
 
-            if (pontosHeat.length) {
+            // Renderiza o Mapa de Calor
+            if (pontosHeatMap.length) {
                 if (heatLayer) heatLayer.remove();
-                heatLayer = L.heatLayer(pontosHeat, {
-                    radius: 20, blur: 35, maxZoom: 15, minOpacity: 0.4,
-                    gradient: { 0.3: '#2ecc71', 0.6: '#f39c12', 1.0: '#e74c3c' }
+
+                heatLayer = L.heatLayer(pontosHeatMap, {
+                    radius: 25,
+                    blur: 35,         // Blur médio para suavizar
+                    maxZoom: 16,
+                    minOpacity: 0.3,
+
+                    // Gradiente Térmico: Verde -> Amarelo -> Laranja -> Vermelho
+                    gradient: {
+                        0.3: '#2ecc71',
+                        0.5: '#f1c40f',
+                        0.7: '#e67e22',
+                        1.0: '#e74c3c'
+                    }
                 }).addTo(map);
+
+                // Garante que a camada de clique (infoLayer) esteja POR CIMA do calor
                 infoLayer.bringToFront();
             }
         } catch (e) { console.error(e); }
+    }
+
+    // --- ANTI-COLISÃO ---
+    function aplicarDeslocamentoSeNecessario(lat, lng) {
+        let novaLat = lat;
+        let novaLng = lng;
+        let colidiu = true;
+        let tentativas = 0;
+
+        while (colidiu && tentativas < 10) {
+            colidiu = coordenadasUsadas.some(coord => {
+                const dist = Math.sqrt(Math.pow(coord.lat - novaLat, 2) + Math.pow(coord.lng - novaLng, 2));
+                return dist < 0.0004; // ~40 metros
+            });
+
+            if (colidiu) {
+                novaLat += (Math.random() - 0.5) * 0.0015;
+                novaLng += (Math.random() - 0.5) * 0.0015;
+                tentativas++;
+            }
+        }
+        coordenadasUsadas.push({ lat: novaLat, lng: novaLng });
+        return { lat: novaLat, lng: novaLng };
     }
 
     function groupByCep(lista) {
@@ -131,8 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return Array.from(m.values());
     }
 
-    // =================== LÓGICA DE EXTRACTOR DE NOME ===================
-
+    // =================== GEOCODIFICAÇÃO INTELIGENTE (V12) ===================
     function extrairNucleoNome(logradouro) {
         if (!logradouro) return "";
         let limpo = logradouro.split(' - ')[0].trim();
@@ -150,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
         url.searchParams.set('format', 'jsonv2');
         url.searchParams.set('limit', '1');
         url.searchParams.set('country', 'Brazil');
-
         if(params.street) url.searchParams.set('street', params.street);
         if(params.city) url.searchParams.set('city', params.city);
         if(params.state) url.searchParams.set('state', params.state);
@@ -161,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function geocodeSmart(cep) {
-        const CACHE_KEY = 'geoV12_' + cep;
+        const CACHE_KEY = 'geoV15_' + cep; // Cache novo
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) return JSON.parse(cached);
 
@@ -172,28 +236,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const ruaOriginal = viaData.logradouro.split(' - ')[0].trim();
             const nomeNucleo = extrairNucleoNome(ruaOriginal);
-
             let coords = null;
             let precisao = 'exata';
 
-            // TENTATIVA 1: Busca Padrão
-            coords = await buscarNominatim({
-                street: ruaOriginal,
-                city: viaData.localidade,
-                state: viaData.uf
-            });
+            coords = await buscarNominatim({ street: ruaOriginal, city: viaData.localidade, state: viaData.uf });
 
-            // TENTATIVA 2: Busca Apenas o Núcleo
             if (!coords && nomeNucleo.length > 3) {
-                coords = await buscarNominatim({
-                    street: nomeNucleo,
-                    city: viaData.localidade,
-                    state: viaData.uf
-                });
+                coords = await buscarNominatim({ street: nomeNucleo, city: viaData.localidade, state: viaData.uf });
                 if (coords) precisao = 'nucleo';
             }
 
-            // TENTATIVA 3: Fallback para Bairro
             if (!coords && viaData.bairro) {
                 const query = `Bairro ${viaData.bairro}, ${viaData.localidade}, ${viaData.uf}`;
                 const resBairro = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&q=${encodeURIComponent(query)}`);
@@ -206,16 +258,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (coords) {
                 const result = {
-                    lat: coords.lat,
-                    lng: coords.lng,
-                    rua: ruaOriginal,
-                    bairro: viaData.bairro,
-                    precisao: precisao
+                    lat: coords.lat, lng: coords.lng,
+                    rua: ruaOriginal, bairro: viaData.bairro, precisao: precisao
                 };
                 localStorage.setItem(CACHE_KEY, JSON.stringify(result));
                 return result;
             }
-
         } catch (e) { console.error("Erro geocode:", e); }
         return null;
     }

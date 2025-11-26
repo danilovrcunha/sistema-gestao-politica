@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Financeiro</title>
-    <link rel="stylesheet" href="/financeiro/style.css">
+    <link rel="stylesheet" href="/fin/style.css">
     <link rel="stylesheet" href="/AssistenteIA/style.css" />
     <script src="/AssistenteIA/script.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -12,10 +12,7 @@
 <body>
 <div class="container">
     <aside class="sidebar">
-        <div class="logo">
-            <h1>Menu Principal</h1>
-        </div>
-
+        <div class="logo"><h1>Menu Principal</h1></div>
         <nav class="nav-menu">
             <ul>
                 <li id="menu-dashboard"><a href="/home"><i class="fas fa-home"></i> Dashboard</a></li>
@@ -26,18 +23,11 @@
                 <li id="assistant-toggle-btn"><a href="#"><i class="fas fa-robot"></i> Assistente IA</a></li>
             </ul>
         </nav>
-
-        <div class="logout">
-            <a href="/login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a>
-        </div>
+        <div class="logout"><a href="/login/login.html"><i class="fas fa-sign-out-alt"></i> Sair</a></div>
     </aside>
 
     <main class="main-content">
         <header class="header">
-            <div th:if="${mensagemSucesso}" class="alert alert-success" role="alert">
-                <p th:text="${mensagemSucesso}"></p>
-            </div>
-
             <div class="header-title">
                 <i class="fas fa-dollar-sign"></i>
                 <h2>Financeiro</h2>
@@ -47,6 +37,13 @@
             </div>
         </header>
 
+        <div th:if="${mensagemSucesso}" class="alert-box success">
+            <div class="alert-content">
+                <i class="fas fa-check-circle"></i>
+                <span th:text="${mensagemSucesso}"></span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="close-alert">&times;</button>
+        </div>
 
         <section class="financeiro-container">
             <div class="form-header-financeiro">
@@ -79,13 +76,13 @@
                     </div>
                     <div class="form-group">
                         <label for="categoria">Categoria</label>
-                        <input type="text" id="categoria" name="categoria" placeholder="Ex: Combustível, Aluguel, Salário">
+                        <input type="text" id="categoria" name="categoria" placeholder="Ex: Combustível, Aluguel">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="descricao">Descrição</label>
-                    <textarea id="descricao" name="descricao" rows="3" placeholder="Detalhes do registro financeiro (opcional)"></textarea>
+                    <textarea id="descricao" name="descricao" rows="3" placeholder="Detalhes (opcional)"></textarea>
                 </div>
 
                 <div class="form-footer-buttons-financeiro">
@@ -93,8 +90,24 @@
                 </div>
             </form>
         </section>
+
         <section class="historico-transacoes-container">
-            <h3>Histórico de Transações Recentes</h3>
+
+            <div class="filter-bar">
+                <h3>Histórico</h3>
+                <div class="filter-controls">
+                    <div class="input-icon-wrapper">
+                        <i class="fas fa-calendar-alt"></i>
+                        <input type="month" id="filtroMesInput" th:value="${mesSelecionado}">
+                    </div>
+                    <button id="btnFiltrarMes" class="btn-filter" title="Filtrar por Mês">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <button id="btnLimparFiltro" class="btn-reload" title="Limpar Filtro / Recarregar">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
 
             <div class="historico-header">
                 <span>Registro (Mês)</span>
@@ -104,14 +117,12 @@
             <th:block th:each="registro : ${registros}">
                 <div class="acordeao-item">
                     <button class="acordeao-header">
-
-            <span class="acordeao-titulo"
-                  th:text="${(#strings.isEmpty(registro.categoria) ? 'Sem categoria' : registro.categoria) +
-                             ' (' +
-                             #strings.capitalize(#temporals.format(registro.dataRegistro, 'MMMM').toLowerCase()) +
-                             ')'}">
-            </span>
-
+                        <span class="acordeao-titulo"
+                              th:text="${(#strings.isEmpty(registro.categoria) ? 'Sem categoria' : registro.categoria) +
+                                         ' (' +
+                                         #strings.capitalize(#temporals.format(registro.dataRegistro, 'MMMM', new java.util.Locale('pt', 'BR'))) +
+                                         ')'}">
+                        </span>
                         <span class="acordeao-valor" th:text="${registro.valorFormatado}"></span>
                         <i class="fas fa-chevron-down acordeao-icon"></i>
                     </button>
@@ -119,7 +130,7 @@
                     <div class="acordeao-body">
                         <ul class="transacao-detalhes">
                             <li>
-                                <span>Data de Registro:</span>
+                                <span>Data exata:</span>
                                 <span th:text="${#temporals.format(registro.dataRegistro, 'dd/MM/yyyy')}"></span>
                             </li>
                             <li><span>Tipo:</span> <span th:text="${registro.tipoTransacao}"></span></li>
@@ -130,38 +141,27 @@
                                 <span th:text="${registro.valorFormatado}"></span>
                             </li>
                         </ul>
+
+                        <div class="acordeao-footer">
+                            <button class="btn-excluir-financa action-btn"
+                                    th:attr="onclick='deletarFinanceiro(' + ${registro.id} + ')'">
+                                <i class="fas fa-trash-alt"></i> Excluir Registro
+                            </button>
+                        </div>
                     </div>
                 </div>
             </th:block>
 
             <div th:if="${#lists.isEmpty(registros)}" class="sem-registros">
-                <p>Nenhum registro financeiro encontrado.</p>
+                <i class="fas fa-folder-open" style="font-size: 2em; margin-bottom: 10px; display: block;"></i>
+                <p>Nenhum registro encontrado.</p>
             </div>
         </section>
     </main>
 </div>
 
-<script src="/financeiro/script.js"></script>
-
-<div class="assistant-chat-panel" id="assistantChatPanel">
-    <div class="chat-header">
-        <h4>Assistente I.A.</h4>
-        <button class="close-chat-btn" id="closeChatBtn">&times;</button>
-    </div>
-
-    <div class="chat-body" id="chatBody">
-        <div class="chat-message-ai">
-            Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
-        </div>
-    </div>
-
-    <div class="chat-footer">
-        <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
-        <button id="sendChatBtn" class="send-chat-btn">
-            <i class="fas fa-paper-plane"></i>
-        </button>
-    </div>
-</div>
+<div class="assistant-chat-panel" id="assistantChatPanel"> </div>
 <script src="/global/script.js"></script>
+<script src="/fin/script.js"></script>
 </body>
 </html>

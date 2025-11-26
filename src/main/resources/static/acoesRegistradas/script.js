@@ -6,6 +6,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Carrega a tabela
     carregarTabela();
+
+    // 3. Eventos dos Filtros (NOVO)
+    const btnFiltrar = document.getElementById('btnFiltrar');
+    const btnLimpar = document.getElementById('btnLimpar');
+
+    if (btnFiltrar) {
+        btnFiltrar.addEventListener('click', () => {
+            carregarTabela(); // Recarrega aplicando os filtros atuais
+        });
+    }
+
+    if (btnLimpar) {
+        btnLimpar.addEventListener('click', () => {
+            document.getElementById('filtroBairro').value = '';
+            document.getElementById('filtroMes').value = '';
+            carregarTabela(); // Recarrega limpo
+        });
+    }
 });
 
 // Função auxiliar para verificar permissão de forma SEGURA e RÁPIDA
@@ -41,18 +59,30 @@ async function carregarTabela() {
     const emptyState = document.getElementById('empty-state');
 
     // Limpa a tabela antes de carregar
-    if (tbody) tbody.innerHTML = '';
+    if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#666;">Carregando...</td></tr>';
 
     try {
-        // =================== LÓGICA DO FILTRO (SUPER ADMIN) ===================
-        let url = '/api/acoes';
+        // =================== MONTAGEM DA URL COM FILTROS ===================
+        // 1. Inicia a URL base
+        let url = new URL(window.location.origin + '/api/acoes');
+
+        // 2. Filtro do Super Admin (Gabinete)
         const role = localStorage.getItem("userRole");
         const filtroId = localStorage.getItem("superAdminGabineteFilter");
-
-        // Se for Super Admin e tiver um filtro selecionado, adiciona na URL
         if (role === "SUPER_ADMIN" && filtroId) {
-            url += `?gabineteId=${filtroId}`;
+            url.searchParams.append('gabineteId', filtroId);
             console.log("🔎 Filtrando ações pelo Gabinete ID:", filtroId);
+        }
+
+        // 3. Filtros da Tela (Bairro e Mês) - NOVO
+        const bairroVal = document.getElementById('filtroBairro')?.value;
+        const mesVal = document.getElementById('filtroMes')?.value;
+
+        if (bairroVal && bairroVal.trim() !== '') {
+            url.searchParams.append('bairro', bairroVal.trim());
+        }
+        if (mesVal && mesVal.trim() !== '') {
+            url.searchParams.append('mes', mesVal.trim());
         }
         // ======================================================================
 
@@ -63,6 +93,8 @@ async function carregarTabela() {
         }
 
         const listaAcoes = await response.json();
+
+        tbody.innerHTML = ''; // Limpa o loading
 
         if (!listaAcoes || listaAcoes.length === 0) {
             if (emptyState) emptyState.style.display = 'block';

@@ -2,20 +2,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskLists = document.querySelectorAll(".task-list");
     let draggedItem = null;
 
-    // --- SEGURANÇA E EDIÇÃO ---
+    // =================== NOVO: AJUSTAR LINK "NOVA TAREFA" (SUPER ADMIN) ===================
+    function ajustarLinkNovaTarefa() {
+        const role = localStorage.getItem("userRole");
+        const filtroId = localStorage.getItem("superAdminGabineteFilter");
+        const btnNova = document.querySelector('.new-task-btn'); // Botão no HTML
+
+        if (btnNova && role === "SUPER_ADMIN" && filtroId) {
+            // Altera o link para já levar o ID do gabinete na URL (ex: /criarTarefa?gabineteId=5)
+            btnNova.href = `/criarTarefa?gabineteId=${filtroId}`;
+            console.log("🔗 Link 'Nova Tarefa' ajustado para filtro:", filtroId);
+        }
+    }
+    // Chama imediatamente ao carregar
+    ajustarLinkNovaTarefa();
+
+
+    // =================== SEGURANÇA E EDIÇÃO ===================
     function aplicarSegurancaKanban() {
-        // Se NÃO pode editar Kanban
-        if (!window.podeEditar("editarKanban")) {
+        // Verifica se a função existe e se a permissão é falsa
+        if (window.podeEditar && !window.podeEditar("editarKanban")) {
             console.log("🔒 Modo Leitura: Kanban");
 
             // 1. Remove botão "Nova Tarefa"
             const btnNova = document.querySelector(".new-task-btn");
             if (btnNova) btnNova.style.display = "none";
 
-            // 2. Remove botões de lixeira dos cards já renderizados (se houver estático)
+            // 2. Remove botões de lixeira dos cards já renderizados
             document.querySelectorAll(".delete-task-btn").forEach(btn => btn.remove());
 
-            // 3. Trava Drag & Drop
+            // 3. Trava Drag & Drop visualmente
             document.querySelectorAll(".task-card").forEach(card => {
                 card.setAttribute("draggable", "false");
                 card.style.cursor = "default";
@@ -23,12 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Espera as permissões carregarem
+    // Espera as permissões carregarem ou executa se já tiver em cache
     if (localStorage.getItem("userRole")) aplicarSegurancaKanban();
     document.addEventListener("permissoesCarregadas", aplicarSegurancaKanban);
 
 
-    // --- LÓGICA KANBAN ---
+    // =================== LÓGICA KANBAN ===================
     function mapearStatus(coluna) {
         switch (coluna) {
             case "todo": return "A_FAZER";
@@ -39,14 +55,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function atualizarStatusNoBanco(id, novoStatus) {
-        if (!window.podeEditar("editarKanban")) return;
+        // Bloqueio de segurança
+        if (window.podeEditar && !window.podeEditar("editarKanban")) return;
+
         fetch(`/tarefas/${id}/status?novoStatus=${novoStatus}`, { method: "PUT" })
             .then(r => { if (!r.ok) throw new Error(); })
             .catch(() => alert("Erro ao atualizar status."));
     }
 
     function excluirTarefa(id, card) {
-        if (!window.podeEditar("editarKanban")) {
+        // Bloqueio de segurança
+        if (window.podeEditar && !window.podeEditar("editarKanban")) {
             alert("Sem permissão para excluir.");
             return;
         }
@@ -63,8 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Drag & Drop Events
     document.querySelectorAll(".task-card").forEach(card => {
         card.addEventListener("dragstart", e => {
-            // Bloqueio final de segurança
-            if (!window.podeEditar("editarKanban")) {
+            // Bloqueio final de segurança ao tentar arrastar
+            if (window.podeEditar && !window.podeEditar("editarKanban")) {
                 e.preventDefault();
                 return false;
             }
@@ -80,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     taskLists.forEach(list => {
         list.addEventListener("dragover", e => {
-            if (!window.podeEditar("editarKanban")) return;
+            if (window.podeEditar && !window.podeEditar("editarKanban")) return;
             e.preventDefault();
             list.style.backgroundColor = "#e9ecef";
         });
@@ -92,7 +111,9 @@ document.addEventListener("DOMContentLoaded", () => {
         list.addEventListener("drop", e => {
             e.preventDefault();
             list.style.backgroundColor = "";
-            if (draggedItem && window.podeEditar("editarKanban")) {
+
+            // Verifica se pode editar antes de mover no DOM
+            if (draggedItem && window.podeEditar && window.podeEditar("editarKanban")) {
                 list.appendChild(draggedItem);
                 const tarefaId = draggedItem.getAttribute("data-id");
                 const novoStatus = mapearStatus(list.getAttribute("data-status"));
@@ -101,10 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Botões de Exclusão (Delegate ou direto)
+    // Botões de Exclusão
     document.querySelectorAll(".delete-task-btn").forEach(btn => {
-        // Se não tem permissão, o btn já foi removido no aplicarSegurancaKanban
-        // mas se sobrou algum:
         btn.addEventListener("click", e => {
             e.stopPropagation();
             const card = e.target.closest(".task-card");

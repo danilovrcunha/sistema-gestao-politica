@@ -17,6 +17,8 @@ public class Tarefa {
     @Column(nullable = false)
     private String titulo;
 
+    private String nomeHistorico;
+
     private String descricao;
 
     @Enumerated(EnumType.STRING)
@@ -24,7 +26,7 @@ public class Tarefa {
     private StatusTarefa status;
 
     @ManyToOne
-    @JoinColumn(name = "responsavel_id", nullable = false)
+    @JoinColumn(name = "responsavel_id", nullable = true)
     private Usuario responsavel;  // Usuario vem da tabela "users"
 
     @Column(length = 3, nullable = false)
@@ -33,10 +35,12 @@ public class Tarefa {
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private ZonedDateTime dataCriacao = ZonedDateTime.now();
 
+
     @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "gabinete_id")
     private Gabinete gabinete;
+
 
     public Tarefa() {}
 
@@ -71,4 +75,12 @@ public class Tarefa {
 
     public Gabinete getGabinete() { return gabinete; }
     public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
+
+    public String getNomeHistorico() {
+        return nomeHistorico;
+    }
+
+    public void setNomeHistorico(String nomeHistorico) {
+        this.nomeHistorico = nomeHistorico;
+    }
 }
