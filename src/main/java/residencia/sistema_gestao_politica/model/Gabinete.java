@@ -17,8 +17,6 @@ public class Gabinete {
     @Column(nullable = false)
     private String nomeResponsavel;
 
-    // --- MUDANÇA AQUI ---
-    // Esta anotação diz ao Jackson: "Você é o 'pai'. Serialize esta lista normalmente."
     @JsonManagedReference
     @OneToMany(mappedBy = "gabinete", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Usuario> usuarios = new ArrayList<>();
@@ -30,7 +28,6 @@ public class Gabinete {
         this.nomeResponsavel = nomeResponsavel;
     }
 
-    // Getters e Setters
     public Long getId() {
         return id;
     }

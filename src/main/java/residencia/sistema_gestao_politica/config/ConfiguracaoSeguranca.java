@@ -26,10 +26,8 @@ public class ConfiguracaoSeguranca {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/global/**").permitAll()
 
-                        // Libera pastas padrões do Spring Boot
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.ico").permitAll()
 
-                        // Libera o Assistente IA
                         .requestMatchers("/AssistenteIA/**").permitAll()
 
                         .requestMatchers("/financeiro/*.js").permitAll()

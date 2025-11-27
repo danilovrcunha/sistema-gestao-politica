@@ -43,7 +43,7 @@ public class AcoesApiController {
     }
 
     // ====================================================================================
-    // 1. LISTAR (LÓGICA ROBUSTA: SIMPLES VS AVANÇADA)
+    // LISTAR
     // ====================================================================================
     @GetMapping
     public ResponseEntity<?> listar(
@@ -60,12 +60,9 @@ public class AcoesApiController {
                 idFinal = gabineteId;
             }
 
-            // Verifica se existem filtros ativos
             boolean temBairro = (bairro != null && !bairro.trim().isEmpty());
             boolean temMes = (mes != null && !mes.trim().isEmpty());
 
-            // --- CENÁRIO 1: SEM FILTROS (Abertura da Página) ---
-            // Usa métodos padrão do JPA que são 100% seguros
             if (!temBairro && !temMes) {
                 if (idFinal == null) {
                     // Super Admin sem filtro vê TUDO
@@ -76,7 +73,6 @@ public class AcoesApiController {
                 }
             }
 
-            // --- CENÁRIO 2: COM FILTROS (Busca Personalizada) ---
             String bairroQuery = temBairro ? bairro.trim() : null;
             LocalDate dataInicio = null;
             LocalDate dataFim = null;
@@ -100,7 +96,7 @@ public class AcoesApiController {
     }
 
     // ====================================================================================
-    // 2. BUSCAR POR ID
+    //  BUSCAR POR ID
     // ====================================================================================
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
@@ -117,7 +113,7 @@ public class AcoesApiController {
     }
 
     // ====================================================================================
-    // 3. CADASTRAR
+    // CADASTRAR
     // ====================================================================================
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> criarAcao(
@@ -150,7 +146,7 @@ public class AcoesApiController {
     }
 
     // ====================================================================================
-    // 4. ATUALIZAR
+    // ATUALIZAR
     // ====================================================================================
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> atualizarAcao(
@@ -190,7 +186,7 @@ public class AcoesApiController {
     }
 
     // ====================================================================================
-    // 5. EXCLUIR
+    // EXCLUIR
     // ====================================================================================
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Long id) {

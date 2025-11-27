@@ -52,29 +52,21 @@ public class Tarefa {
         this.mes = mes;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getTitulo() { return titulo; }
-    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public String getTitulo() {
+        return titulo;
+    }
 
-    public StatusTarefa getStatus() { return status; }
-    public void setStatus(StatusTarefa status) { this.status = status; }
-
-    public Usuario getResponsavel() { return responsavel; }
-    public void setResponsavel(Usuario responsavel) { this.responsavel = responsavel; }
-
-    public String getMes() { return mes; }
-    public void setMes(String mes) { this.mes = mes; }
-
-    public ZonedDateTime getDataCriacao() { return dataCriacao; }
-    public void setDataCriacao(ZonedDateTime dataCriacao) { this.dataCriacao = dataCriacao; }
-
-    public Gabinete getGabinete() { return gabinete; }
-    public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
 
     public String getNomeHistorico() {
         return nomeHistorico;
@@ -82,5 +74,53 @@ public class Tarefa {
 
     public void setNomeHistorico(String nomeHistorico) {
         this.nomeHistorico = nomeHistorico;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public StatusTarefa getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusTarefa status) {
+        this.status = status;
+    }
+
+    public Usuario getResponsavel() {
+        return responsavel;
+    }
+
+    public void setResponsavel(Usuario responsavel) {
+        this.responsavel = responsavel;
+    }
+
+    public String getMes() {
+        return mes;
+    }
+
+    public void setMes(String mes) {
+        this.mes = mes;
+    }
+
+    public ZonedDateTime getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(ZonedDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
+
+    public Gabinete getGabinete() {
+        return gabinete;
+    }
+
+    public void setGabinete(Gabinete gabinete) {
+        this.gabinete = gabinete;
     }
 }

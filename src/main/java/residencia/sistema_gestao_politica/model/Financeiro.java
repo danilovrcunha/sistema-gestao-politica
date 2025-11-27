@@ -27,28 +27,66 @@ public class Financeiro {
     @Transient
     private String valorFormatado;
 
-    // ===== GETTERS e SETTERS =====
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public LocalDate getDataRegistro() { return dataRegistro; }
-    public void setDataRegistro(LocalDate dataRegistro) { this.dataRegistro = dataRegistro; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Double getValorDespesa() { return valorDespesa; }
-    public void setValorDespesa(Double valorDespesa) { this.valorDespesa = valorDespesa; }
+    public LocalDate getDataRegistro() {
+        return dataRegistro;
+    }
 
-    public String getTipoTransacao() { return tipoTransacao; }
-    public void setTipoTransacao(String tipoTransacao) { this.tipoTransacao = tipoTransacao; }
+    public void setDataRegistro(LocalDate dataRegistro) {
+        this.dataRegistro = dataRegistro;
+    }
 
-    public String getCategoria() { return categoria; }
-    public void setCategoria(String categoria) { this.categoria = categoria; }
+    public Double getValorDespesa() {
+        return valorDespesa;
+    }
 
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public void setValorDespesa(Double valorDespesa) {
+        this.valorDespesa = valorDespesa;
+    }
 
-    public Gabinete getGabinete() { return gabinete; }
-    public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
-    // ===== Valor formatado em R$ =====
+    public String getTipoTransacao() {
+        return tipoTransacao;
+    }
+
+    public void setTipoTransacao(String tipoTransacao) {
+        this.tipoTransacao = tipoTransacao;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
+
+    public String getDescricao() {
+        return descricao;
+    }
+
+    public void setDescricao(String descricao) {
+        this.descricao = descricao;
+    }
+
+    public Gabinete getGabinete() {
+        return gabinete;
+    }
+
+    public void setGabinete(Gabinete gabinete) {
+        this.gabinete = gabinete;
+    }
+
+    public void setValorFormatado(String valorFormatado) {
+        this.valorFormatado = valorFormatado;
+    }
+
     public String getValorFormatado() {
         if (valorDespesa == null) return "R$ 0,00";
         DecimalFormat df = new DecimalFormat("#,##0.00");

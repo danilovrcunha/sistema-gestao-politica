@@ -29,44 +29,96 @@ public class Acao {
     private String imagem;
     private Boolean removerImagem;
 
-    @JsonBackReference // Evita loop infinito no JSON
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(name = "gabinete_id")
     private Gabinete gabinete;
 
-    // === GETTERS E SETTERS ===
+    public Long getId() {
+        return id;
+    }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getCep() {
+        return cep;
+    }
 
-    public String getCep() { return cep; }
-    public void setCep(String cep) { this.cep = cep; }
+    public String getLogradouro() {
+        return logradouro;
+    }
 
-    // Getter e Setter do novo campo
-    public String getLogradouro() { return logradouro; }
-    public void setLogradouro(String logradouro) { this.logradouro = logradouro; }
+    public String getCidade() {
+        return cidade;
+    }
 
-    public String getCidade() { return cidade; }
-    public void setCidade(String cidade) { this.cidade = cidade; }
+    public String getBairro() {
+        return bairro;
+    }
 
-    public String getBairro() { return bairro; }
-    public void setBairro(String bairro) { this.bairro = bairro; }
+    public String getTipoAcao() {
+        return tipoAcao;
+    }
 
-    public String getTipoAcao() { return tipoAcao; }
-    public void setTipoAcao(String tipoAcao) { this.tipoAcao = tipoAcao; }
+    public LocalDate getData() {
+        return data;
+    }
 
-    public LocalDate getData() { return data; }
-    public void setData(LocalDate data) { this.data = data; }
+    public String getObservacoes() {
+        return observacoes;
+    }
 
-    public String getObservacoes() { return observacoes; }
-    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
+    public String getImagem() {
+        return imagem;
+    }
 
-    public String getImagem() { return imagem; }
-    public void setImagem(String imagem) { this.imagem = imagem; }
+    public Boolean getRemoverImagem() {
+        return removerImagem;
+    }
 
-    public Boolean getRemoverImagem() { return removerImagem; }
-    public void setRemoverImagem(Boolean removerImagem) { this.removerImagem = removerImagem; }
+    public Gabinete getGabinete() {
+        return gabinete;
+    }
 
-    public Gabinete getGabinete() { return gabinete; }
-    public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setCep(String cep) {
+        this.cep = cep;
+    }
+
+    public void setLogradouro(String logradouro) {
+        this.logradouro = logradouro;
+    }
+
+    public void setCidade(String cidade) {
+        this.cidade = cidade;
+    }
+
+    public void setBairro(String bairro) {
+        this.bairro = bairro;
+    }
+
+    public void setTipoAcao(String tipoAcao) {
+        this.tipoAcao = tipoAcao;
+    }
+
+    public void setData(LocalDate data) {
+        this.data = data;
+    }
+
+    public void setObservacoes(String observacoes) {
+        this.observacoes = observacoes;
+    }
+
+    public void setImagem(String imagem) {
+        this.imagem = imagem;
+    }
+
+    public void setRemoverImagem(Boolean removerImagem) {
+        this.removerImagem = removerImagem;
+    }
+
+    public void setGabinete(Gabinete gabinete) {
+        this.gabinete = gabinete;
+    }
 }

@@ -46,24 +46,59 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getNome() {
+        return nome;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-    public TipoUsuario getTipoUsuario() { return tipoUsuario; }
-    public void setTipoUsuario(TipoUsuario tipoUsuario) { this.tipoUsuario = tipoUsuario; }
+    public String getEmail() {
+        return email;
+    }
 
-    public Gabinete getGabinete() { return gabinete; }
-    public void setGabinete(Gabinete gabinete) { this.gabinete = gabinete; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public Permissao getPermissao() { return permissao; }
-    public void setPermissao(Permissao permissao) { this.permissao = permissao; }
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public TipoUsuario getTipoUsuario() {
+        return tipoUsuario;
+    }
+
+    public void setTipoUsuario(TipoUsuario tipoUsuario) {
+        this.tipoUsuario = tipoUsuario;
+    }
+
+    public Gabinete getGabinete() {
+        return gabinete;
+    }
+
+    public void setGabinete(Gabinete gabinete) {
+        this.gabinete = gabinete;
+    }
+
+    public Permissao getPermissao() {
+        return permissao;
+    }
+
+    public void setPermissao(Permissao permissao) {
+        this.permissao = permissao;
+    }
 }
