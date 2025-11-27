@@ -15,8 +15,7 @@ public class MeuUserDetails implements UserDetails {
     public MeuUserDetails(Usuario usuario) {
         this.usuario = usuario;
     }
-
-    // Método crucial para nossa lógica de negócio
+    
     public Long getGabineteId() {
         if (usuario.getGabinete() == null) {
             return null; // É um SUPER_ADMIN
@@ -30,7 +29,6 @@ public class MeuUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Prefixo 'ROLE_' é uma convenção do Spring Security
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getTipoUsuario().name()));
     }
 
@@ -41,10 +39,9 @@ public class MeuUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return usuario.getEmail(); // Usamos email como username
+        return usuario.getEmail();
     }
 
-    // Métodos padrão do UserDetails
     @Override
     public boolean isAccountNonExpired() {
         return true;
