@@ -6,7 +6,6 @@
     <title>Financeiro</title>
     <link rel="stylesheet" href="/global/style.css">
     <link rel="stylesheet" href="/AssistenteIA/style.css" />
-    <script src="/AssistenteIA/script.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -159,9 +158,29 @@
         </section>
     </main>
 </div>
+<div class="assistant-chat-panel" id="assistantChatPanel">
+    <div class="chat-header">
+        <h4>Assistente I.A.</h4>
+        <button class="close-chat-btn" id="closeChatBtn">&times;</button>
+    </div>
 
-<div class="assistant-chat-panel" id="assistantChatPanel"> </div>
+    <div class="chat-body" id="chatBody">
+        <div class="chat-message-ai">
+            Olá! Sou seu assistente de gerenciamento. Como posso te ajudar hoje?
+        </div>
+    </div>
+
+    <div class="chat-footer">
+        <input type="text" id="chatInput" placeholder="Digite sua mensagem...">
+        <button id="sendChatBtn" class="send-chat-btn">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+
 <script src="/global/script.js"></script>
 <script src="/fin/script.js"></script>
+<script src="/AssistenteIA/script.js" defer></script>
 </body>
 </html>
