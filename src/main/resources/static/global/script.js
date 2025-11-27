@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const mainContent = document.querySelector(".main-content");
         if (mainContent) {
             mainContent.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: #2c3e50; padding: 20px;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; color: #6188b0; padding: 20px;">
                     <i class="fas fa-lock" style="font-size: 4rem; color: #e74c3c; margin-bottom: 25px;"></i>
                     <h2 style="margin-bottom: 15px; font-weight: 700;">Acesso Restrito</h2>
                     <p style="font-size: 1.1em; color: #7f8c8d; max-width: 600px; line-height: 1.6;">

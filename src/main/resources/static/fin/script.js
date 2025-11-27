@@ -100,7 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
         salvarBtn.addEventListener('click', (e) => {
             e.preventDefault();
 
-            // Adicionei apenas essa verificação de segurança extra aqui
             if (window.podeEditar && !window.podeEditar("editarFinanceiro")) {
                 alert("Sem permissão para salvar.");
                 return;

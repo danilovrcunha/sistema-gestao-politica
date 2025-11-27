@@ -5,22 +5,20 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import residencia.sistema_gestao_politica.repository.UsuarioRepository;
 import residencia.sistema_gestao_politica.model.Usuario;
+import residencia.sistema_gestao_politica.repository.UsuarioRepository;
 
 @Service
 public class DetalhesUsuarioService implements UserDetailsService {
 
     @Autowired
-    private UsuarioRepository repositorioUsuario;
+    private UsuarioRepository usuarioRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Usuario usuario = repositorioUsuario.findByEmail(email);
-        if (usuario == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado com o email: " + email);
-        }
-        // Usa nossa implementação personalizada para carregar o gabinete_id
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado com o e-mail: " + email));
+
         return new MeuUserDetails(usuario);
     }
 }
