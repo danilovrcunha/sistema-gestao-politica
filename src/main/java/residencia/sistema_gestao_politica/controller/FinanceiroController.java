@@ -25,7 +25,7 @@ public class FinanceiroController {
     public String exibirFinanceiro(Model model,
                                    @RequestParam(required = false) Long gabineteId,
                                    @RequestParam(required = false) String mes,
-                                   @RequestParam(required = false) String salvo) { // Captura ?salvo=true
+                                   @RequestParam(required = false) String salvo) {
 
         MeuUserDetails user = (MeuUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<Financeiro> registros;
@@ -41,7 +41,7 @@ public class FinanceiroController {
 
         // LÓGICA DE BUSCA
         if (user.getGabineteId() == null) { // Super Admin
-            Long idFiltro = gabineteId; // Pode vir da URL (filtro global)
+            Long idFiltro = gabineteId;
 
             if (idFiltro != null) {
                 // Super Admin filtrando por Gabinete
@@ -68,7 +68,6 @@ public class FinanceiroController {
             }
         }
 
-        // Passa a mensagem de sucesso se o param existir
         if ("true".equals(salvo)) {
             model.addAttribute("mensagemSucesso", "Registro financeiro salvo com sucesso!");
         }
@@ -100,7 +99,6 @@ public class FinanceiroController {
         financeiro.setGabinete(g);
 
         financeiroRepository.save(financeiro);
-        // Redireciona com a flag de sucesso
         return "redirect:/financeiro?salvo=true";
     }
 

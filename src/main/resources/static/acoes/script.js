@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!window.L) return;
 
     // CONFIGURAÇÃO DO MAPA
-    // Limites do Brasil para evitar navegar para o oceano ou Europa
+    // Limites do Brasil
     const brazilBounds = [[5.5, -76.0], [-34.0, -32.0]];
 
     const map = L.map('map', {
@@ -33,11 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }).addTo(map);
 
     let heatLayer = null;
-    let infoLayer = L.layerGroup().addTo(map); // Camada para os cliques
+    let infoLayer = L.layerGroup().addTo(map);
 
     let coordenadasUsadas = [];
 
-    // 2. FUNÇÃO DE DISPERSÃO (JITTER) AJUSTADA
+    // FUNÇÃO DE DISPERSÃO (JITTER) AJUSTADA
     const offsetMeters = (lat, lng, dx, dy) => {
         const dLat = dy / 111111;
         const dLng = dx / (111111 * Math.cos(lat * Math.PI / 180));
@@ -46,13 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function gerarPontosDispersos(lat, lng, count) {
         const pts = [];
-        // Limita visualmente para não explodir o mapa se houver 1000 ações
+        // Limita visualmente para não explodir o mapa
         const maxVisual = Math.min(count, 50);
 
         for(let i=0; i<maxVisual; i++) {
-            // AJUSTE DE ESPALHAMENTO:
-            // Reduzi o multiplicador de 20 para 8.
-            // Isso deixa os circulos mais próximos da rua original.
             const r = Math.random() ** 0.6 * (8 * Math.sqrt(count));
 
             const theta = Math.random() * Math.PI * 2;
@@ -81,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const acoes = await res.json();
 
             const grupos = groupByCep(acoes);
-            const pontosHeatMap = []; // Array simples para o Leaflet.heat
+            const pontosHeatMap = [];
 
             infoLayer.clearLayers();
             coordenadasUsadas = [];
@@ -102,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         pontosHeatMap.push([p.lat, p.lng, p.intensity]);
                     });
 
-                    // 2. Adiciona Marcadores Invisíveis para clique
+                    // Adiciona Marcadores Invisíveis para clique
 
                     let msgPrecisao = '';
                     if (geo.precisao === 'bairro') msgPrecisao = '<br><small style="color:orange">(Centro do Bairro)</small>';
@@ -122,27 +119,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Coloca um marcador invisível, mas clicável, no centro da dispersão
                     L.circleMarker([centro.lat, centro.lng], {
-                        radius: 15 + (g.count * 2), // O tamanho da área clicável aumenta conforme a quantidade
-                        color: 'transparent',       // Borda invisível
-                        fillColor: '#000',          // Cor de preenchimento (irrelevante pois opacity é 0)
-                        fillOpacity: 0.0,           // Totalmente transparente
-                        opacity: 0                  // Totalmente transparente
+                        radius: 20 + (g.count * 2), // O tamanho da área clicável aumenta conforme a quantidade
+                        color: 'transparent',
+                        fillColor: '#000',
+                        fillOpacity: 0.0,
+                        opacity: 0
                     }).bindPopup(popupContent).addTo(infoLayer);
                 }
 
-                // Pequeno delay para não bloquear o navegador
                 await new Promise(r => setTimeout(r, 300));
             }
 
-            // Renderiza o Mapa de Calor
             if (pontosHeatMap.length) {
                 if (heatLayer) heatLayer.remove();
 
                 heatLayer = L.heatLayer(pontosHeatMap, {
-                    radius: 25,
-                    blur: 35,         // Blur médio para suavizar
-                    maxZoom: 16,
-                    minOpacity: 0.3,
+                    radius: 30,
+                    blur: 40,
+                    maxZoom: 20,
+                    minOpacity: 0.9,
 
                     // Gradiente Térmico: Verde -> Amarelo -> Laranja -> Vermelho
                     gradient: {
@@ -153,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }).addTo(map);
 
-                // Garante que a camada de clique (infoLayer) esteja POR CIMA do calor
                 infoLayer.bringToFront();
             }
         } catch (e) { console.error(e); }
