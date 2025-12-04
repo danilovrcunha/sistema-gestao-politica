@@ -41,6 +41,7 @@ public class ConfiguracaoSeguranca {
                         .requestMatchers("/home/*.js").permitAll()
 
                         .requestMatchers("/login/**", "/login", "/login/login.html").permitAll()
+                        .requestMatchers("/esqueci-senha").permitAll()
 
 
                         .requestMatchers(HttpMethod.GET, "/usuarios/me").authenticated()
@@ -51,6 +52,7 @@ public class ConfiguracaoSeguranca {
                         .requestMatchers(HttpMethod.POST, "/usuarios").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/usuarios/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*/senha").authenticated()
+
 
                         // Regras de Super Admin
                         .requestMatchers("/gabinetes/**").hasRole("SUPER_ADMIN")
