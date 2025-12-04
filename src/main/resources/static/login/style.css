@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 * {
     box-sizing: border-box;
@@ -7,13 +8,68 @@
 
 body {
     background: linear-gradient(135deg, #0E171F 0%, #3E6585 100%);
-    font-family: 'Poppins', SansSerif;
+    font-family: 'Poppins', sans-serif;
     font-style: italic;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    color: #333;
+}
+
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.system-brand {
+    text-align: center;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.icon-bg {
+    background: rgba(255, 255, 255, 0.1);
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px auto;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    backdrop-filter: blur(5px);
+}
+
+.system-brand i {
+    font-size: 32px;
+    color: #fff;
+}
+
+.system-brand h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin: 0;
+    font-style: normal;
+}
+
+.system-brand p {
+    font-size: 0.95rem;
+    font-weight: 300;
+    opacity: 0.9;
+    margin-top: 0;
 }
 
 .login-container {
@@ -23,16 +79,40 @@ body {
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    width: 350px;
+    width: 380px;
     text-align: center;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.login-title {
-    font-size: 30px;
-    font-weight: 900;
-    margin-bottom: 26px;
+.login-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-title,
+.login-header h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 10px;
     color: #0E171F;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.subtitle,
+.login-header p {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 25px;
+}
+
+.login-header i {
+    color: #3E6585 !important;
+    font-size: 3rem;
+    margin-bottom: 15px;
+    display: inline-block;
 }
 
 .input-group {
@@ -44,58 +124,152 @@ body {
 .input-group label {
     display: block;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 8px;
-    color: #444;
-    margin-left: 8px;
+    color: #0E171F;
+    margin-left: 5px;
 }
 
-.input-group input {
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper i {
+    position: absolute;
+    left: 15px;
+    color: #3E6585;
+    font-size: 16px;
+    z-index: 2;
+}
+
+.input-wrapper .toggle-password {
+    left: auto;
+    right: 15px;
+    cursor: pointer;
+}
+
+.input-group input,
+.input-wrapper input {
     width: 100%;
-    padding: 12px 15px;
+    padding: 12px 15px 12px 45px;
     border: 2px solid #e0e0e0;
-    border-radius: 16px;
-    font-size: 15px;
+    border-radius: 12px;
+    font-size: 14px;
     font-family: 'Poppins', sans-serif;
     outline: none;
-    transition: border-color 0.3s, background-color 0.3s;
+    transition: all 0.3s;
     background-color: #f8f9fa;
+    color: #333;
 }
 
-.input-group input:focus {
+.input-group input:focus,
+.input-wrapper input:focus {
     border-color: #3E6585;
     background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(62, 101, 133, 0.1);
 }
 
-.login-button {
+.alert-box {
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    animation: slideDown 0.3s ease-out;
+    font-style: normal;
     width: 100%;
-    padding: 15px;
-    background-color: #0E171F;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.alert-box.error {
+    background-color: #fdecea;
+    color: #e74c3c;
+    border: 1px solid #fadbd8;
+}
+
+.alert-box.success {
+    background-color: #e8f8f5;
+    color: #27ae60;
+    border: 1px solid #d1f2eb;
+}
+
+.login-button,
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #0E171F 0%, #2c3e50 100%);
     color: #fff;
     border: none;
-    border-radius: 16px;
-    font-size: 16px;
-    font-weight: 700;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 8px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-top: 10px;
     font-family: 'Poppins', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.login-button:hover {
-    background-color: #3E6585;
+.login-button:hover,
+.login-btn:hover {
+    background: linear-gradient(135deg, #3E6585 0%, #0E171F 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(14, 23, 31, 0.3);
 }
 
-.register-link {
-    display: block;
+.login-button:active,
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.forgot-password,
+.login-footer {
+    text-align: center;
     margin-top: 20px;
-    font-size: 14px;
+}
+
+.forgot-password a,
+.login-footer a {
     color: #555;
     text-decoration: none;
     transition: color 0.3s;
+    font-weight: 500;
+    font-size: 0.9em;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
-.register-link:hover {
+.forgot-password a:hover,
+.login-footer a:hover {
     color: #3E6585;
     text-decoration: underline;
+}
+
+.copyright {
+    margin-top: 20px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    font-weight: 300;
+    font-style: normal;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        width: 90%;
+        padding: 30px 20px;
+    }
 }

@@ -3,34 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tela de Login</title>
+    <title>Acesso ao Sistema</title>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
-<div class="login-container">
-    <h2 class="login-title">Login</h2>
+<div class="page-wrapper">
 
-    <form class="login-form" method="POST" action="/login">
-        <div class="input-group">
-            <label for="email">Email</label>
-            <input type="text" id="email" name="username" placeholder="Digite seu email">
+    <div class="system-brand">
+        <div class="icon-bg">
+            <i class="fas fa-landmark"></i>
+        </div>
+        <h1>SGP</h1>
+        <p>Sistema de Gestão Política</p>
+    </div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <h2 class="login-title">Bem-vindo</h2>
+            <p class="subtitle">Insira suas credenciais para acessar.</p>
         </div>
 
-        <div class="input-group">
-            <label for="senha">Senha</label>
-            <input type="password" id="senha" name="password" placeholder="Digite sua senha">
-        </div>
+        <form class="login-form" method="POST" action="/login">
+            <div class="input-group">
+                <label for="email">E-mail</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope"></i>
+                    <input type="text" id="email" name="username" placeholder="exemplo@email.com" required autofocus>
+                </div>
+            </div>
 
-        <div id="error-message" style="color: red; margin-bottom: 10px;"></div>
+            <div class="input-group">
+                <label for="senha">Senha</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="senha" name="password" placeholder="••••••••" required>
+                    <i class="fas fa-eye toggle-password"></i>
+                </div>
+            </div>
 
-        <button type="submit" class="login-button">Login</button>
-    </form>
+            <div id="msgError" class="alert-box error" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>E-mail ou senha incorretos.</span>
+            </div>
+
+            <div id="msgSuccess" class="alert-box success" style="display: none;">
+                <i class="fas fa-check-circle"></i>
+                <span>Logout realizado com sucesso.</span>
+            </div>
+
+            <button type="submit" class="login-button">ENTRAR</button>
+
+            <div class="forgot-password">
+                <a href="/esqueci-senha">Esqueci minha senha</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="copyright">
+        &copy; 2025 Gestão Integrada
+    </div>
 </div>
-
 <script src="script.js"></script>
 </body>
 </html>

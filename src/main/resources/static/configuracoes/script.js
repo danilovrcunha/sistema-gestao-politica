@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const atualizarListaBtn = document.getElementById("atualizarListaBtn");
     const removerBtn = document.querySelector(".remove-user-btn");
 
-    // Modal de Permissões
+    // Modal
     const editPermsBtn = document.querySelector(".edit-perms-btn");
     const permsModal = document.getElementById("permissionsModal");
     const permsForm = document.getElementById("permissionsForm");
@@ -37,57 +37,85 @@ document.addEventListener("DOMContentLoaded", () => {
         administracao: "Gerencie usuários e permissões do sistema",
     };
 
-    // =================== 1. FUNÇÃO PARA ATUALIZAR LINKS DO MENU ===================
-    function atualizarLinksImediatamente(filtroId) {
-        const links = document.querySelectorAll('.nav-menu a');
-        const paginasAfetadas = ["/kanban", "/financeiro", "/home", "/acoes"];
-
-        links.forEach(link => {
-            const path = link.getAttribute('href').split('?')[0];
-            if (paginasAfetadas.includes(path)) {
-                if (filtroId) link.href = `${path}?gabineteId=${filtroId}`;
-                else link.href = path;
-            }
-        });
-        console.log("🔗 Links do menu atualizados para Gabinete:", filtroId || "Todos");
-    }
-
-    // =================== 2. CONTROLE DE ABAS (USER vs ADMIN) ===================
+    // =================== CONTROLE DE ABAS ===================
     function aplicarRestricoesDeAbas() {
         const role = localStorage.getItem("userRole");
         if (role === "ADMIN" || role === "SUPER_ADMIN") return;
 
+        console.log("🔒 Usuário comum detectado: Forçando tela de Segurança.");
+
+        // Desativa e esconde os botões proibidos
         const btnCadastro = document.querySelector('.tab-button[data-tab="cadastro"]');
         const btnAdmin = document.querySelector('.tab-button[data-tab="administracao"]');
 
-        if (btnCadastro) btnCadastro.style.display = 'none';
-        if (btnAdmin) btnAdmin.style.display = 'none';
-
-        const btnSeguranca = document.querySelector('.tab-button[data-tab="seguranca"]');
-        if (btnSeguranca && !document.querySelector('.tab-button.active')) {
-            document.getElementById("cadastro").classList.remove("active");
-            document.querySelector('.tab-button[data-tab="cadastro"]').classList.remove("active");
-
-            btnSeguranca.click();
-            btnSeguranca.classList.add("active");
-            document.getElementById("seguranca").classList.add("active");
+        if (btnCadastro) {
+            btnCadastro.style.display = 'none';
+            btnCadastro.classList.remove('active');
         }
+        if (btnAdmin) {
+            btnAdmin.style.display = 'none';
+            btnAdmin.classList.remove('active');
+        }
+
+        //  ESCONDE O CONTEÚDO PROIBIDO (ESSENCIAL)
+        const paneCadastro = document.getElementById("cadastro");
+        const paneAdmin = document.getElementById("administracao");
+
+        if (paneCadastro) {
+            paneCadastro.classList.remove("active");
+            paneCadastro.style.display = "none"; // Força bruta visual
+        }
+        if (paneAdmin) {
+            paneAdmin.classList.remove("active");
+            paneAdmin.style.display = "none";
+        }
+
+        // ATIVA A ABA DE SEGURANÇA
+        const btnSeguranca = document.querySelector('.tab-button[data-tab="seguranca"]');
+        const paneSeguranca = document.getElementById("seguranca");
+
+        if (btnSeguranca) btnSeguranca.classList.add("active");
+
+        if (paneSeguranca) {
+            paneSeguranca.classList.add("active");
+            paneSeguranca.style.display = "block";
+        }
+
+        if (headerDescription) headerDescription.textContent = tabTexts["seguranca"];
     }
 
+    // Executa restrição imediatamente
     if (localStorage.getItem("userRole")) {
         aplicarRestricoesDeAbas();
     } else {
         document.addEventListener("permissoesCarregadas", aplicarRestricoesDeAbas);
     }
 
+    // Configura o clique dos botões
     tabButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
+            // Remove active de todos
             tabButtons.forEach((b) => b.classList.remove("active"));
-            tabPanes.forEach((p) => p.classList.remove("active"));
-            btn.classList.add("active");
+            tabPanes.forEach((p) => {
+                p.classList.remove("active");
+                p.style.display = "";
+            });
 
+            // Ativa o clicado
+            btn.classList.add("active");
             const tab = btn.getAttribute("data-tab");
-            document.getElementById(tab).classList.add("active");
+            const targetPane = document.getElementById(tab);
+
+            if(targetPane) {
+                targetPane.classList.add("active");
+                // Se for usuário comum, garante que cadastro continue sumido se ele tentar hackear o html
+                const role = localStorage.getItem("userRole");
+                if((role !== "ADMIN" && role !== "SUPER_ADMIN") && (tab === "cadastro" || tab === "administracao")) {
+                    aplicarRestricoesDeAbas(); // Joga de volta pra segurança
+                    return;
+                }
+            }
+
             if (headerDescription && tabTexts[tab]) headerDescription.textContent = tabTexts[tab];
 
             if (tab === "gabinetes") carregarGabinetes();
@@ -95,18 +123,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // =================== SUPER ADMIN (OPÇÕES VISUAIS) ===================
+    // =================== ATUALIZAR LINKS MENU ===================
+    function atualizarLinksImediatamente(filtroId) {
+        const links = document.querySelectorAll('.nav-menu a');
+        const paginasAfetadas = ["/kanban", "/financeiro", "/home", "/acoes"];
+        links.forEach(link => {
+            const path = link.getAttribute('href').split('?')[0];
+            if (paginasAfetadas.includes(path)) {
+                if (filtroId) link.href = `${path}?gabineteId=${filtroId}`;
+                else link.href = path;
+            }
+        });
+    }
 
-    // Função para remover/adicionar opção Super Admin do Select
+    // =================== SUPER ADMIN ===================
     function gerenciarOpcoesDeCadastro(role) {
         const tipoSelect = document.getElementById("tipoUsuario");
         if (!tipoSelect) return;
-
-        // Limpa opção existente para segurança visual
         const opcaoExistente = tipoSelect.querySelector('option[value="SUPER_ADMIN"]');
         if (opcaoExistente) opcaoExistente.remove();
 
-        // Se for Super Admin, recoloca a opção
         if (role === "SUPER_ADMIN") {
             const option = document.createElement("option");
             option.value = "SUPER_ADMIN";
@@ -122,8 +158,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .then(res => res.ok ? res.json() : null)
             .then(user => {
                 if (!user) return;
-
-                // Configura o select de cadastro
                 gerenciarOpcoesDeCadastro(user.tipoUsuario);
 
                 if (user.tipoUsuario === "SUPER_ADMIN") {
@@ -137,12 +171,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             filtroGabineteAdmin.value = salvo;
                             atualizarLinksImediatamente(salvo);
                         }
-
                         filtroGabineteAdmin.addEventListener("change", () => {
                             const val = filtroGabineteAdmin.value;
                             if (val) localStorage.setItem("superAdminGabineteFilter", val);
                             else localStorage.removeItem("superAdminGabineteFilter");
-
                             atualizarLinksImediatamente(val);
                             carregarUsuarios();
                         });
@@ -165,7 +197,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const salvo = localStorage.getItem("superAdminGabineteFilter");
             if(filtroGabineteAdmin && salvo) {
                 filtroGabineteAdmin.value = salvo;
-                if(document.getElementById("administracao").classList.contains("active")) {
+                if(document.getElementById("administracao") && document.getElementById("administracao").classList.contains("active")) {
                     carregarUsuarios();
                 }
             }
@@ -220,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // =================== USUÁRIOS CRUD (CADASTRAR) ===================
+    // =================== USUÁRIOS CRUD ===================
     if (cadastroForm) {
         cadastroForm.onsubmit = (e) => {
             e.preventDefault();
@@ -233,7 +265,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const role = localStorage.getItem("userRole");
 
-            // Validação: Super Admin precisa selecionar gabinete (exceto se criar outro super admin)
             if (role === "SUPER_ADMIN" && tipoUsuario !== "SUPER_ADMIN" && !gabineteId) {
                 alert("⚠️ Como Super Admin, você deve selecionar um Gabinete para vincular o usuário.");
                 return;
@@ -248,8 +279,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 })
             }).then(async r=>{
                 if(!r.ok) {
-                    const txt = await r.text();
-                    throw new Error(txt);
+                    const errorText = await r.text();
+                    throw new Error(errorText);
                 }
                 alert("✅ Usuário Cadastrado!");
                 cadastroForm.reset();
@@ -300,8 +331,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 fetch(`${API_BASE}/${id}`, {method:"DELETE"})
                     .then(async r=>{
                         if(r.status === 409) {
-                            const txt = await r.text();
-                            throw new Error(txt);
+                            const msg = await r.text();
+                            throw new Error(msg);
                         }
                         if(!r.ok) throw new Error("Erro ao excluir.");
                         alert("✅ Usuário removido!");
@@ -326,7 +357,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!user) return;
 
                 if (user.tipoUsuario === "ADMIN" || user.tipoUsuario === "SUPER_ADMIN") {
-                    alert("🔒 Admins possuem acesso total por padrão.");
+                    alert("🔒 Administradores possuem acesso total por padrão.");
                     return;
                 }
 
@@ -365,7 +396,6 @@ document.addEventListener("DOMContentLoaded", () => {
         permsForm.onsubmit = (e) => {
             e.preventDefault();
             const id = permsModal.dataset.editingUserId;
-
             const payload = {
                 verDashboard: getChecked('dashboard_access'), editarDashboard: false,
                 verAcoes: getChecked('acoes_access'), editarAcoes: getChecked('acoes_edit'),
@@ -394,7 +424,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // =================== SENHA ===================
     const segForm = document.getElementById("segurancaForm");
-
     function carregarDadosSeguranca() {
         fetch(`${API_BASE}/me`).then(r=>r.json()).then(u => {
             if(document.getElementById("emailVinculado")) document.getElementById("emailVinculado").value = u.email;
@@ -404,7 +433,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if(segForm) {
         carregarDadosSeguranca();
-
         segForm.onsubmit = (e) => {
             e.preventDefault();
             const atual = document.getElementById("senhaAtual").value.trim();
@@ -441,6 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     });
 
+    // Load inicial se na aba admin
     if(document.getElementById("administracao") && document.getElementById("administracao").classList.contains("active")) {
         carregarUsuarios();
     }
