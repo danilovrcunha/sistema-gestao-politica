@@ -22,7 +22,7 @@ public class AcoesController {
     public String acoesRegistradas() {
         return "acoesRegistradas/acoesRegistradas";
     }
-    @GetMapping("/editarAcao/{id:[0-9]+}") // <— regex só números
+    @GetMapping("/editarAcao/{id:[0-9]+}")
     public String editarAcao(@PathVariable Long id, Model model) {
         model.addAttribute("id", id);
         return "editarAcao/editarAcao";

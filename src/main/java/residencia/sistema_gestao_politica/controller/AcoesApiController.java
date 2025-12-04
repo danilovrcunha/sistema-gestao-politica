@@ -41,43 +41,28 @@ public class AcoesApiController {
     private MeuUserDetails getUsuarioLogado() {
         return (MeuUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
-
-    // ====================================================================================
-    // LISTAR
-    // ====================================================================================
     @GetMapping
     public ResponseEntity<?> listar(
             @RequestParam(required = false) Long gabineteId,
             @RequestParam(required = false) String bairro,
-            @RequestParam(required = false) String mes // "yyyy-MM"
+            @RequestParam(required = false) String mes
     ) {
         try {
             MeuUserDetails user = getUsuarioLogado();
             Long idFinal = user.getGabineteId();
 
-            // Lógica Super Admin
             if (idFinal == null && gabineteId != null) {
                 idFinal = gabineteId;
             }
-
-            boolean temBairro = (bairro != null && !bairro.trim().isEmpty());
-            boolean temMes = (mes != null && !mes.trim().isEmpty());
-
-            if (!temBairro && !temMes) {
-                if (idFinal == null) {
-                    // Super Admin sem filtro vê TUDO
-                    return ResponseEntity.ok(acaoRepository.findAll());
-                } else {
-                    // Admin/User vê SÓ do seu gabinete
-                    return ResponseEntity.ok(acaoRepository.findByGabineteId(idFinal));
-                }
+            String bairroParam = null;
+            if (bairro != null && !bairro.trim().isEmpty()) {
+                bairroParam = "%" + bairro.trim().toLowerCase() + "%";
             }
 
-            String bairroQuery = temBairro ? bairro.trim() : null;
             LocalDate dataInicio = null;
             LocalDate dataFim = null;
 
-            if (temMes) {
+            if (mes != null && !mes.trim().isEmpty()) {
                 try {
                     YearMonth ym = YearMonth.parse(mes);
                     dataInicio = ym.atDay(1);
@@ -87,7 +72,7 @@ public class AcoesApiController {
                 }
             }
 
-            return ResponseEntity.ok(acaoRepository.buscarComFiltros(idFinal, bairroQuery, dataInicio, dataFim));
+            return ResponseEntity.ok(acaoRepository.buscarComFiltrosNativo(idFinal, bairroParam, dataInicio, dataFim));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,9 +80,6 @@ public class AcoesApiController {
         }
     }
 
-    // ====================================================================================
-    //  BUSCAR POR ID
-    // ====================================================================================
     @GetMapping("/{id}")
     public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
         MeuUserDetails user = getUsuarioLogado();
@@ -112,9 +94,6 @@ public class AcoesApiController {
         return ResponseEntity.notFound().build();
     }
 
-    // ====================================================================================
-    // CADASTRAR
-    // ====================================================================================
     @PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> criarAcao(
             @RequestParam("acao") String acaoJson,
@@ -145,9 +124,6 @@ public class AcoesApiController {
         }
     }
 
-    // ====================================================================================
-    // ATUALIZAR
-    // ====================================================================================
     @PutMapping(value = "/{id}", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
     public ResponseEntity<?> atualizarAcao(
             @PathVariable Long id,
@@ -185,9 +161,6 @@ public class AcoesApiController {
         }
     }
 
-    // ====================================================================================
-    // EXCLUIR
-    // ====================================================================================
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletar(@PathVariable Long id) {
         MeuUserDetails user = getUsuarioLogado();
